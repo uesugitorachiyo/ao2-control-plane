@@ -132,3 +132,42 @@ def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
     assert "token_reused_after_restart" in script
     assert "AO2_CP_LONG_LIVED_SMOKE_LIVE=1" in runbook
     assert "restart" in runbook.lower()
+
+
+def test_ci_uploads_python_guard_and_dr_restore_artifacts():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+
+    for needle in [
+        "target/ci-artifacts/python-guards",
+        "Upload Python guard artifacts",
+        "ao2-control-plane-python-guards",
+        "dr-restore-drill",
+        "Backup/restore drill",
+        "scripts/cp-dr-restore-drill.sh",
+        "target/dr-restore-drill/ci/dr-restore-report.json",
+        "Upload backup/restore drill artifacts",
+        "ao2-control-plane-dr-restore",
+    ]:
+        assert needle in ci
+
+
+def test_backup_restore_drill_script_is_exposed_and_documented_for_ci():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    operations = (REPO_ROOT / "docs/runbooks/operations.md").read_text(encoding="utf-8")
+
+    for script_name in [
+        "scripts/cp_dr_restore_drill.py",
+        "scripts/cp-dr-restore-drill.sh",
+        "scripts/cp-dr-restore-drill.ps1",
+    ]:
+        script = REPO_ROOT / script_name
+        assert script.is_file()
+
+    assert (REPO_ROOT / "scripts/cp-dr-restore-drill.sh").stat().st_mode & stat.S_IXUSR
+    assert "ao2.cp-dr-restore-drill.v1" in (
+        REPO_ROOT / "scripts/cp_dr_restore_drill.py"
+    ).read_text(encoding="utf-8")
+    assert "cargo build --release -p ao2-cp-server" in ci
+    assert "cp-dr-restore-drill.sh" in readme
+    assert "cp-dr-restore-drill.sh" in operations
