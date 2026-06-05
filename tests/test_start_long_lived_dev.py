@@ -18,6 +18,16 @@ def test_ci_runs_on_public_push_and_pull_request():
     assert re.search(r"(?m)^concurrency:\s*$", ci)
 
 
+def test_ci_uses_node24_runtime_action_majors():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+
+    assert "uses: actions/checkout@v6.0.3" in ci
+    assert "uses: actions/upload-artifact@v7.0.1" in ci
+
+    assert "actions/checkout@v4" not in ci
+    assert "actions/upload-artifact@v4" not in ci
+
+
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "forbidden-openai"
