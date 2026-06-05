@@ -25,11 +25,13 @@ import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 
 SCHEMA_VERSION = "ao2.cp-dr-restore-drill.v1"
+RESTORE_ARCHIVE_SCHEMA_VERSION = "ao2.cp-dr-restore-archive.v1"
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FIXTURES = (
     ("acceptance_codex", "/api/v1/acceptance", "tests/fixtures/codex-acceptance-v0.4.66.json"),
@@ -153,17 +155,127 @@ class Server:
 def archive_data_dir(data_dir: Path, archive_path: Path) -> None:
     archive_path.parent.mkdir(parents=True, exist_ok=True)
     with tarfile.open(archive_path, "w:gz") as archive:
+        manifest = json.dumps(
+            {
+                "schema_version": RESTORE_ARCHIVE_SCHEMA_VERSION,
+                "created_at_utc": utc_now(),
+                "archive_root": "data",
+            },
+            indent=2,
+            sort_keys=True,
+        ).encode("utf-8")
+        manifest_info = tarfile.TarInfo("ao2-cp-restore-manifest.json")
+        manifest_info.size = len(manifest)
+        manifest_info.mtime = int(time.time())
+        archive.addfile(manifest_info, BytesIO(manifest))
         archive.add(data_dir, arcname="data")
 
 
 def restore_data_dir(archive_path: Path, restore_root: Path) -> Path:
     restore_root.mkdir(parents=True, exist_ok=True)
     with tarfile.open(archive_path, "r:gz") as archive:
-        for member in archive.getmembers():
+        members = archive.getmembers()
+        for member in members:
             if member.name.startswith("/") or ".." in Path(member.name).parts:
                 raise ValueError(f"unsafe archive member: {member.name}")
+        manifest_member = next((member for member in members if member.name == "ao2-cp-restore-manifest.json"), None)
+        if manifest_member is not None:
+            manifest_file = archive.extractfile(manifest_member)
+            if manifest_file is None:
+                raise ValueError("restore archive manifest is unreadable")
+            manifest = json.loads(manifest_file.read().decode("utf-8"))
+            if manifest.get("schema_version") != RESTORE_ARCHIVE_SCHEMA_VERSION:
+                raise ValueError(
+                    "unsupported restore archive schema_version: "
+                    f"{manifest.get('schema_version')!r}"
+                )
         archive.extractall(restore_root)
     return restore_root / "data"
+
+
+def write_skewed_archive(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(path, "w:gz") as archive:
+        manifest = json.dumps(
+            {
+                "schema_version": "ao2.cp-dr-restore-archive.v999",
+                "archive_root": "data",
+            },
+            sort_keys=True,
+        ).encode("utf-8")
+        manifest_info = tarfile.TarInfo("ao2-cp-restore-manifest.json")
+        manifest_info.size = len(manifest)
+        manifest_info.mtime = int(time.time())
+        archive.addfile(manifest_info, BytesIO(manifest))
+        data = b"{}"
+        data_info = tarfile.TarInfo("data/schema-version.json")
+        data_info.size = len(data)
+        data_info.mtime = int(time.time())
+        archive.addfile(data_info, BytesIO(data))
+
+
+def run_negative_scenarios(work_dir: Path) -> list[dict[str, Any]]:
+    negative_root = work_dir / "negative-scenarios"
+    negative_root.mkdir(parents=True, exist_ok=True)
+    scenarios: list[dict[str, Any]] = []
+
+    def expect_rejection(name: str, archive_path: Path, expected_fragment: str) -> None:
+        try:
+            restore_data_dir(archive_path, negative_root / name / "restore-root")
+        except Exception as exc:
+            message = str(exc)
+            scenarios.append(
+                {
+                    "name": name,
+                    "status": "passed" if expected_fragment in message else "failed",
+                    "expected_rejection_observed": expected_fragment in message,
+                    "error": message,
+                }
+            )
+            return
+        scenarios.append(
+            {
+                "name": name,
+                "status": "failed",
+                "expected_rejection_observed": False,
+                "error": "restore unexpectedly accepted invalid archive",
+            }
+        )
+
+    expect_rejection(
+        "missing_archive",
+        negative_root / "missing" / "ao2-cp-data.tar.gz",
+        "No such file",
+    )
+
+    corrupted = negative_root / "corrupted" / "ao2-cp-data.tar.gz"
+    corrupted.parent.mkdir(parents=True, exist_ok=True)
+    corrupted.write_bytes(b"not a gzip tar archive")
+    expect_rejection("corrupted_archive", corrupted, "not a gzip")
+
+    skewed = negative_root / "version-skew" / "ao2-cp-data.tar.gz"
+    write_skewed_archive(skewed)
+    expect_rejection("version_skew", skewed, "unsupported restore archive schema_version")
+
+    return scenarios
+
+
+def negative_report(work_dir: Path) -> dict[str, Any]:
+    scenarios = run_negative_scenarios(work_dir)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": utc_now(),
+        "status": "passed" if all(item["status"] == "passed" for item in scenarios) else "failed",
+        "work_dir": str(work_dir),
+        "negative_scenarios": scenarios,
+        "trust_boundary": {
+            "control_plane_role": "read_only_observer",
+            "mutates_ao_artifacts": False,
+            "restore_target": "content-addressed observer data directory",
+            "provider_auth": "local_oauth_cli_only",
+            "token_in_output": False,
+        },
+    }
 
 
 def post_fixture(server: Server, endpoint: str, fixture_path: Path, timeout: float) -> dict[str, Any]:
@@ -215,11 +327,14 @@ def verify_readback(server: Server, evidence: dict[str, Any], timeout: float) ->
 
 
 def run_drill(args: argparse.Namespace) -> dict[str, Any]:
+    work_dir = args.work_dir or Path(tempfile.mkdtemp(prefix="ao2-cp-dr-restore-"))
+    work_dir = work_dir.resolve()
+    if args.negative_only:
+        return negative_report(work_dir)
+
     server_bin = args.server_bin.resolve()
     if not server_bin.is_file():
         raise FileNotFoundError(f"server binary not found: {server_bin}")
-    work_dir = args.work_dir or Path(tempfile.mkdtemp(prefix="ao2-cp-dr-restore-"))
-    work_dir = work_dir.resolve()
     token = secrets.token_hex(32)
     timeout = float(args.timeout_seconds)
 
@@ -264,7 +379,9 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         if restored is not None:
             restored.stop()
 
-    status = "passed" if all(item["byte_identical"] for item in restored_readback) else "failed"
+    negative_scenarios = [] if args.skip_negative_scenarios else run_negative_scenarios(work_dir)
+    negative_status = all(item["status"] == "passed" for item in negative_scenarios)
+    status = "passed" if all(item["byte_identical"] for item in restored_readback) and negative_status else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
@@ -276,6 +393,7 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         "restored_data_dir": str(work_dir / "restore-root" / "data"),
         "ingested_evidence": evidence,
         "restored_readback": restored_readback,
+        "negative_scenarios": negative_scenarios,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
@@ -293,6 +411,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--out", type=Path)
     parser.add_argument("--port", type=int)
     parser.add_argument("--timeout-seconds", type=float, default=15.0)
+    parser.add_argument("--negative-only", action="store_true")
+    parser.add_argument("--skip-negative-scenarios", action="store_true")
     return parser.parse_args(argv)
 
 
