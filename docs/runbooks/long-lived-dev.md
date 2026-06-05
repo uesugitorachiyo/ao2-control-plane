@@ -56,6 +56,19 @@ the command line.
 
 ## 3. Start procedure
 
+Preferred bootstrap:
+
+```bash
+cd /Users/<you>/Documents/public/ao2-control-plane
+scripts/start-long-lived-dev.sh
+```
+
+The bootstrap creates `target/long-lived-control-plane/{data,logs,publishes}`,
+creates or reuses the `0600` token file, starts the server on
+`127.0.0.1:18745`, and prints only token-free status lines.
+
+Manual equivalent:
+
 ```bash
 cd /Users/<you>/Documents/ao2
 

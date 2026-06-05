@@ -19,6 +19,17 @@ export AO2_CP_API_TOKEN=$(openssl rand -hex 16)
 ./target/release/ao2-cp-server --data-dir ./data
 ```
 
+For a repeatable local dev observer on `127.0.0.1:18745`, use the token-safe
+bootstrap:
+
+```bash
+scripts/start-long-lived-dev.sh
+```
+
+The script initializes `target/long-lived-control-plane/`, creates or reuses a
+`0600` token file, starts `ao2-cp-server`, and prints only token-free health
+metadata.
+
 Package and smoke an installed local release archive:
 
 ```bash
@@ -51,6 +62,10 @@ format, clippy, tests, packaging, and installed release smokes across Ubuntu,
 macOS, and Windows.
 
 ## Running tests
+
+The public CI workflow runs on pull requests and pushes to `main`, and can also
+be dispatched manually. Release archive smokes remain part of that CI pipeline,
+while AO2 release approval stays outside this observer service.
 
 Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
