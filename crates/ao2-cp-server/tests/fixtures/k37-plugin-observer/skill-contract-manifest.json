@@ -1,0 +1,165 @@
+{
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "entries": [
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.factory-app-run.v1",
+        "ao2_command": "ao2 factory app-run",
+        "ao2_test": "cli_factory_app_run_derives_evaluator_rubric_before_execution"
+      },
+      "name": "intake",
+      "source_path": "/tmp/ao2-public-test/factory-v3/agents/intake.toml",
+      "source_relative_path": "agents/intake.toml",
+      "source_repo": "factory-v3",
+      "source_sha256": "13b7f4c289dff6ad6190a3f460b79a220d0906ce45fa1f732e8ee9fb25fcbad1",
+      "trust_boundary_notes": "AO2 owns bounded work intake and must preserve scoped reads/writes, success criteria, and sensitive-field handling."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.factory-closer-decision.v1",
+        "ao2_command": "ao2 factory closer-decision",
+        "ao2_test": "cli_factory_closer_decision_signs_and_verifies_rubric_bound_closure"
+      },
+      "name": "closure_verification",
+      "source_path": "/tmp/ao2-public-test/factory-v3/scripts/verify_closure.py",
+      "source_relative_path": "scripts/verify_closure.py",
+      "source_repo": "factory-v3",
+      "source_sha256": "e1a01d1b052d97a17f6da76a31d6281c19ebe255d38e845204d42b72357f023a",
+      "trust_boundary_notes": "AO2 signs rubric-bound closer decisions while factory-v3 remains a parity auditor."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.factory-acceptance-rubric.v1",
+        "ao2_command": "ao2 factory evaluator-rubric",
+        "ao2_test": "cli_factory_evaluator_rubric_emits_signed_acceptance_contract"
+      },
+      "name": "evaluator_closer_acceptance",
+      "source_path": "/tmp/ao2-public-test/factory-v3/agents/evaluator-closer.toml",
+      "source_relative_path": "agents/evaluator-closer.toml",
+      "source_repo": "factory-v3",
+      "source_sha256": "15dc7594187f2f22b721bdf845ec4898e26133711b256f2cceb61ef4ca74880c",
+      "trust_boundary_notes": "AO2 derives signed acceptance criteria while factory-v3 remains the parity auditor and acceptance-role reference."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.plugin-readiness.v1",
+        "ao2_command": "ao2 plugin readiness",
+        "ao2_test": "cli_plugin_readiness_emits_codex_claude_wrapper_contract"
+      },
+      "name": "provider_auth_rules",
+      "source_path": "/tmp/ao2-public-test/factory-v3/scripts/factory_doctor.py",
+      "source_relative_path": "scripts/factory_doctor.py",
+      "source_repo": "factory-v3",
+      "source_sha256": "5e40bd72bde6e0e04c8cfa2167a5b9c2c1513e55f207df779e5e188e059693a7",
+      "trust_boundary_notes": "Provider execution must remain local OAuth CLI-only; provider API-key auth remains forbidden."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.plugin-package-verification.v1",
+        "ao2_command": "ao2 plugin package-verify",
+        "ao2_test": "cli_plugin_package_verify_accepts_distributed_archive"
+      },
+      "name": "redaction_token_safety",
+      "source_path": "/tmp/ao2-public-test/factory-v3/SETUP.md",
+      "source_relative_path": "SETUP.md",
+      "source_repo": "factory-v3",
+      "source_sha256": "f246f47398401fdb0b76a4684787e1710c696231990182f5efa7c7d474043d43",
+      "trust_boundary_notes": "AO2 artifacts must reject credential-shaped output and preserve token-safe summaries."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "runtime_critical",
+      "enforcement": {
+        "ao2_artifact": "ao2.k37-packaged-replacement-hardening-observer-bundle.v1",
+        "ao2_command": "ao2 plugin packaged-replacement-observer-bundle",
+        "ao2_test": "cli_plugin_packaged_replacement_observer_bundle_packages_three_platform_proofs"
+      },
+      "name": "cross_platform_proof",
+      "source_path": "/tmp/ao2-public-test/factory-v3/docs/plans/ao2-factory-v3-replacement-parity-plan.md",
+      "source_relative_path": "docs/plans/ao2-factory-v3-replacement-parity-plan.md",
+      "source_repo": "factory-v3",
+      "source_sha256": "2f6b5bc0b63682828dbd60f5de6e5b373576ac8a662cf63cd1d1fff8ee63174e",
+      "trust_boundary_notes": "macOS, Ubuntu SSH, and direct Windows SSH evidence must be packaged by AO2 before read-only observation."
+    },
+    {
+      "ao2_disposition": "enforced",
+      "blocker": null,
+      "category": "plugin_packaging",
+      "enforcement": {
+        "ao2_artifact": "ao2.plugin-shipment-readiness.v1",
+        "ao2_command": "ao2 plugin shipment-readiness",
+        "ao2_test": "cli_plugin_shipment_readiness_aggregates_operator_handoff_evidence"
+      },
+      "name": "plugin_shipment_runbook_rules",
+      "source_path": "/tmp/ao2-public-test/factory-v3/docs/plans/ao2-factory-v3-replacement-parity-plan.md",
+      "source_relative_path": "docs/plans/ao2-factory-v3-replacement-parity-plan.md",
+      "source_repo": "factory-v3",
+      "source_sha256": "2f6b5bc0b63682828dbd60f5de6e5b373576ac8a662cf63cd1d1fff8ee63174e",
+      "trust_boundary_notes": "Codex/Claude plugin shipment keeps local OAuth CLI auth, digest gates, token-safe output, and observer-only control-plane boundaries."
+    }
+  ],
+  "entries_sha256": "b5bd6a06d0748a092830594c3f913dff0c00a4aafdabc207e87716ea7bc1c273",
+  "entry_count": 7,
+  "factory_v3_role": "parity_auditor",
+  "guardrails": {
+    "raw_factory_v3_skill_copy_allowed": false,
+    "runtime_critical_checked": true,
+    "runtime_critical_requires_enforcement_or_blocker": true
+  },
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "required_inventory": [
+    "intake",
+    "closure_verification",
+    "evaluator_closer_acceptance",
+    "provider_auth_rules",
+    "redaction_token_safety",
+    "cross_platform_proof",
+    "plugin_shipment_runbook_rules"
+  ],
+  "schema_version": "ao2.skill-contract-manifest.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "accepted",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false,
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "work_source": "codex-cron AO2 factory-v3 replacement parity"
+}

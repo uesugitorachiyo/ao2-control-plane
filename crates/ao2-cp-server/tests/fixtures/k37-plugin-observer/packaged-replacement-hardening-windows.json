@@ -1,0 +1,52 @@
+{
+    "schema_version": "ao2.packaged-replacement-hardening.v1",
+    "status": "passed",
+    "platform": "windows",
+    "package": {
+        "summary": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\package\\ao2-plugin-package.json",
+        "summary_sha256": "e9d87b5261fb2d367cefb75278726090e73258c139c541766513343f2c004441",
+        "archive": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\package\\ao2-plugin-package.tar.gz",
+        "archive_sha256": "2f410fa84aca16867a2858aad9e78e8cb78537e5f28dd1eea82c62c63648f564",
+        "package_verify": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\package-verify.json",
+        "package_verify_sha256": "1884209c2e5c19a126c0315d9b72a0c0d040b0d833ac0d14f9f25d11195087e7"
+    },
+    "factory_replacement": {
+        "app_run": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\app-run\\packaged-replacement-app-windows-factory-app-run.json",
+        "app_run_sha256": "f4bec7a05ca17b7befbeb257ed828e872df917f4682d8d89cead06b0c12bd96a",
+        "app_run_bundle": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\app-run\\packaged-replacement-app-windows-bundle.tgz",
+        "app_run_bundle_sha256": "cb59315081b8a9831e4a29bc275cb203afd4f8a3f5f8b024627a22d69fb489c1",
+        "project_plan": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\project-plan.json",
+        "project_plan_sha256": "5f54fff7fff4b858f94059f90a12195594f1e805535a6e6949860f8142842a85",
+        "project_run": "C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\project-run\\packaged-replacement-project-windows-factory-project-run.json",
+        "project_run_sha256": "6acdddff444a696648b737ee1fbd9960155a602f405c6d8ca7adebaaea314779",
+        "release_review_package": "\\\\?\\C:\\ao2-public-test\\ao2-packaged-replacement-hardening-20260531T232115\\windows\\out\\project-run\\packaged-replacement-project-windows-release-review-package.tgz",
+        "release_review_package_sha256": "8b94d2501505857918502494b3e8f45b84ca25546f12dbbfeb9f3eeefe1e0465",
+        "rubric_sha256": "64caf06a4433f7ecf1b4b5d174240e7da56eb8f621649bed77103ecea629334a",
+        "project_acceptance_rubric_sha256": "60375c612d09d93744be23c64fc5266b3a1e6645499915ede43e7acdc6ff60d5"
+    },
+    "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false
+    },
+    "trust_boundary": {
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "control_plane_role": "read_only_observer",
+        "mutates_ao_artifacts": false,
+        "control_plane_approves_release": false
+    },
+    "side_effects": {
+        "provider_execution": false,
+        "queue_mutation": false,
+        "memory_write": false,
+        "control_plane_mutation": false,
+        "ao_artifact_mutation": false,
+        "release_approval": false
+    },
+    "token_safe_output": {
+        "bearer_tokens_serialized": false,
+        "cookies_serialized": false,
+        "private_keys_serialized": false,
+        "redaction_policy": "paths_status_and_digests_only"
+    }
+}

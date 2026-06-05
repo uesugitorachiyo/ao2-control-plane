@@ -1,0 +1,9 @@
+/target
+/data
+/dist
+**/*.rs.bk
+Cargo.lock.user
+.DS_Store
+.env
+.env.local
+crates/ao2-cp-schema/tests/*.proptest-regressions

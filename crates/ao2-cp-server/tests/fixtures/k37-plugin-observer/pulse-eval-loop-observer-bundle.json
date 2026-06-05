@@ -1,0 +1,360 @@
+{
+  "archive_path": "target/pulse-eval-loop-observer-bundle-20260604T164256-0700/k37-pulse-eval-loop-observer-bundle.tar.gz",
+  "archive_sha256": "489bba224e4f8cb0d4cc609abb6136ab10cc9418d5f616dcf525c376e569c75f",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "current_ao2_head": "1e0461aae7ea0d019f0f293b60b0d823fce0040f",
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.pulse-eval-loop.v1"
+  ],
+  "platform_count": 3,
+  "platform_eval_loop": {
+    "macos": {
+      "bundled_paths": {
+        "pulse_eval_loop": "target/pulse-eval-loop-observer-bundle-20260604T164256-0700/bundle/platforms/macos/pulse-eval-loop.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": false,
+        "rerun_allowed_without_user_billing_fix": false,
+        "status": "passed"
+      },
+      "evaluator": {
+        "decision": "recommend_next_task",
+        "evidence_digest_required": true,
+        "reason": "The eval-loop chain may recommend exactly one next task because prior evidence is terminal, digest verified, and local verification passed.",
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "verification_status": "passed"
+      },
+      "loop": {
+        "bounded": true,
+        "chain_depth": 1,
+        "continues_automatically": false,
+        "fixed_interval_loop_successor": "ao2 pulse eval-loop run --chain",
+        "max_iterations": 1,
+        "terminal": true
+      },
+      "mode": "recommendation_only",
+      "observed_inputs": {
+        "board": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/input/BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/input/packet.txt",
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "prior_eval_loop": {
+        "chain_depth": 0,
+        "mode": "recommendation_only",
+        "path": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/macos/once/pulse-eval-loop.json",
+        "recommended_next_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-next-task",
+          "reason": "Existing Pulse executor evidence and local verification passed; the next loop may plan the next bounded AO2 Pulse task.",
+          "recommended_command": "ao2 pulse eval-loop run --once --executor-evidence <pulse-executor.json> --executor-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+          "requires_operator_or_follow_on": true,
+          "shape": "governed_eval_loop",
+          "status": "recommended",
+          "title": "Advance AO2 Pulse from recommendation-only eval loop evidence"
+        },
+        "schema_version": "ao2.pulse-eval-loop.v1",
+        "sha256": "0997c2063885786660e886b10168614647f8b29bf0f5c2c8f477db79662f91df",
+        "status": "ready_for_next_pulse_task",
+        "terminal": true
+      },
+      "recommended_next_task": {
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Prior eval-loop evidence was terminal and local verification passed; the chain may recommend exactly one next Pulse task.",
+        "recommended_command": "ao2 pulse eval-loop run --chain --eval-loop-evidence <pulse-eval-loop.json> --eval-loop-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+        "requires_operator_or_follow_on": true,
+        "shape": "governed_eval_loop_chain",
+        "status": "recommended",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "schema_version": "ao2.pulse-eval-loop.v1",
+      "sha256": "c6b54d5767054d7029999b74cbbe26552aa68bf5a6bcbd851ef4076462cce29d",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false,
+        "repo_apply": false
+      },
+      "source_path": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/macos/chain/pulse-eval-loop.json",
+      "status": "ready_for_next_pulse_task",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      },
+      "verification": {
+        "command": "cargo test --package ao2-cli --test cli_approval_replay --release pulse",
+        "required_for_recommendation": true,
+        "status": "passed"
+      }
+    },
+    "ubuntu": {
+      "bundled_paths": {
+        "pulse_eval_loop": "target/pulse-eval-loop-observer-bundle-20260604T164256-0700/bundle/platforms/ubuntu/pulse-eval-loop.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": false,
+        "rerun_allowed_without_user_billing_fix": false,
+        "status": "passed"
+      },
+      "evaluator": {
+        "decision": "recommend_next_task",
+        "evidence_digest_required": true,
+        "reason": "The eval-loop chain may recommend exactly one next task because prior evidence is terminal, digest verified, and local verification passed.",
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "verification_status": "passed"
+      },
+      "loop": {
+        "bounded": true,
+        "chain_depth": 1,
+        "continues_automatically": false,
+        "fixed_interval_loop_successor": "ao2 pulse eval-loop run --chain",
+        "max_iterations": 1,
+        "terminal": true
+      },
+      "mode": "recommendation_only",
+      "observed_inputs": {
+        "board": "../input/BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "../input/packet.txt",
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "prior_eval_loop": {
+        "chain_depth": 0,
+        "mode": "recommendation_only",
+        "path": "../ubuntu/once/pulse-eval-loop.json",
+        "recommended_next_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-next-task",
+          "reason": "Existing Pulse executor evidence and local verification passed; the next loop may plan the next bounded AO2 Pulse task.",
+          "recommended_command": "ao2 pulse eval-loop run --once --executor-evidence <pulse-executor.json> --executor-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+          "requires_operator_or_follow_on": true,
+          "shape": "governed_eval_loop",
+          "status": "recommended",
+          "title": "Advance AO2 Pulse from recommendation-only eval loop evidence"
+        },
+        "schema_version": "ao2.pulse-eval-loop.v1",
+        "sha256": "e636c30e87d6ba2c0e79268156f69faac9661ce332d3a4bcb84151ef24f93d57",
+        "status": "ready_for_next_pulse_task",
+        "terminal": true
+      },
+      "recommended_next_task": {
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Prior eval-loop evidence was terminal and local verification passed; the chain may recommend exactly one next Pulse task.",
+        "recommended_command": "ao2 pulse eval-loop run --chain --eval-loop-evidence <pulse-eval-loop.json> --eval-loop-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+        "requires_operator_or_follow_on": true,
+        "shape": "governed_eval_loop_chain",
+        "status": "recommended",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "schema_version": "ao2.pulse-eval-loop.v1",
+      "sha256": "a368e88c35497533e6294cfc210466d5e6f503ba4d3a5b5f479cb8a77a476ee2",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false,
+        "repo_apply": false
+      },
+      "source_path": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/ubuntu/chain/pulse-eval-loop.json",
+      "status": "ready_for_next_pulse_task",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      },
+      "verification": {
+        "command": "cargo test --package ao2-cli --test cli_approval_replay --release pulse",
+        "required_for_recommendation": true,
+        "status": "passed"
+      }
+    },
+    "windows": {
+      "bundled_paths": {
+        "pulse_eval_loop": "target/pulse-eval-loop-observer-bundle-20260604T164256-0700/bundle/platforms/windows/pulse-eval-loop.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": false,
+        "rerun_allowed_without_user_billing_fix": false,
+        "status": "passed"
+      },
+      "evaluator": {
+        "decision": "recommend_next_task",
+        "evidence_digest_required": true,
+        "reason": "The eval-loop chain may recommend exactly one next task because prior evidence is terminal, digest verified, and local verification passed.",
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "verification_status": "passed"
+      },
+      "loop": {
+        "bounded": true,
+        "chain_depth": 1,
+        "continues_automatically": false,
+        "fixed_interval_loop_successor": "ao2 pulse eval-loop run --chain",
+        "max_iterations": 1,
+        "terminal": true
+      },
+      "mode": "recommendation_only",
+      "observed_inputs": {
+        "board": "..\\input\\BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "..\\input\\packet.txt",
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "prior_eval_loop": {
+        "chain_depth": 0,
+        "mode": "recommendation_only",
+        "path": "..\\windows\\once\\pulse-eval-loop.json",
+        "recommended_next_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-next-task",
+          "reason": "Existing Pulse executor evidence and local verification passed; the next loop may plan the next bounded AO2 Pulse task.",
+          "recommended_command": "ao2 pulse eval-loop run --once --executor-evidence <pulse-executor.json> --executor-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+          "requires_operator_or_follow_on": true,
+          "shape": "governed_eval_loop",
+          "status": "recommended",
+          "title": "Advance AO2 Pulse from recommendation-only eval loop evidence"
+        },
+        "schema_version": "ao2.pulse-eval-loop.v1",
+        "sha256": "20d99f2f67c0c73c5b22416e8c9a07373d14dc71f0a79856b07b5ac522e176e1",
+        "status": "ready_for_next_pulse_task",
+        "terminal": true
+      },
+      "recommended_next_task": {
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Prior eval-loop evidence was terminal and local verification passed; the chain may recommend exactly one next Pulse task.",
+        "recommended_command": "ao2 pulse eval-loop run --chain --eval-loop-evidence <pulse-eval-loop.json> --eval-loop-sha256 <sha256> --verification-command <cmd> --verification-status passed --packet <packet> --board <board> --out-dir <evidence-dir> --json",
+        "requires_operator_or_follow_on": true,
+        "shape": "governed_eval_loop_chain",
+        "status": "recommended",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "schema_version": "ao2.pulse-eval-loop.v1",
+      "sha256": "5f947c366b8f5abc6707db68dcff07b779137c0c96745fa26cb01bf10eb0492c",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false,
+        "repo_apply": false
+      },
+      "source_path": "target/pulse-eval-loop-chain-three-platform-20260604T162625-0700/windows/chain/pulse-eval-loop.json",
+      "status": "ready_for_next_pulse_task",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      },
+      "verification": {
+        "command": "cargo test --package ao2-cli --test cli_approval_replay --release pulse",
+        "required_for_recommendation": true,
+        "status": "passed"
+      }
+    }
+  },
+  "platform_eval_loop_sha256": "09e195afce8598363d9f4100bfbb570c7cd81ec5f32f791cac72c7a13552fc8d",
+  "platform_progress": {
+    "blocked_platforms": [],
+    "macos": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "required_platforms": [
+      "macos",
+      "ubuntu",
+      "windows"
+    ],
+    "schema_version": "ao2.pulse-platform-progress.v1",
+    "status": "closure_ready",
+    "ubuntu": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "windows": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    }
+  },
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-pulse-eval-loop-observer-bundle.v1",
+  "side_effects": {
+    "control_plane_mutation": false,
+    "hermes_cron_watchdog_mutation": false,
+    "memory_write": false,
+    "mutates_ao_artifacts": false,
+    "provider_execution": false,
+    "queue_execution": false,
+    "repo_apply": false,
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/pulse-eval-loop-observer-bundle-20260604T164256-0700/k37-pulse-eval-loop-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 Pulse eval-loop chain evidence"
+}

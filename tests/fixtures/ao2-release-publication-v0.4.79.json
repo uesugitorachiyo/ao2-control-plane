@@ -1,0 +1,58 @@
+{
+  "schema_version": "ao2.release-publication-summary.v1",
+  "version": "0.4.79",
+  "release_tag": "v0.4.79",
+  "recorded_at": "2026-05-22T15:20:55Z",
+  "status": "published_verified",
+  "release_url": "https://github.com/uesugitorachiyo/ao2/releases/tag/v0.4.79",
+  "verification": {
+    "release_ship": "passed",
+    "release_build_all": "passed",
+    "release_gate": "passed",
+    "release_gate_status": "verified",
+    "provenance_verify": "passed",
+    "release_download_verify": "passed",
+    "release_doctor_status": "ok",
+    "assets_available": true,
+    "provenance_verified": true,
+    "provenance_tag_matches": true,
+    "rollback_status": "verified",
+    "workbench_release_comparison_export": "passed",
+    "three_os_smoke": "passed",
+    "native_windows_smoke": "passed",
+    "linux_x86_64_remote_smoke": "passed",
+    "local_smoke": "passed"
+  },
+  "archives": [
+    {
+      "target": "macos-aarch64",
+      "path": "dist/ao2-0.4.79-macos-aarch64.tar.gz",
+      "sha256": "a347b763ba2d697ede674ec53786c6916d50ff2a59915bf1f3c1055a160965a7"
+    },
+    {
+      "target": "linux-aarch64",
+      "path": "dist-linux/ao2-0.4.79-linux-aarch64.tar.gz",
+      "sha256": "07551d9f3aea5398cba95989a08c8b447cae6ac2268ef2958c017d20c4977737"
+    },
+    {
+      "target": "linux-x86_64",
+      "path": "dist-linux-x86_64/ao2-0.4.79-linux-x86_64.tar.gz",
+      "sha256": "8cf9ceb1f0bbbab9020272d03a2ac307a980232b71410aa15d1f6d641d7d721f"
+    },
+    {
+      "target": "windows-x86_64",
+      "path": "dist-windows/ao2-0.4.79-windows-x86_64.tar.gz",
+      "sha256": "95ea7ac48f085cbf2747acf815beb9bf00eb65000d7b524c2193a778b29851da"
+    }
+  ],
+  "artifacts": {
+    "release_gate": {
+      "path": "target/three-os-smoke/20260522081857/release-gate.json",
+      "sha256": "398b34a9b5e69f199451178ab485af8705075dc15836e4420c45854510fc75df"
+    },
+    "release_doctor": {
+      "path": "target/release-download/v0.4.79/release-doctor.json",
+      "sha256": "c99d8e85f64cff9964e29869668718c64fb33ae696f9e3658d2f503f47953f77"
+    }
+  }
+}

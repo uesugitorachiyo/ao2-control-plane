@@ -1,0 +1,29 @@
+{
+  "artifact_count": 13,
+  "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260529T223059Z/queued-project-start/factory-replacement-packet.tgz",
+  "bundle_sha256": "998f2cc1b43501f9717ffc4e3f401f2e51f2c426e320e44e0183287ffb1dca1a",
+  "checks": {
+    "ao2_replacement_driver_verified": true,
+    "checksums_verified": true,
+    "factory_v3_evaluator_closer_verified": true,
+    "manifest_verified": true,
+    "packet_verified": true,
+    "secret_scan_passed": true,
+    "trust_boundary_verified": true
+  },
+  "failure_count": 0,
+  "failures": [],
+  "files_checked": 15,
+  "run_id": "missed-call-recovery-project-queued",
+  "schema_version": "ao2.factory-replacement-packet-verification.v1",
+  "status": "accepted",
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "evaluator_closer_and_sampling_auditor",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

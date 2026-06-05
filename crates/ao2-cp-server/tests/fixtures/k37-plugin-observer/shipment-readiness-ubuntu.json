@@ -1,0 +1,111 @@
+{
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "control_plane_readback": {
+    "approves_release": false,
+    "commit": "bd0c6426867194968ac09d230bbe59f0d25216af",
+    "mutated_by_this_command": false,
+    "repo": "ao2-control-plane",
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "plugin_targets": [
+    "codex",
+    "claude"
+  ],
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "required_operator_checks": [
+    "verify local OAuth CLI login for Codex and Claude",
+    "verify package digest before install",
+    "verify final install transcript observer bundle digest",
+    "keep ao2-control-plane read-only",
+    "verify hosted C85 Release Gate result before operator handoff"
+  ],
+  "schema_version": "ao2.plugin-shipment-readiness.v1",
+  "shipment_evidence": {
+    "adapter_install_smoke_observer_bundle": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-adapter-install-smoke-observer-bundle.tar.gz",
+      "archive_sha256": "20ecc48ff8f13b0516c4560464af22a9a39ed28f8d463d6bee55b26975f43d8e",
+      "schema_version": "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-adapter-install-smoke-observer-bundle.json",
+      "summary_sha256": "19b6ba19a744aaeb52fd9955bb7bf35efd2f96f67c1216b55212e984980086e8"
+    },
+    "adapter_observer_bundle": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-adapter-observer-bundle.tar.gz",
+      "archive_sha256": "4900170afc260fabba60149ea605ea315af89d2a87be820f066af5baf7017c01",
+      "schema_version": "ao2.k37-plugin-adapter-observer-bundle.v1",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-adapter-observer-bundle.json",
+      "summary_sha256": "48a3b151d57d5e8bbc0f99d6f8a699d024e24f0650fa8a853ae913f2e0b69e8d"
+    },
+    "consumer_lifecycle_observer_bundle": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-consumer-lifecycle-observer-bundle.tar.gz",
+      "archive_sha256": "3e2222ee92fecf20ce5d7ae6bd2227ea2021338cb930ae5ee1cd84cfba6bd51a",
+      "schema_version": "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/k37-plugin-consumer-lifecycle-observer-bundle.json",
+      "summary_sha256": "a31f74bb3c41a09e4b1abef2fa781ec447d164669f8bf68b1a281622554bcda6"
+    },
+    "final_install_transcript_observer_bundle": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/final-install-transcript-observer-bundle/k37-plugin-final-install-transcript-observer-bundle.tar.gz",
+      "archive_sha256": "2dd15738237b9ca160cc71857410789080b2fd91046d88cdf84ed748b1c0cdb9",
+      "schema_version": "ao2.k37-plugin-final-install-transcript-observer-bundle.v1",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/final-install-transcript-observer-bundle/k37-plugin-final-install-transcript-observer-bundle.json",
+      "summary_sha256": "47f947517bc04353f5a9ce6c4f399b17f39b38254a90428debdc9c90ca32beb8"
+    },
+    "package": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/ao2-plugin-package.tar.gz",
+      "archive_sha256": "60eabfe4b11822145e6b6a9a6308f492be37dca90120f493dbbc210ed94d8dbe",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/inputs/ao2-plugin-package.json",
+      "summary_schema_version": "ao2.plugin-package.v1",
+      "summary_sha256": "fca1c8200734b5945529a565495d4d7435f82f8e1a7c8be337af2a3e56ac2091"
+    },
+    "release_candidate_observer_bundle": {
+      "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/k37-plugin-release-candidate-observer-bundle.tar.gz",
+      "archive_sha256": "1b98c9a5055ed7f19d868cb9234d2ea1cfc3b2cfcd68af40cecdaaecde9a6790",
+      "schema_version": "ao2.k37-plugin-release-candidate-observer-bundle.v1",
+      "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/k37-plugin-release-candidate-observer-bundle.json",
+      "summary_sha256": "c172a3e234d34fc272fcad2245f44215ed0a255f5859f29b964f4e763511212d"
+    }
+  },
+  "shipment_evidence_sha256": "4aed62505df4336613c700e7666a6a7041d6510d4855831844d1def32d5ab497",
+  "shipment_inputs": [
+    "ao2.plugin-package.v1",
+    "ao2.k37-plugin-adapter-observer-bundle.v1",
+    "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+    "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+    "ao2.k37-plugin-release-candidate-observer-bundle.v1",
+    "ao2.k37-plugin-final-install-transcript-observer-bundle.v1"
+  ],
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_operator_handoff",
+  "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/shipment-readiness/plugin-shipment-readiness.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

@@ -1,0 +1,330 @@
+{
+  "archive_path": "target/plugin-shipment-readiness-refresh-index-codex-cron-20260601T173324-0700/k37-clean-package-operator-index.tar.gz",
+  "archive_sha256": "f0e856e119989265864480b6b8c2a3e39658e9ad1a8493c89f978f7cb4bf75b4",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-distribution-rehearsal.v1",
+    "ao2.k37-plugin-observer-input.v1",
+    "ao2.plugin-package-verification.v1",
+    "ao2.plugin-manifest-verification.v1",
+    "ao2.plugin-install-smoke.v1"
+  ],
+  "platform_count": 3,
+  "platform_rehearsals": {
+    "macos": {
+      "bundled_path": "target/plugin-shipment-readiness-refresh-index-codex-cron-20260601T173324-0700/bundle/platforms/macos/plugin-distribution-rehearsal.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "observer_input": {
+        "path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/k37-plugin-observer-input.json",
+        "sha256": "a8ac23f16ebe85646dec68d8939d8003474347f1aa28f2775e92b1ab2fbcd218"
+      },
+      "package_archive_sha256": "60eabfe4b11822145e6b6a9a6308f492be37dca90120f493dbbc210ed94d8dbe",
+      "package_summary_sha256": "fca1c8200734b5945529a565495d4d7435f82f8e1a7c8be337af2a3e56ac2091",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-distribution-rehearsal.v1",
+      "sha256": "0c09abac36972dff61da6d22ac1049b10ac623528c5fa4394f37a167bd0f77f0",
+      "source_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-collected/macos/plugin-distribution-rehearsal.json",
+      "status": "passed",
+      "target_results": {
+        "claude": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/install-smoke.json",
+          "install_smoke_sha256": "5d0bf178ebc4a8d5deac5ef1858c57bf1294f874282028b1b6380f0b0e8e7267",
+          "installed_package_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution",
+          "manifest_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/manifest",
+          "manifest_sha256": "093b3050f354244cb051c5bd733bef28c1a50a51636da82eec32505ac5196d1f",
+          "manifest_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/manifest-verification.json",
+          "manifest_verification_sha256": "02c9dc3dbec84de39f689835eaaf1c9a014332026b1c1940396fc88e32b3def6",
+          "package_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/package-verification.json",
+          "package_verification_sha256": "57b734b23061a2f346a0457c72ba478218e0aa8dd1bf32f85c5e19d0e4ff5e42",
+          "readiness_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness",
+          "wrapper_harness_sha256": "a6602380d8bc0ab6a3bc888e2a6b022ff926add858cef99a3c1a623db307c381",
+          "wrapper_harness_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "48d17f0b2b7f03fcdce481655c576ba216be429f7cebc023daaf20d7a77c1953"
+        },
+        "codex": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/install-smoke.json",
+          "install_smoke_sha256": "7f4ab482755c6383dddb06a05b6e3e84a89bbba784cd0f83b6a819601c78c3eb",
+          "installed_package_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution",
+          "manifest_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/manifest",
+          "manifest_sha256": "093b3050f354244cb051c5bd733bef28c1a50a51636da82eec32505ac5196d1f",
+          "manifest_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/manifest-verification.json",
+          "manifest_verification_sha256": "c3ff48b88261ce329dd1f98b8f53a5820f49ddd0f71b25326f622e4933b4ea48",
+          "package_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/package-verification.json",
+          "package_verification_sha256": "5d63ca0842e9c867b83db3bf5cd770c9b1fdc412b54e670c9a91f3ef31eb56d3",
+          "readiness_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness",
+          "wrapper_harness_sha256": "22e84788b32861cdacb322eb724c9caa16845f0be52000d25d96adc490ce9f40",
+          "wrapper_harness_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-macos/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "57d3db089fc397a436f7e4d03de8da66f274607ce9d1425056c36324d1d445d0"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "bundled_path": "target/plugin-shipment-readiness-refresh-index-codex-cron-20260601T173324-0700/bundle/platforms/ubuntu/plugin-distribution-rehearsal.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "observer_input": {
+        "path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/k37-plugin-observer-input.json",
+        "sha256": "1eaf04356934a636deb6f2aee4307aa5d165a0a16aa6f20df5ae7f8480989b0d"
+      },
+      "package_archive_sha256": "546573c85267e917238a0550c85c4ca02fa6bc9683b622612a49accd3909c2e5",
+      "package_summary_sha256": "b828d177d7c7a6c214f509b315347f4a42019f2ea41686fc9ae6ec3ad18d430b",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-distribution-rehearsal.v1",
+      "sha256": "d8bd6035c75f24aafe5dd8bdc1ebbcccc2172d2b3e1980b1fea43e25dbabbf13",
+      "source_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-collected/ubuntu/plugin-distribution-rehearsal.json",
+      "status": "passed",
+      "target_results": {
+        "claude": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/install-smoke.json",
+          "install_smoke_sha256": "b515d15255a1c498cc7bf43a2c07f0f8d047f22d2cb44186fc8ecdd72bf3d2e1",
+          "installed_package_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution",
+          "manifest_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/manifest",
+          "manifest_sha256": "b9eec0eb8c0cdbd398619f021d787520df4a5d5dffb5f22643f668af2267e4fb",
+          "manifest_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/manifest-verification.json",
+          "manifest_verification_sha256": "b9e320502fdc9002c91860ac6a6ce37a1fd209143ff7ca24258c2d9c6a3f3734",
+          "package_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/package-verification.json",
+          "package_verification_sha256": "b24c79e41fa1558076d7db6f2bbded943d389c1a56a4d59e25359861fd371ed2",
+          "readiness_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness",
+          "wrapper_harness_sha256": "a46181cafc0e51e8d189537e461b4845c6590eed4d60da65f044e62987bb7cb4",
+          "wrapper_harness_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/claude/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "3ecb344c57b6f99f33ea888278d520ca6c011ba8ccdfa9e14b695a69a5bd6024"
+        },
+        "codex": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/install-smoke.json",
+          "install_smoke_sha256": "48fbf9f32038ece404fb2a9959492925bc32e0ddc5fb6ee13cb7b3b01e3257e6",
+          "installed_package_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution",
+          "manifest_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/manifest",
+          "manifest_sha256": "b9eec0eb8c0cdbd398619f021d787520df4a5d5dffb5f22643f668af2267e4fb",
+          "manifest_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/manifest-verification.json",
+          "manifest_verification_sha256": "64abdd8851b4e12b836dbcd093cff873dd9260e4dcc1cb88fbf6393ee000f745",
+          "package_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/package-verification.json",
+          "package_verification_sha256": "bd1768958a951670dac68a2c8f2058521b37cd799c8f5abd41cf71d2150f86aa",
+          "readiness_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness",
+          "wrapper_harness_sha256": "7f9ccffac6098ee311691628ae9059dead29e84fa8f180c00fdb4eaed1de5eb5",
+          "wrapper_harness_verification_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-ubuntu/distribution-rehearsal/installations/codex/ao2-governed-execution/evidence/distribution-rehearsal/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "e0644e1fb5eb9ffbf31dbd77f91b1899273c8103f301c3a46d7ae26d1fd5c771"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "bundled_path": "target/plugin-shipment-readiness-refresh-index-codex-cron-20260601T173324-0700/bundle/platforms/windows/plugin-distribution-rehearsal.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "observer_input": {
+        "path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\k37-plugin-observer-input.json",
+        "sha256": "5af0b848a998de703fc08b62750baf7da6b09457f0057507d2ada2645a3a4de9"
+      },
+      "package_archive_sha256": "47e48d7b93b082d6bdf10ffacdec7484895ea345dd2865a891fb15b48047dc45",
+      "package_summary_sha256": "3643abb97b3e16e738a0fef7bf81ed7a80522fe6e4ac91d198dffdde159bdb55",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-distribution-rehearsal.v1",
+      "sha256": "0efd3f0e8477ce6948785163355dba3b521801cec5ba75b7cb20d3b62e055a9a",
+      "source_path": "target/plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-collected/windows/plugin-distribution-rehearsal.json",
+      "status": "passed",
+      "target_results": {
+        "claude": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\install-smoke.json",
+          "install_smoke_sha256": "e77edaae25ac0049e8ef6e03d38acc6f0b32585fa6064f96b791e74235468a00",
+          "installed_package_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution",
+          "manifest_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\manifest",
+          "manifest_sha256": "3b3a34bcc713c4ceafc0925fc6bac3a772eff324137a82962d3eed3ebe8d411b",
+          "manifest_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\manifest-verification.json",
+          "manifest_verification_sha256": "d7208f8e3a192f3a2440cd1f26a892550ac8eea5f2bc6d4cf5c75e8fad591b0c",
+          "package_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\package-verification.json",
+          "package_verification_sha256": "720b5a686e268735002a850c9b9f2207cb4a573ff33ecaf20846387aa5de751e",
+          "readiness_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\wrapper-harness",
+          "wrapper_harness_sha256": "a8ce51d9c21ea650d51f9adb5120b02a8050c1a415885d3ccb9a8547aba3b742",
+          "wrapper_harness_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\claude\\ao2-governed-execution\\evidence\\distribution-rehearsal\\wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "ec9c43764e1fc556e0aedf682db7e35c2fa7f56064340fcaa4e1e6ab5348086e"
+        },
+        "codex": {
+          "commands_from_installed_package_paths": true,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\install-smoke.json",
+          "install_smoke_sha256": "f6abe0756a9ade52fcaa76f8e3dd283787aa1efcf6b48264592297ed2f4176c2",
+          "installed_package_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution",
+          "manifest_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\manifest",
+          "manifest_sha256": "3b3a34bcc713c4ceafc0925fc6bac3a772eff324137a82962d3eed3ebe8d411b",
+          "manifest_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\manifest-verification.json",
+          "manifest_verification_sha256": "7b25697356d72b462e92a12fb6de5e8f2664bc512c416c9402662a2807514d40",
+          "package_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\package-verification.json",
+          "package_verification_sha256": "87d8b9752142c95b3c9213fe8ef2a7c8640226078ca6bcecdf85b52447ef456e",
+          "readiness_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\wrapper-harness",
+          "wrapper_harness_sha256": "4978fb5eee59981fa5743fe4442b55b58097e1f8ef114732b5d7be2eeed52a7b",
+          "wrapper_harness_verification_path": "target\\plugin-shipment-readiness-refresh-codex-cron-20260601T173324-0700-windows\\distribution-rehearsal\\installations\\codex\\ao2-governed-execution\\evidence\\distribution-rehearsal\\wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "72e058c7fa384efeb3295a9718c121a7852fca40bf32b3abafb003a17ce855e9"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_rehearsals_sha256": "12a438eaca679cc46d97387728ae511b2389b82011735e603aa1c457e7cd692d",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "plugin_targets": [
+    "codex",
+    "claude"
+  ],
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "schema_version": "ao2.k37-clean-package-operator-index.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/plugin-shipment-readiness-refresh-index-codex-cron-20260601T173324-0700/k37-clean-package-operator-index.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

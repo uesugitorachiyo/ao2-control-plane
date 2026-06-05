@@ -1,0 +1,162 @@
+{
+  "app_run_count": 2,
+  "artifacts": {
+    "app_run_bundles": [
+      {
+        "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/app-run-bundles/0-app-run-evidence-bundle.tgz",
+        "bundle_sha256": "552da88af9c71680a6de929bc8cf8635a4af92dd268236132dcc658425218d4d",
+        "index": 0,
+        "run_id": "missed-call-recovery-project-start-intake"
+      },
+      {
+        "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/app-run-bundles/1-app-run-evidence-bundle.tgz",
+        "bundle_sha256": "721786d49d0f2ca3e63068a83c692ab572749d032c76c00fe29812b26ab5dd29",
+        "index": 1,
+        "run_id": "missed-call-recovery-project-start-messaging"
+      }
+    ],
+    "factory_project_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-factory-project-run.json",
+    "factory_project_run_sha256": "03e1ee87d080fe3cfafb474a044cbd1d719e0b6123a6ab290018a9d2788e15dc",
+    "factory_project_run_state": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-factory-project-run-state.json",
+    "factory_project_run_state_sha256": "e5630636e1e08db27c23545e5c38ac1365a9ad8d3b4ce794dd237aa61ed9519f",
+    "factory_project_start": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/missed-call-recovery-project-start-factory-project-start.json",
+    "project_plan": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-plan/project-plan.json",
+    "project_plan_sha256": "efe0208e68928fd4919676e97840ab17ed0e7988b621dd8e48fc4dce3f92c76d",
+    "project_plan_validation": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-plan/project-plan-validation.json",
+    "project_plan_validation_sha256": "f294e0326b60083d45810ab028366556d46fd95d46d734a759cadc5c3ce7aa00",
+    "project_start_bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start-handoff.tgz",
+    "project_start_bundle_sha256": "4775d62787ef30af168e2d0e6d052bbe6328f213d76772d16e6df1a415650900",
+    "release_review_package": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-release-review-package.tgz",
+    "release_review_package_sha256": "d386041a9a6e536eab7abbb8471d90a076ecad4e6b4ff7ef682b1eabf1e02716"
+  },
+  "checks": {
+    "project_plan_status": "accepted",
+    "project_plan_validation_status": "accepted",
+    "project_run_status": "accepted",
+    "release_review_package_ready": true
+  },
+  "created_at": "2026-05-28T06:22:08Z",
+  "factory_replacement_boundary": {
+    "ao2_execution_owner": true,
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "failed_step_count": 0,
+  "hermes_queue_handoff": {
+    "ao2_role": "canonical_project_start_and_evidence_producer",
+    "checksum_entry": "SHA256SUMS",
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_role": "parity_oracle_only",
+    "handoff_entry": "handoff.json",
+    "hermes_role": "front_end_queue_cron_memory_bookkeeping_only",
+    "manifest_entry": "manifest.json",
+    "mutates_ao_artifacts": false,
+    "project_start_bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start-handoff.tgz",
+    "project_start_bundle_sha256": "4775d62787ef30af168e2d0e6d052bbe6328f213d76772d16e6df1a415650900",
+    "release_acceptance_owner": "factory-v3 evaluator-closer",
+    "schema_version": "ao2.hermes-project-start-handoff.v1",
+    "status": "ready"
+  },
+  "out_dir": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start",
+  "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/generated-project",
+  "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/missed-call-recovery-project.md",
+  "project_start_bundle": {
+    "archive": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start-handoff.tgz",
+    "artifact_count": 8,
+    "artifacts": [
+      {
+        "bundle_path": "factory-project-start.json",
+        "label": "factory-project-start",
+        "sha256": "5fa4cbb9b38e48c9b4d28f8cfc48fa3a591f44ddbac0cb251705f698c0ba1bb2",
+        "size_bytes": 4115,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/missed-call-recovery-project-start-factory-project-start.json"
+      },
+      {
+        "bundle_path": "project-plan/project-plan.json",
+        "label": "project-plan",
+        "sha256": "efe0208e68928fd4919676e97840ab17ed0e7988b621dd8e48fc4dce3f92c76d",
+        "size_bytes": 3418,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-plan/project-plan.json"
+      },
+      {
+        "bundle_path": "project-plan/project-plan-validation.json",
+        "label": "project-plan-validation",
+        "sha256": "f294e0326b60083d45810ab028366556d46fd95d46d734a759cadc5c3ce7aa00",
+        "size_bytes": 1669,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-plan/project-plan-validation.json"
+      },
+      {
+        "bundle_path": "project-run/factory-project-run.json",
+        "label": "factory-project-run",
+        "sha256": "03e1ee87d080fe3cfafb474a044cbd1d719e0b6123a6ab290018a9d2788e15dc",
+        "size_bytes": 10306,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-factory-project-run.json"
+      },
+      {
+        "bundle_path": "project-run/factory-project-run-state.json",
+        "label": "factory-project-run-state",
+        "sha256": "e5630636e1e08db27c23545e5c38ac1365a9ad8d3b4ce794dd237aa61ed9519f",
+        "size_bytes": 3821,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-factory-project-run-state.json"
+      },
+      {
+        "bundle_path": "release-review/release-review-package.tgz",
+        "label": "release-review-package",
+        "sha256": "d386041a9a6e536eab7abbb8471d90a076ecad4e6b4ff7ef682b1eabf1e02716",
+        "size_bytes": 83062,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/missed-call-recovery-project-start-release-review-package.tgz"
+      },
+      {
+        "bundle_path": "app-run-bundles/0/app-run-evidence-bundle.tgz",
+        "label": "app-run-bundle",
+        "sha256": "552da88af9c71680a6de929bc8cf8635a4af92dd268236132dcc658425218d4d",
+        "size_bytes": 30202,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/app-run-bundles/0-app-run-evidence-bundle.tgz"
+      },
+      {
+        "bundle_path": "app-run-bundles/1/app-run-evidence-bundle.tgz",
+        "label": "app-run-bundle",
+        "sha256": "721786d49d0f2ca3e63068a83c692ab572749d032c76c00fe29812b26ab5dd29",
+        "size_bytes": 30344,
+        "source_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/project-run/app-run-bundles/1-app-run-evidence-bundle.tgz"
+      }
+    ],
+    "checksum_entry": "SHA256SUMS",
+    "created_at": "2026-05-28T06:22:08Z",
+    "created_at_ms": 1779949328251,
+    "handoff_entry": "handoff.json",
+    "manifest_entry": "manifest.json",
+    "project_start": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T062207Z/project-start/missed-call-recovery-project-start-factory-project-start.json",
+    "schema_version": "ao2.factory-project-start-bundle.v1",
+    "sha256": "4775d62787ef30af168e2d0e6d052bbe6328f213d76772d16e6df1a415650900",
+    "status": "bundled",
+    "trust_boundary": {
+      "control_plane_approves_release": false,
+      "control_plane_role": "read_only_observer_after_signed_evidence",
+      "execution_owner": "ao2",
+      "factory_v3_role": "parity_oracle_only",
+      "mutates_ao_artifacts": false,
+      "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+      "release_acceptance_owner": "factory-v3 evaluator-closer"
+    }
+  },
+  "run_id": "missed-call-recovery-project-start",
+  "schema_version": "ao2.factory-project-start.v1",
+  "status": "accepted",
+  "step_count": 2,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

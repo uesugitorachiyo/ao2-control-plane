@@ -1,0 +1,437 @@
+{
+  "archive_path": "target/consumer-lifecycle-observer-bundle-codex-cron-20260531T060542Z/k37-plugin-consumer-lifecycle-observer-bundle.tar.gz",
+  "archive_sha256": "3e2222ee92fecf20ce5d7ae6bd2227ea2021338cb930ae5ee1cd84cfba6bd51a",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-consumer-lifecycle.v1"
+  ],
+  "platform_count": 3,
+  "platform_lifecycles": {
+    "macos": {
+      "adapter_scaffold": {
+        "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/adapter-scaffold/plugin-adapter-scaffold.json",
+        "summary_sha256": "434c3f0f9180910b7c7eaf2c7ff61000a442332ad63a22f94c563de70d599ce2"
+      },
+      "bundled_path": "target/consumer-lifecycle-observer-bundle-codex-cron-20260531T060542Z/bundle/platforms/macos/plugin-consumer-lifecycle.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "package": {
+        "archive_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/package/ao2-plugin-package.tar.gz",
+        "archive_sha256": "410a59c721ed24472ec8f0aa0b4ce9849e57860d58bb3f0a6d6b5b91e3b9be79",
+        "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/package/ao2-plugin-package.json",
+        "summary_sha256": "0e89026c5ee8d280ca4fd120587c865fa962a8e6530433abc1aaa98d6d48870e"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-consumer-lifecycle.v1",
+      "sha256": "910e8d58e018779991d40fb1539489af7fca93bd6bea91d7c9695be0913e3374",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/plugin-consumer-lifecycle.json",
+      "status": "passed",
+      "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/plugin-consumer-lifecycle.json",
+      "target_results": {
+        "claude": {
+          "adapter_install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "ab52cb42cdc9848a4bd1f80b76698331d96afd2694423a33699f2f6b9e715a7c",
+          "adapter_install_smoke_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "f3fee78edc7726e12159233ca8a827dd8edc20642ba54881c8f91ccb4ae2ad84",
+          "adapter_scaffold_summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/adapter-scaffold/plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "dd620fd58a45e186c33a9f531619b6f2dfe646f06e98a1d129c5a2ad894b1cae",
+          "adapter_scaffold_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "1fb813935cdf0e40910b98f4e2623200bdc5e836805ce471e686e17e1cbbb3cb",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/install-smoke.json",
+          "install_smoke_sha256": "7ebd8e35c12da1603f0f4aea43ec8f535337584152913e67494b7d502c9356cb",
+          "installed_package_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/ao2-governed-execution/manifest",
+          "manifest_sha256": "b713bb55e6eb22544e6c92507449537fe10318f93607dd630c112798bf592812",
+          "manifest_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/manifest-verification.json",
+          "manifest_verification_sha256": "e3ba9b2b0b0a75f7c2621e167bd832ce404814b50af86cf7da086f71d35db54b",
+          "memory_written": false,
+          "package_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/package-verification.json",
+          "package_verification_sha256": "8541963679c9f36eeeceae75887053dc06e6b64bbdd33c80eb1c1033e64554a7",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/wrapper-harness",
+          "wrapper_harness_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "e06896ea7441e5d7f2b561ee7b832505178418e9a0e428662321ea98e3c29f2d",
+          "wrapper_sandbox_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/claude"
+        },
+        "codex": {
+          "adapter_install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "f073950ed8bb88dfda39e18c7e458975b61ff6c150958ae37a4ef3e3cc9b0648",
+          "adapter_install_smoke_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "083781cca19cd2eba67c3b3d8689a80b3f2f011e3649aca5e870f70c3d621873",
+          "adapter_scaffold_summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/adapter-scaffold/plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "0033e14e604168d83055681f50c7834db3230891428669b58468c5fd6b42e711",
+          "adapter_scaffold_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "8e63790c4116c9a1c39c8e26c470b010065d756ac58633857a574bdf510aee6f",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/install-smoke.json",
+          "install_smoke_sha256": "f8122929875177771bb7f9b55f4cc8e02aabdb02944bd313011fbc55c05457eb",
+          "installed_package_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/ao2-governed-execution/manifest",
+          "manifest_sha256": "b713bb55e6eb22544e6c92507449537fe10318f93607dd630c112798bf592812",
+          "manifest_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/manifest-verification.json",
+          "manifest_verification_sha256": "e2e2d5748d97817978c657f0ac54e1acfd993b54aa3e9ca3d91d7ede2c177e3e",
+          "memory_written": false,
+          "package_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/package-verification.json",
+          "package_verification_sha256": "f074a4f8158a2b2f409655d7440ed38014f7b27834d0ff45d0acb7fc43e3c2be",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/wrapper-harness",
+          "wrapper_harness_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "86cc8be01aa01708848692cf91f3e61683f1273354b996c6ac76f9530cf4df2e",
+          "wrapper_sandbox_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-macos/consumer-lifecycle/wrapper-sandboxes/codex"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "adapter_scaffold": {
+        "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/adapter-scaffold/plugin-adapter-scaffold.json",
+        "summary_sha256": "d857098e123cc917d34f9a836f69f742d0170a3ded77a7eb409d911deac15fa4"
+      },
+      "bundled_path": "target/consumer-lifecycle-observer-bundle-codex-cron-20260531T060542Z/bundle/platforms/ubuntu/plugin-consumer-lifecycle.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "package": {
+        "archive_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/package/ao2-plugin-package.tar.gz",
+        "archive_sha256": "05f0afe810f49c63d88f63c5b3c3352842206f62e543f06090c8d1b672708748",
+        "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/package/ao2-plugin-package.json",
+        "summary_sha256": "a4df7a3d12611e6897780c49c0f5a908fe4bfda48b739db08f4befba1bc2955c"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-consumer-lifecycle.v1",
+      "sha256": "a488b8df5c2315772bfdb76b7415a888f01aaa1c65307c67015e63bd2b9d90fe",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/ubuntu-consumer-lifecycle-observer-20260531T070000Z/plugin-consumer-lifecycle.json",
+      "status": "passed",
+      "summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/plugin-consumer-lifecycle.json",
+      "target_results": {
+        "claude": {
+          "adapter_install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "a8bf217fc8c86b4f70112ce92ca1537d038a7caf683b0111ff8651e2f004d9d5",
+          "adapter_install_smoke_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "55d4ea4d81cbab85b85ac17d8c3cad6f1b34ac9da8714cd0d4036b001a9d897c",
+          "adapter_scaffold_summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/adapter-scaffold/plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "abd970456c6743afd8c2c1f36c3194353a1d4954b829f91e150b692035b90e5a",
+          "adapter_scaffold_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "ff440308343490a0a6fed362fe98036a10f680b5e4ec57cf3b83dcaf4f153b00",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/install-smoke.json",
+          "install_smoke_sha256": "08e0a2258175a3062688e1b7bee15cae30a07bcbf3fe1529921b7c70dd20c0c5",
+          "installed_package_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/ao2-governed-execution/manifest",
+          "manifest_sha256": "46bf4ba5da7273e4d3aa99428560e2cc6f003b103b48252add223c1691cd011e",
+          "manifest_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/manifest-verification.json",
+          "manifest_verification_sha256": "70dd1bd9445207a0239d85017384694da7da86499951a694365b092838fea4b6",
+          "memory_written": false,
+          "package_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/package-verification.json",
+          "package_verification_sha256": "af5209a9d71f09a57bff9fcb432efd7aa1e83410001aa7f81f2ce2ebf1189590",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/wrapper-harness",
+          "wrapper_harness_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude/evidence/consumer-lifecycle/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "90d87735a11fff8f36d61f728038632e10831bfe9e26c10d8d2f94ef939ff069",
+          "wrapper_sandbox_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/claude"
+        },
+        "codex": {
+          "adapter_install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "c79925ced81aff71998a0a8358d991f57c988ee718be91863afce84050ffc371",
+          "adapter_install_smoke_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "173f9dd16d5e0135f671659d13b8c3996e3a35335b7722dcbc7bcfa189f7b64d",
+          "adapter_scaffold_summary_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/adapter-scaffold/plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "243cf5e79d15b9a23ac4f501522c6390559853c0a3fbb14ca785d69547b8db42",
+          "adapter_scaffold_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "0e6677af9f2abb2b5ef47a614d403674072cc54f851597f654a00f3aa21a47c9",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/install-smoke.json",
+          "install_smoke_sha256": "58fd382707acdba66b278af2d38a2dd63b2fae71c2405cff5aed38959bdc7497",
+          "installed_package_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/ao2-governed-execution/manifest",
+          "manifest_sha256": "46bf4ba5da7273e4d3aa99428560e2cc6f003b103b48252add223c1691cd011e",
+          "manifest_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/manifest-verification.json",
+          "manifest_verification_sha256": "a378e5113d70041adf3648fbd03be1bc5af0daa12fafb2c70c046f0ee591f7f8",
+          "memory_written": false,
+          "package_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/package-verification.json",
+          "package_verification_sha256": "eb53b32860cd2ecdcd2d91ac904e07109202c040eb03a1d07ca53563a000e06f",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/wrapper-harness",
+          "wrapper_harness_verification_path": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex/evidence/consumer-lifecycle/wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "ae4f56d512e8703690be446ac168dbd1b6e7bfb8515eefd7a41595641fd29b9e",
+          "wrapper_sandbox_dir": "target/plugin-consumer-lifecycle-observer-codex-cron-20260531T070000Z-ubuntu/consumer-lifecycle/wrapper-sandboxes/codex"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "adapter_scaffold": {
+        "summary_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\inputs\\adapter-scaffold\\plugin-adapter-scaffold.json",
+        "summary_sha256": "0d69935af08871f611d9d7d77b40871ee0743d43037076780ac1909982f8873a"
+      },
+      "bundled_path": "target/consumer-lifecycle-observer-bundle-codex-cron-20260531T060542Z/bundle/platforms/windows/plugin-consumer-lifecycle.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "package": {
+        "archive_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\inputs\\ao2-plugin-package.tar.gz",
+        "archive_sha256": "1c5e6020aa73b4814d342d79ac8b485ca311b773264875a98f1ad4e5222add3e",
+        "summary_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\inputs\\ao2-plugin-package.json",
+        "summary_sha256": "d61ea1ed52f2308b6d8138d8f5a88c2721a4c6a1611274c17a3050be4da581cd"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-consumer-lifecycle.v1",
+      "sha256": "b06ecc7b89323a5493639dc8844a11240bb72d8ebce2c1dc2fbe15801171f13b",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/windows-consumer-lifecycle-current-20260531T060542/plugin-consumer-lifecycle.json",
+      "status": "passed",
+      "summary_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\plugin-consumer-lifecycle.json",
+      "target_results": {
+        "claude": {
+          "adapter_install_smoke_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "d7eb94a10d24069bc894b3dcc656d407cc20b8519e8c95725e75e3103fb9f878",
+          "adapter_install_smoke_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "f71fc7b2c3f11823a97d182ad624475ac2c56d5530522d71c4e6bc62f9272c0b",
+          "adapter_scaffold_summary_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\adapter-scaffold\\plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "4abcb998c5b5cf2af33cdb5aa2c591287d8903a211feb36150d0809638ea98de",
+          "adapter_scaffold_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "0ff952aad35fc54a0e327066221e9e881626deef59b022fb0fd317950d5a49e2",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\install-smoke.json",
+          "install_smoke_sha256": "931599b8b96f9b00d1b1207ca3d1b41ad56a7e28a2e73c8cbc9eedbcd4d55da6",
+          "installed_package_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\ao2-governed-execution\\manifest",
+          "manifest_sha256": "ceff6a77b282b57f813c07f3d5e53af22b5d65696f9ad5bac0d63fb0ffd46633",
+          "manifest_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\manifest-verification.json",
+          "manifest_verification_sha256": "6365fce002c9e9feb55e9decbb4cbc39326897c4811192aaed94088c42151809",
+          "memory_written": false,
+          "package_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\package-verification.json",
+          "package_verification_sha256": "32091ed190e1a6d0d816b58e2538ac2123654c5c2a54f6a0079a291114f4fb18",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "claude",
+          "wrapper_harness_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\wrapper-harness",
+          "wrapper_harness_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude\\evidence\\consumer-lifecycle\\wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "6e2958ee6f7737364e38cb865a2322339a03c7e86275ad86a7c07015db8492f6",
+          "wrapper_sandbox_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\claude"
+        },
+        "codex": {
+          "adapter_install_smoke_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\adapter-install-smoke.json",
+          "adapter_install_smoke_sha256": "b6292d333229681358746872081dbbdbac4470c6e5768bb70175c028bfe2fe21",
+          "adapter_install_smoke_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\adapter-install-smoke-verification.json",
+          "adapter_install_smoke_verification_sha256": "2911517058ee90e511eb1ac7cb913a7e3c7b398490b14f59df55057d78ebe87d",
+          "adapter_scaffold_summary_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\adapter-scaffold\\plugin-adapter-scaffold.json",
+          "adapter_scaffold_summary_sha256": "ecbe19182192c05850ea22d4722d597c831c7cb419bc7e09e39b8c7d44133f37",
+          "adapter_scaffold_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\adapter-scaffold-verification.json",
+          "adapter_scaffold_verification_sha256": "ad7397946c655639990fc2a9e38aef2ddf4b859402ec86474eb2cefbf6647e6b",
+          "ao_artifacts_mutated": false,
+          "control_plane_mutated": false,
+          "control_plane_observation": {
+            "may_approve_release": false,
+            "may_mutate_evidence": false,
+            "may_observe_evidence_bundle_path": true,
+            "role": "read_only_observer"
+          },
+          "install_smoke_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\install-smoke.json",
+          "install_smoke_sha256": "8c64a2e9e67df36fe0f5bdb4f44a4f65bb31546695e16b7374b177dee8c4043d",
+          "installed_package_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\ao2-governed-execution",
+          "installed_package_paths_only": true,
+          "manifest_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\ao2-governed-execution\\manifest",
+          "manifest_sha256": "ceff6a77b282b57f813c07f3d5e53af22b5d65696f9ad5bac0d63fb0ffd46633",
+          "manifest_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\manifest-verification.json",
+          "manifest_verification_sha256": "56246d6d23ea0991343040daea6c74609cda272cad759dc6556771f48215920a",
+          "memory_written": false,
+          "package_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\package-verification.json",
+          "package_verification_sha256": "9eb83e73c11139707c5aee22bb00362b94f69ab9bacbb15085bb4e5979696ad7",
+          "provider_execution_started": false,
+          "queue_mutated": false,
+          "readiness_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\plugin-readiness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "release_approved": false,
+          "status": "passed",
+          "target": "codex",
+          "wrapper_harness_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\wrapper-harness",
+          "wrapper_harness_verification_path": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex\\evidence\\consumer-lifecycle\\wrapper-harness-verification.json",
+          "wrapper_harness_verification_sha256": "33fe1744d3badb65dfae434d7564399c255b3dc3ab5d3ed230f09cb01dfab93e",
+          "wrapper_sandbox_dir": "C:\\ao2-public-test\\ao2-consumer-lifecycle-current-20260531T060542\\proof\\wrapper-sandboxes\\codex"
+        }
+      },
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_lifecycles_sha256": "e2d0c54bd3c1cb0f0626ad9019eb172f4db125aad8dcb75ba1b37deabeb2e417",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/consumer-lifecycle-observer-bundle-codex-cron-20260531T060542Z/k37-plugin-consumer-lifecycle-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

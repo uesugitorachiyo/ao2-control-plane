@@ -1,0 +1,976 @@
+{
+  "apply_result_observation": {
+    "observed_platforms": [],
+    "required_schema_version": "ao2.pulse-apply-result.v1",
+    "schema_version": "ao2.k37-pulse-apply-result-observation.v1",
+    "source_ao2_head": "d968ada29f8706314a7555c43af7d63742b7968d",
+    "status": "not_collected_in_current_executor_refresh",
+    "unavailable_platforms": {
+      "macos": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      },
+      "ubuntu": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      },
+      "windows": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      }
+    }
+  },
+  "archive_path": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/k37-pulse-executor-observer-bundle.tar.gz",
+  "archive_sha256": "d47fbe825e73fa8c6d269444890636eea5ac49e09b40ebcc93014aa519fa451a",
+  "c85": {
+    "hosted_github_actions_checked": true,
+    "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+    "rerun_allowed_without_user_billing_fix": true,
+    "status": "passed"
+  },
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "current_ao2_head": "d968ada29f8706314a7555c43af7d63742b7968d",
+  "dry_run_task_observation": {
+    "observed_platforms": [],
+    "required_schema_version": "ao2.pulse-dry-run-task.v1",
+    "schema_version": "ao2.k37-pulse-dry-run-task-observation.v1",
+    "source_ao2_head": "d968ada29f8706314a7555c43af7d63742b7968d",
+    "status": "not_collected_in_current_executor_refresh",
+    "unavailable_platforms": {
+      "macos": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      },
+      "ubuntu": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      },
+      "windows": {
+        "reason": "This observer bundle observes current ao2.pulse-executor.v1 governed-task and task-result evidence only; apply-result evidence is observed by the separate pulse-apply-result observer bundle.",
+        "status": "not_collected_in_current_executor_refresh"
+      }
+    }
+  },
+  "factory_v3_role": "parity_auditor",
+  "generated_at": "2026-06-05T00:06:30Z",
+  "observed_evidence_scope": [
+    "ao2.pulse-executor.v1",
+    "ao2.pulse-governed-task.v1",
+    "ao2.pulse-task-result.v1"
+  ],
+  "platform_count": 3,
+  "platform_evidence": {
+    "macos": {
+      "artifacts": {
+        "governed_task_evidence": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-governed-task.json",
+        "governed_task_evidence_sha256": "60106e77fd7c360e56e805f7af8f4f64534cdcf61f31084e4eb4f5de07463bdc",
+        "pulse_executor": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-executor.json",
+        "pulse_task_result": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-task-result.json",
+        "pulse_task_result_sha256": "42a57f6ab9afeda97b70e4e26d5a1a25b3f3bbb3cbdef5223a280ae530001235"
+      },
+      "bundled_paths": {
+        "governed_task_evidence": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/macos/pulse-governed-task.json",
+        "pulse_executor": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/macos/pulse-executor.json",
+        "pulse_task_result": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/macos/pulse-task-result.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "executed_tasks": [
+        {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        }
+      ],
+      "generated_at": "2026-06-04T23:55:56Z",
+      "governed_task_evidence": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "closer": {
+          "blockers": [],
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "evaluator": {
+          "decision": "accept_non_c85_governed_task",
+          "factory_v3_evaluator_closer_reference": true,
+          "reason": "Selected task contract is non-C85, AO2-owned, evaluator/closer bounded, and forbidden side effects are false."
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "generated_at": "2026-06-04T23:55:56Z",
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-governed-task.json",
+        "prior_chain": {
+          "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "60106e77fd7c360e56e805f7af8f4f64534cdcf61f31084e4eb4f5de07463bdc",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "observed_inputs": {
+        "board": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/packet.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-executor.json",
+      "prior_chain": {
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-chain.json",
+        "schema_version": "ao2.pulse-chain.v1",
+        "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+        "status": "planned_without_execution"
+      },
+      "pulse_task_result": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "evaluator_closer": {
+          "closer_decision": "accepted",
+          "evaluator_decision": "accept_non_c85_governed_task",
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "execution_mode": "deterministic_local_evidence",
+        "generated_at": "2026-06-04T23:55:56Z",
+        "governed_task_evidence": {
+          "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-governed-task.json",
+          "schema_version": "ao2.pulse-governed-task.v1",
+          "sha256": "60106e77fd7c360e56e805f7af8f4f64534cdcf61f31084e4eb4f5de07463bdc",
+          "status": "accepted"
+        },
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/macos/pulse-task-result.json",
+        "prior_chain": {
+          "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-task-result.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "42a57f6ab9afeda97b70e4e26d5a1a25b3f3bbb3cbdef5223a280ae530001235",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --execute",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-executor.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "governed_eval_loop_chain",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "sha256": "2fcd26893e21a223670f6d4cd1829bfc7fece7562be2160727a732ec2464acb8",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "status": "executed_governed_task",
+      "task_contract": {
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-task-contract.json",
+        "schema_version": "ao2.pulse-task-contract.v1",
+        "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "ubuntu": {
+      "artifacts": {
+        "governed_task_evidence": "../ubuntu/pulse-governed-task.json",
+        "governed_task_evidence_sha256": "5064d9f542ba886ba248e35c124f7902c5291649f4f6856320abac29bf762e62",
+        "pulse_executor": "../ubuntu/pulse-executor.json",
+        "pulse_task_result": "../ubuntu/pulse-task-result.json",
+        "pulse_task_result_sha256": "5261339b1fb90986e5aba8bfb4f4324cdf0aca3d2a31f50c62b4496ad670926a"
+      },
+      "bundled_paths": {
+        "governed_task_evidence": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/ubuntu/pulse-governed-task.json",
+        "pulse_executor": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/ubuntu/pulse-executor.json",
+        "pulse_task_result": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/ubuntu/pulse-task-result.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "executed_tasks": [
+        {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        }
+      ],
+      "generated_at": "2026-06-04T23:57:55Z",
+      "governed_task_evidence": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "closer": {
+          "blockers": [],
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "evaluator": {
+          "decision": "accept_non_c85_governed_task",
+          "factory_v3_evaluator_closer_reference": true,
+          "reason": "Selected task contract is non-C85, AO2-owned, evaluator/closer bounded, and forbidden side effects are false."
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "generated_at": "2026-06-04T23:57:55Z",
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/ubuntu/pulse-governed-task.json",
+        "prior_chain": {
+          "path": "../input/pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "5064d9f542ba886ba248e35c124f7902c5291649f4f6856320abac29bf762e62",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "../input/pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "observed_inputs": {
+        "board": "../input/BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "../input/packet.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/ubuntu/pulse-executor.json",
+      "prior_chain": {
+        "path": "../input/pulse-chain.json",
+        "schema_version": "ao2.pulse-chain.v1",
+        "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+        "status": "planned_without_execution"
+      },
+      "pulse_task_result": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "evaluator_closer": {
+          "closer_decision": "accepted",
+          "evaluator_decision": "accept_non_c85_governed_task",
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "execution_mode": "deterministic_local_evidence",
+        "generated_at": "2026-06-04T23:57:55Z",
+        "governed_task_evidence": {
+          "path": "../ubuntu/pulse-governed-task.json",
+          "schema_version": "ao2.pulse-governed-task.v1",
+          "sha256": "5064d9f542ba886ba248e35c124f7902c5291649f4f6856320abac29bf762e62",
+          "status": "accepted"
+        },
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/ubuntu/pulse-task-result.json",
+        "prior_chain": {
+          "path": "../input/pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-task-result.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "5261339b1fb90986e5aba8bfb4f4324cdf0aca3d2a31f50c62b4496ad670926a",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "../input/pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --execute",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-executor.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "governed_eval_loop_chain",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "sha256": "e8675447222c04dd23cffb51d9e8a6c560cb602f7cdddb5c9f7014c8e4486c14",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "status": "executed_governed_task",
+      "task_contract": {
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "path": "../input/pulse-task-contract.json",
+        "schema_version": "ao2.pulse-task-contract.v1",
+        "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "windows": {
+      "artifacts": {
+        "governed_task_evidence": "..\\windows\\pulse-governed-task.json",
+        "governed_task_evidence_sha256": "46fbe10913bdd1445ead8261f7c3d4705cd371f90ef93750336afd6fb68002e6",
+        "pulse_executor": "..\\windows\\pulse-executor.json",
+        "pulse_task_result": "..\\windows\\pulse-task-result.json",
+        "pulse_task_result_sha256": "28ac4634c7ca704da141c73a83f8f10737866d41caade45b7db40ac97c5eba24"
+      },
+      "bundled_paths": {
+        "governed_task_evidence": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/windows/pulse-governed-task.json",
+        "pulse_executor": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/windows/pulse-executor.json",
+        "pulse_task_result": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/bundle/platforms/windows/pulse-task-result.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "executed_tasks": [
+        {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        }
+      ],
+      "generated_at": "2026-06-05T00:02:49Z",
+      "governed_task_evidence": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "closer": {
+          "blockers": [],
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "evaluator": {
+          "decision": "accept_non_c85_governed_task",
+          "factory_v3_evaluator_closer_reference": true,
+          "reason": "Selected task contract is non-C85, AO2-owned, evaluator/closer bounded, and forbidden side effects are false."
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "generated_at": "2026-06-05T00:02:49Z",
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/windows/pulse-governed-task.json",
+        "prior_chain": {
+          "path": "..\\input\\pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "46fbe10913bdd1445ead8261f7c3d4705cd371f90ef93750336afd6fb68002e6",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "..\\input\\pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "observed_inputs": {
+        "board": "..\\input\\BOARD.md",
+        "board_sha256": "6f4990dac3954792600873dc3d106471d15c1ff0cd83380653c8c776d773f5d5",
+        "packet": "..\\input\\packet.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "8371bc830f897398e89bd0723c67a01515da160c0031de564f0312a8155935a8"
+      },
+      "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/windows/pulse-executor.json",
+      "prior_chain": {
+        "path": "..\\input\\pulse-chain.json",
+        "schema_version": "ao2.pulse-chain.v1",
+        "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+        "status": "planned_without_execution"
+      },
+      "pulse_task_result": {
+        "c85": {
+          "hosted_github_actions_checked": true,
+          "reason": "prior chain evidence records hosted C85 Release Gate passed before Pulse execute evidence",
+          "rerun_allowed_without_user_billing_fix": true,
+          "status": "passed"
+        },
+        "evaluator_closer": {
+          "closer_decision": "accepted",
+          "evaluator_decision": "accept_non_c85_governed_task",
+          "evidence_digest_required": true,
+          "release_acceptance_owner": "factory-v3 evaluator-closer",
+          "status": "accepted"
+        },
+        "executed_task": {
+          "c85": false,
+          "evaluator_closer": {
+            "closer_decision": "accepted",
+            "evaluator_decision": "accept_non_c85_governed_task",
+            "evidence_digest_required": true,
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "status": "accepted"
+          },
+          "execution_kind": "governed_task_contract",
+          "factory_v3_evaluator_closer_required": true,
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false,
+          "status": "executed",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "execution_mode": "deterministic_local_evidence",
+        "generated_at": "2026-06-05T00:02:49Z",
+        "governed_task_evidence": {
+          "path": "..\\windows\\pulse-governed-task.json",
+          "schema_version": "ao2.pulse-governed-task.v1",
+          "sha256": "46fbe10913bdd1445ead8261f7c3d4705cd371f90ef93750336afd6fb68002e6",
+          "status": "accepted"
+        },
+        "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/windows/pulse-task-result.json",
+        "prior_chain": {
+          "path": "..\\input\\pulse-chain.json",
+          "schema_version": "ao2.pulse-chain.v1",
+          "sha256": "96124b2cf5021d7e72562b70c5bef6b24314ba4735f776738fb1da0a6fc15633",
+          "status": "planned_without_execution"
+        },
+        "schema_version": "ao2.pulse-task-result.v1",
+        "selected_task": {
+          "c85": false,
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "shape": "governed_eval_loop_chain",
+          "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+          "source_status": "planned",
+          "status": "selected",
+          "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+        },
+        "sha256": "28ac4634c7ca704da141c73a83f8f10737866d41caade45b7db40ac97c5eba24",
+        "side_effects": {
+          "control_plane_mutation": false,
+          "hermes_cron_watchdog_mutation": false,
+          "memory_write": false,
+          "mutates_ao_artifacts": false,
+          "provider_execution": false,
+          "queue_execution": false
+        },
+        "status": "accepted",
+        "task_contract": {
+          "id": "ao2-pulse-eval-loop-chain-next-task",
+          "path": "..\\input\\pulse-task-contract.json",
+          "schema_version": "ao2.pulse-task-contract.v1",
+          "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+        },
+        "trust_boundary": {
+          "ao2_control_plane_read_only_observer": true,
+          "ao2_execution_evidence_owner": true,
+          "control_plane_approves_release": false,
+          "control_plane_mutates_ao_artifacts": false,
+          "control_plane_observer_only": true,
+          "factory_v3_evaluator_closer_reference": true,
+          "hermes_frontend_queue_memory_surface": true
+        }
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --execute",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-executor.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "governed_eval_loop_chain",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Advance AO2 Pulse eval-loop chain toward the next bounded feature"
+      },
+      "sha256": "af9686b4e8acefbb9abb85b204465755645ea25d5e1c12b51223e3fe25fd5fe6",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "status": "executed_governed_task",
+      "task_contract": {
+        "id": "ao2-pulse-eval-loop-chain-next-task",
+        "path": "..\\input\\pulse-task-contract.json",
+        "schema_version": "ao2.pulse-task-contract.v1",
+        "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    }
+  },
+  "platform_evidence_sha256": "ddf1dd04de5e1648258eaed8794919fca3b10c13654510f68c24ab2e7573caa3",
+  "platform_progress": {
+    "blocked_platforms": [],
+    "macos": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "required_platforms": [
+      "macos",
+      "ubuntu",
+      "windows"
+    ],
+    "schema_version": "ao2.pulse-platform-progress.v1",
+    "status": "closure_ready",
+    "ubuntu": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "windows": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    }
+  },
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-pulse-executor-observer-bundle.v1",
+  "side_effects": {
+    "control_plane_mutation": false,
+    "hermes_cron_watchdog_mutation": false,
+    "memory_write": false,
+    "mutates_ao_artifacts": false,
+    "provider_execution": false,
+    "queue_execution": false,
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/pulse-eval-loop-handoff-executor-observer-20260604T170630-0700/k37-pulse-executor-observer-bundle.json",
+  "task_contract": {
+    "ao2_owned_execution": true,
+    "c85": false,
+    "factory_v3_evaluator_closer_required": true,
+    "id": "ao2-pulse-eval-loop-chain-next-task",
+    "path": "target/pulse-eval-loop-handoff-execute-three-platform-20260604T165556-0700/input/pulse-task-contract.json",
+    "schema_version": "ao2.pulse-task-contract.v1",
+    "sha256": "ddcdcb6676d6ffb62a197fe11cd0a217bf3861c8ff051f646eaac496bf514c4c"
+  },
+  "task_result_observation": {
+    "observed_platforms": [
+      "macos",
+      "ubuntu",
+      "windows"
+    ],
+    "required_schema_version": "ao2.pulse-task-result.v1",
+    "schema_version": "ao2.k37-pulse-task-result-observation.v1",
+    "source_ao2_head": "d968ada29f8706314a7555c43af7d63742b7968d",
+    "status": "ready_for_k37_observation",
+    "unavailable_platforms": {}
+  },
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 Pulse executor evidence"
+}

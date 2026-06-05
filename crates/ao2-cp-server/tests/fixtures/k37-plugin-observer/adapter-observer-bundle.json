@@ -1,0 +1,165 @@
+{
+  "archive_path": "target/adapter-observer-bundle-codex-cron-20260531T044143Z/k37-plugin-adapter-observer-bundle.tar.gz",
+  "archive_sha256": "4900170afc260fabba60149ea605ea315af89d2a87be820f066af5baf7017c01",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-adapter-scaffold.v1",
+    "ao2.plugin-adapter-scaffold-verification.v1"
+  ],
+  "platform_count": 3,
+  "platform_verifications": {
+    "macos": {
+      "bundled_path": "target/adapter-observer-bundle-codex-cron-20260531T044143Z/bundle/platforms/macos/plugin-adapter-scaffold-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-scaffold-verification.v1",
+      "sha256": "667b817d9a495bad93b4e77fe2c7d327d9bb68ab77577aab7bc01a7c18cbc56e",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/plugin-adapter-cross-platform-refresh-20260531T044143Z-collected/macos/plugin-adapter-scaffold-verification.json",
+      "status": "passed",
+      "summary_path": "target/plugin-adapter-cross-platform-refresh-20260531T044143Z-macos/adapter-scaffold/plugin-adapter-scaffold.json",
+      "summary_sha256": "8e901684771722fac39f7cdec3b326b218bdf6fd71369169e623bf333a67ced9",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "bundled_path": "target/adapter-observer-bundle-codex-cron-20260531T044143Z/bundle/platforms/ubuntu/plugin-adapter-scaffold-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-scaffold-verification.v1",
+      "sha256": "9113893a44dac2ecc7e00db67434bc79851291b30a1f9822aed557f98ffc2377",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/plugin-adapter-cross-platform-refresh-20260531T044143Z-collected/ubuntu/plugin-adapter-scaffold-verification.json",
+      "status": "passed",
+      "summary_path": "/home/nucx/ao2-adapter-refresh-e8a3d6d-20260531T044143Z/proof/adapter-scaffold/plugin-adapter-scaffold.json",
+      "summary_sha256": "0dda8ea342b9cf145815c0795786332ed2846bc443a76bc07e8cc5c442cfec6f",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "bundled_path": "target/adapter-observer-bundle-codex-cron-20260531T044143Z/bundle/platforms/windows/plugin-adapter-scaffold-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-scaffold-verification.v1",
+      "sha256": "6ad4bbf5b6d0546ea6e0e1de6922d8c834423d11487705281c6ddf7f5f8db67f",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "source_path": "target/plugin-adapter-cross-platform-refresh-20260531T044143Z-collected/windows/plugin-adapter-scaffold-verification.json",
+      "status": "passed",
+      "summary_path": "C:\\ao2-public-test\\ao2-adapter-refresh-e8a3d6d-20260531T044143Z\\proof\\adapter-scaffold\\plugin-adapter-scaffold.json",
+      "summary_sha256": "613b47d36632b9bf0838a2b707fab9121a86ec49a8d438557bf5f6a011af8f4f",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_verifications_sha256": "110eb38c8aa181c2b839735fcd42799ac40ac91fccfb63818a8f93fde7b89aff",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-plugin-adapter-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/adapter-observer-bundle-codex-cron-20260531T044143Z/k37-plugin-adapter-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

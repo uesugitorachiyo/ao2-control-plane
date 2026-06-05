@@ -1,0 +1,81 @@
+{
+  "closure_verification": {
+    "ao2_disposition": "enforced",
+    "blocker": null,
+    "category": "runtime_critical",
+    "enforcement": {
+      "ao2_artifact": "ao2.factory-closer-decision.v1",
+      "ao2_command": "ao2 factory closer-decision",
+      "ao2_test": "cli_factory_closer_decision_signs_and_verifies_rubric_bound_closure"
+    },
+    "name": "closure_verification",
+    "source_path": "/tmp/ao2-public-test/factory-v3/scripts/verify_closure.py",
+    "source_relative_path": "scripts/verify_closure.py",
+    "source_repo": "factory-v3",
+    "source_sha256": "e1a01d1b052d97a17f6da76a31d6281c19ebe255d38e845204d42b72357f023a",
+    "trust_boundary_notes": "AO2 signs rubric-bound closer decisions while factory-v3 remains a parity auditor."
+  },
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "created_at": "2026-06-01T21:07:26Z",
+  "decision": "accepted",
+  "evidence_path": "target/closer-decision-codex-cron-20260601T015000-0700/release-candidate-verification.json",
+  "evidence_schema_version": "ao2.plugin-release-candidate-verification.v1",
+  "evidence_sha256": "6653e932b6c64c63f5a1cb4a8be2feeb539288d667b319c4dd69e68975ed8bb8",
+  "evidence_status": "passed",
+  "factory_v3_role": "parity_auditor",
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "rubric": {
+    "path": "target/closer-decision-codex-cron-20260601T015000-0700/evaluator-rubric.json",
+    "schema_version": "ao2.factory-evaluator-rubric.v1",
+    "signature_status": "signed",
+    "signature_verified": true,
+    "status": "accepted"
+  },
+  "rubric_sha256": "de7edc204466203f36f97742d7f8335a807f28293471685fda27893edb2bce0b",
+  "run_id": "governed-closer-codex-cron",
+  "schema_version": "ao2.factory-closer-decision.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "signature": {
+    "public_key_path": "closer-decision.public.pem",
+    "public_key_sha256": "71e914d6f712c9a4375048e9f022f2033735fdeae4cfe4feddeae24b64930c5c",
+    "schema_version": "ao2.factory-closer-decision-signature.v1",
+    "signature_algorithm": "RSA/SHA-256",
+    "signature_path": "closer-decision.json.sig",
+    "signature_sha256": "d2c8dd0854decf8227c4cd494ad66e0637df7849e60782916fcbb3077500a78c",
+    "signature_status": "signed",
+    "signature_verified": true,
+    "signed_payload": "closer_decision_without_signature_field",
+    "signed_payload_path": "closer-decision.signed-payload.json",
+    "signed_payload_sha256": "9190119a5802b44ca6cd06d1176f8adb4d0455451ceef71a8148013b774bbd08",
+    "signer_id": "ao2-closer-decision-codex-cron-skill-contract-refresh"
+  },
+  "skill_contract_manifest_path": "target/skill-contract-manifest-codex-cron-20260601T140525-0700/skill-contract-manifest.json",
+  "skill_contract_manifest_sha256": "bb94382e9b76a7d67df19e9c0f9aa796230007f9ee935e07577ce7c2b7abfdd3",
+  "status": "accepted",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false,
+    "release_acceptance_owner": "ao2 evaluator-closer"
+  }
+}

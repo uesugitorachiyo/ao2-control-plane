@@ -1,0 +1,33 @@
+{
+  "artifact_count": 16,
+  "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T143216Z/queued-project-start/project-start-handoff.tgz",
+  "bundle_sha256": "f6ce63aa4ae477d10101f576cb84c5f36efe4177d77b7c13d877c4f171d3c1ca",
+  "checks": {
+    "acceptance_rubric_signature_verified": true,
+    "acceptance_rubric_verified": true,
+    "manifest_verified": true,
+    "project_acceptance_review_signature_verified": true,
+    "project_acceptance_review_verified": true,
+    "project_run_verified": true,
+    "project_start_verified": true,
+    "review_project_run_digest_matches": true,
+    "review_rubric_digest_matches": true,
+    "secret_scan_passed": true,
+    "sha256sums_verified": true,
+    "trust_boundary_verified": true
+  },
+  "failure_count": 0,
+  "failures": [],
+  "files_checked": 18,
+  "schema_version": "ao2.factory-project-start-bundle-verification.v1",
+  "status": "accepted",
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

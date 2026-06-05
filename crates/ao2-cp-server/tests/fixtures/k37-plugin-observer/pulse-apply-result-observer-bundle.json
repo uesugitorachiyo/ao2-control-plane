@@ -1,0 +1,315 @@
+{
+  "archive_path": "C:\\\\Users\\\\antho\\\\AI Agent Teams\\\\ao2-pulse-progress-observer-20260603\\\\pulse-apply-windows-recovery\\pulse-apply-observer-bundle\\k37-pulse-apply-result-observer-bundle.tar.gz",
+  "archive_sha256": "a92196a6c1ac6e449f5846db620d2cec7b5ba66a4127e3226f1d8a530d609a0c",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.pulse-apply-result.v1"
+  ],
+  "platform_apply_results": {
+    "macos": {
+      "applied_file_operations": [
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 377,
+          "executed": true,
+          "mode": "applied",
+          "operation": "inspect_current_plugin_readiness_line",
+          "path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md",
+          "planned_path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 450,
+          "executed": true,
+          "mode": "applied",
+          "operation": "write_dry_run_status_handoff",
+          "path": "docs/status/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 456,
+          "executed": true,
+          "mode": "applied",
+          "operation": "mirror_factory_v3_evaluator_status",
+          "path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        }
+      ],
+      "bundled_path": "C:\\\\Users\\\\antho\\\\AI Agent Teams\\\\ao2-pulse-progress-observer-20260603\\\\pulse-apply-windows-recovery\\pulse-apply-observer-bundle\\bundle\\platforms\\macos\\pulse-apply-result.json",
+      "dry_run_task": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-dry-run-task.json",
+        "schema_version": "ao2.pulse-dry-run-task.v1",
+        "sha256": "2b588063b14fb3d2d456f0372a91f13553542de1498c8e75471dc3f54bc0f251",
+        "status": "planned_without_mutation"
+      },
+      "evaluator_closer": {
+        "closer_decision": "accepted",
+        "evaluator_decision": "accept_non_c85_governed_task",
+        "evidence_digest_required": true,
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "status": "accepted"
+      },
+      "execution_mode": "bounded_planned_file_apply",
+      "governed_task_evidence": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-governed-task.json",
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "sha256": "8f93e9fb09468a6a587f167954243e5178e5365c40dfabbdae989b7c2b6a1f7f",
+        "status": "accepted"
+      },
+      "schema_version": "ao2.pulse-apply-result.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "pulse-plugin-readiness-apply",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "greenfield",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Apply plugin readiness maintenance through AO2"
+      },
+      "sha256": "43c32391fbf257aa23fbc7b478c93e8cd89a8e3a88e5797240aa7fd399470b09",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "C:\\ao2-public-test\\AI Agent Teams\\ao2-pulse-progress-observer-20260603\\pulse-apply-windows-recovery\\observer-bundle\\platforms\\macos\\pulse-apply-result.json",
+      "status": "accepted",
+      "task_result": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-task-result.json",
+        "schema_version": "ao2.pulse-task-result.v1",
+        "sha256": "57f09b38a4257f4e9db1b348cd2c2608c20112c06bdb4c67baacb60071eaf087",
+        "status": "accepted"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "ubuntu": {
+      "applied_file_operations": [
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 377,
+          "executed": true,
+          "mode": "applied",
+          "operation": "inspect_current_plugin_readiness_line",
+          "path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md",
+          "planned_path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 450,
+          "executed": true,
+          "mode": "applied",
+          "operation": "write_dry_run_status_handoff",
+          "path": "docs/status/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 456,
+          "executed": true,
+          "mode": "applied",
+          "operation": "mirror_factory_v3_evaluator_status",
+          "path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        }
+      ],
+      "bundled_path": "C:\\\\Users\\\\antho\\\\AI Agent Teams\\\\ao2-pulse-progress-observer-20260603\\\\pulse-apply-windows-recovery\\pulse-apply-observer-bundle\\bundle\\platforms\\ubuntu\\pulse-apply-result.json",
+      "dry_run_task": {
+        "path": "/home/nucx/ao2-pulse-apply-result-20260602T103427/dry-run/pulse-dry-run-task.json",
+        "schema_version": "ao2.pulse-dry-run-task.v1",
+        "sha256": "5a455e6da54a44bb6d85f81cbb01e5842f70f8619d8443a296a21a8c847de301",
+        "status": "planned_without_mutation"
+      },
+      "evaluator_closer": {
+        "closer_decision": "accepted",
+        "evaluator_decision": "accept_non_c85_governed_task",
+        "evidence_digest_required": true,
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "status": "accepted"
+      },
+      "execution_mode": "bounded_planned_file_apply",
+      "governed_task_evidence": {
+        "path": "/home/nucx/ao2-pulse-apply-result-20260602T103427/dry-run/pulse-governed-task.json",
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "sha256": "a5c2e9bc3fbdfd91c4cc6579fbcfb1a73732ed8ee941ba6cc639b5eafd1f2a12",
+        "status": "accepted"
+      },
+      "schema_version": "ao2.pulse-apply-result.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "pulse-plugin-readiness-apply",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "greenfield",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Apply plugin readiness maintenance through AO2"
+      },
+      "sha256": "05a8eaa657e7a4a7535e0c58ebab4454991b74348b5ae17c888fdd2d9009bf3f",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "C:\\ao2-public-test\\AI Agent Teams\\ao2-pulse-progress-observer-20260603\\pulse-apply-windows-recovery\\observer-bundle\\platforms\\ubuntu\\pulse-apply-result.json",
+      "status": "accepted",
+      "task_result": {
+        "path": "/home/nucx/ao2-pulse-apply-result-20260602T103427/dry-run/pulse-task-result.json",
+        "schema_version": "ao2.pulse-task-result.v1",
+        "sha256": "98ac36b8b25639f4b5360afc2ac8366d8a01adbde997cf0ba6dcce9616df97eb",
+        "status": "accepted"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "windows": {
+      "applied_file_operations": [
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 377,
+          "executed": true,
+          "mode": "applied",
+          "operation": "inspect_current_plugin_readiness_line",
+          "path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md",
+          "planned_path": "docs/PLUGIN-SHIPMENT-RUNBOOK.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 450,
+          "executed": true,
+          "mode": "applied",
+          "operation": "write_dry_run_status_handoff",
+          "path": "docs/status/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        },
+        {
+          "allowed_by_dry_run": true,
+          "bytes_written": 456,
+          "executed": true,
+          "mode": "applied",
+          "operation": "mirror_factory_v3_evaluator_status",
+          "path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-apply-result-final.md",
+          "planned_path": "docs/status/hermes-governed-backend-control-plane/codex-cron-pulse-dry-run-task-final-<timestamp>.md"
+        }
+      ],
+      "bundled_path": "C:\\\\Users\\\\antho\\\\AI Agent Teams\\\\ao2-pulse-progress-observer-20260603\\\\pulse-apply-windows-recovery\\pulse-apply-observer-bundle\\bundle\\platforms\\windows\\pulse-apply-result.json",
+      "dry_run_task": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-dry-run-task.json",
+        "schema_version": "ao2.pulse-dry-run-task.v1",
+        "sha256": "2b588063b14fb3d2d456f0372a91f13553542de1498c8e75471dc3f54bc0f251",
+        "status": "planned_without_mutation"
+      },
+      "evaluator_closer": {
+        "closer_decision": "accepted",
+        "evaluator_decision": "accept_non_c85_governed_task",
+        "evidence_digest_required": true,
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
+        "status": "accepted"
+      },
+      "execution_mode": "bounded_planned_file_apply",
+      "governed_task_evidence": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-governed-task.json",
+        "schema_version": "ao2.pulse-governed-task.v1",
+        "sha256": "8f93e9fb09468a6a587f167954243e5178e5365c40dfabbdae989b7c2b6a1f7f",
+        "status": "accepted"
+      },
+      "schema_version": "ao2.pulse-apply-result.v1",
+      "selected_task": {
+        "c85": false,
+        "classification": "COMPLEX",
+        "id": "pulse-plugin-readiness-apply",
+        "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+        "shape": "greenfield",
+        "source_chain_step": "observe-pulse-once-and-select-next-safe-task",
+        "source_status": "planned",
+        "status": "selected",
+        "title": "Apply plugin readiness maintenance through AO2"
+      },
+      "sha256": "43c32391fbf257aa23fbc7b478c93e8cd89a8e3a88e5797240aa7fd399470b09",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "C:\\ao2-public-test\\AI Agent Teams\\ao2-pulse-progress-observer-20260603\\pulse-apply-windows-recovery\\inputs\\pulse-apply-result.json",
+      "status": "accepted",
+      "task_result": {
+        "path": "target/ao2-pulse-apply-result-codex-cron-20260602T103427-0700/dry-run/pulse-task-result.json",
+        "schema_version": "ao2.pulse-task-result.v1",
+        "sha256": "57f09b38a4257f4e9db1b348cd2c2608c20112c06bdb4c67baacb60071eaf087",
+        "status": "accepted"
+      },
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    }
+  },
+  "platform_apply_results_sha256": "d76beb253cc99821be7876b6788f8d4048264bdc05fa5be9026582c8e08e69d6",
+  "platform_count": 3,
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-pulse-apply-result-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "C:\\\\Users\\\\antho\\\\AI Agent Teams\\\\ao2-pulse-progress-observer-20260603\\\\pulse-apply-windows-recovery\\pulse-apply-observer-bundle\\k37-pulse-apply-result-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "unavailable_platforms": {},
+  "work_source": "codex-cron AO2 Pulse apply evidence"
+}

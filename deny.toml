@@ -1,0 +1,65 @@
+# cargo-deny configuration for the AO2 Control Plane.
+#
+# Scope split (see .github/workflows/ci.yml):
+#   - The `deny` CI job runs `cargo deny check bans licenses sources`.
+#   - Advisory scanning lives in the dedicated `audit` job (cargo-audit),
+#     so the [advisories] block here only matters for a local full
+#     `cargo deny check` and is kept in sync with that job's disposition.
+#
+# This is a read-only observer service: the goal of these gates is supply-chain
+# hygiene (no copyleft creep, no surprise crate sources, visible duplicate
+# versions) rather than blocking the build on transient upstream churn.
+
+[graph]
+# Evaluate the dependency graph for every target the workspace actually builds
+# on (CI runs the Linux/macOS/Windows test matrix). Leaving this unset would
+# only consider the host target and could miss platform-specific deps.
+all-features = true
+
+[advisories]
+# Mirrors the cargo-audit job in CI. rsa 0.9.x Marvin Attack: we use rsa for
+# signature *verification* only (public-key modexp via the `Verifier` trait),
+# not decryption, so the timing side-channel is not exposed. Full disposition:
+# docs/security/advisory-dispositions.md.
+ignore = ["RUSTSEC-2023-0071"]
+
+[licenses]
+# Permissive-only allow-list. Every crate in the current tree resolves to one
+# of these via SPDX OR/AND evaluation. Notably BSD-3-Clause is required by
+# `subtle` (BSD-3-Clause only, no OR) and Unicode-3.0 by `unicode-ident`
+# (`(MIT OR Apache-2.0) AND Unicode-3.0`). No copyleft (GPL/LGPL/MPL) is
+# allowed — any such crate must fail the build for a deliberate review.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "ISC",
+    "Unicode-3.0",
+    "Unlicense",
+    "Zlib",
+]
+# Default 0.8 is fine; raise the bar slightly for clearer license-text matches.
+confidence-threshold = 0.85
+
+[bans]
+# Duplicate versions are reported but do NOT fail the build: the current tree
+# legitimately carries a few transitive duplicates (thiserror 1+2, tower-http
+# 0.5+0.6, rand 0.8+0.9, wit-bindgen 0.51+0.57) pulled by upstream crates we
+# don't control. Surfacing them as warnings keeps them visible without
+# blocking on churn we can't unify ourselves.
+multiple-versions = "warn"
+# Wildcard ("*") version requirements are a real footgun — forbid them in our
+# own manifests. The three intra-workspace crates depend on each other by
+# path with a `*` version, which is the normal workspace idiom; exempt those.
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+# Only crates.io and no git dependencies. A new registry or a git dep must be
+# an explicit, reviewed change.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

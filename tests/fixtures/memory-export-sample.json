@@ -1,0 +1,31 @@
+{
+  "schema_version": "ao2.memory-export.v1",
+  "generated_at_ms": 1779235200000,
+  "target": "/tmp/ao2-demo",
+  "query": "hermes bridge",
+  "limit": 25,
+  "record_count": 1,
+  "link_count": 1,
+  "records": [
+    {
+      "id": "rec-001",
+      "kind": "note",
+      "summary": "Hermes bridge memory note",
+      "body": "Bridge should remember durable operator decisions.",
+      "created_at_ms": 1779235200000,
+      "tags": ["hermes", "bridge"]
+    }
+  ],
+  "links": [
+    {
+      "run_id": "run-001",
+      "memory_id": "rec-001",
+      "linked_at_ms": 1779235201000
+    }
+  ],
+  "signing": {
+    "present": true,
+    "signature_verified": true,
+    "public_key_sha256": "8c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c"
+  }
+}

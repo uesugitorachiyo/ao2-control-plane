@@ -1,0 +1,168 @@
+{
+  "archive_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/bundle/k37-plugin-adapter-install-smoke-observer-bundle.tar.gz",
+  "archive_sha256": "20ecc48ff8f13b0516c4560464af22a9a39ed28f8d463d6bee55b26975f43d8e",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-adapter-install-smoke.v1",
+    "ao2.plugin-adapter-install-smoke-verification.v1"
+  ],
+  "platform_count": 3,
+  "platform_verifications": {
+    "macos": {
+      "adapter_install_smoke_schema_version": "ao2.plugin-adapter-install-smoke.v1",
+      "bundled_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/bundle/bundle/platforms/macos/plugin-adapter-install-smoke-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-install-smoke-verification.v1",
+      "sha256": "9330a0c900c401bf521c0c6a0be05143ea09ef95813da1fb4b8c469e9ada97de",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "smoke_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/macos/plugin-adapter-install-smoke.json",
+      "smoke_sha256": "47836aa5409b5faf7a2c86ca38fce209dfb2a2518f238a8be9a70964c62f2116",
+      "source_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/macos/plugin-adapter-install-smoke-verification.json",
+      "status": "passed",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "adapter_install_smoke_schema_version": "ao2.plugin-adapter-install-smoke.v1",
+      "bundled_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/bundle/bundle/platforms/ubuntu/plugin-adapter-install-smoke-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-install-smoke-verification.v1",
+      "sha256": "88e8115144ed004c2e54322ccd82f8bfa26d6135c912cd25324bd49bc4c9ca3d",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "smoke_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/ubuntu/plugin-adapter-install-smoke.json",
+      "smoke_sha256": "cb78b14bb602e2a127ebc5d3a7706d2ce154683855159791821a4c0951092b5d",
+      "source_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/ubuntu/plugin-adapter-install-smoke-verification.json",
+      "status": "passed",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "adapter_install_smoke_schema_version": "ao2.plugin-adapter-install-smoke.v1",
+      "bundled_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/bundle/bundle/platforms/windows/plugin-adapter-install-smoke-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.plugin-adapter-install-smoke-verification.v1",
+      "sha256": "43f7923dbe5eacc2805ae5985e28fea757e17858abeeb7c53132d2124d347a33",
+      "side_effects": {
+        "ao_artifacts_mutated": false,
+        "control_plane_mutated": false,
+        "memory_written": false,
+        "provider_execution_started": false,
+        "queue_mutated": false,
+        "release_approved": false
+      },
+      "smoke_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/windows/plugin-adapter-install-smoke.json",
+      "smoke_sha256": "40281e0104403fb95ab6c32431abfd89c91a87ad42d4fdeb53027dbc3052a1cc",
+      "source_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/windows/plugin-adapter-install-smoke-verification.json",
+      "status": "passed",
+      "targets": [
+        "codex",
+        "claude"
+      ],
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_verifications_sha256": "f3da5af685c567489f02b6f2a7b7f8bc6aecef70fefdc88bc9a6b0e9d5be8f55",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/adapter-install-smoke-observer-bundle-codex-cron-20260531T000000-0700/bundle/k37-plugin-adapter-install-smoke-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

@@ -1,0 +1,164 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint (fmt + clippy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  deny:
+    name: Cargo deny (bans + licenses + sources)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-deny
+        run: cargo install --locked cargo-deny
+      # Checks dependency bans (duplicate versions), license allow-list, and
+      # source allow-list against the checked-in deny.toml. Advisory scanning
+      # remains in the dedicated `audit` job (cargo-audit).
+      - name: Deny check
+        run: cargo deny check bans licenses sources
+
+  audit:
+    name: Cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-audit
+        run: cargo install --locked cargo-audit
+      # RUSTSEC-2023-0071 (rsa 0.9.x Marvin Attack) ignored: we use rsa only
+      # for signature *verification* (public-key modexp via the `Verifier`
+      # trait). The Marvin Attack targets RSA *decryption* timing
+      # sidechannels; verify-only paths are not exposed. See
+      # docs/security/advisory-dispositions.md for the full disposition.
+      - name: Audit dependencies
+        run: cargo audit --deny warnings --ignore RUSTSEC-2023-0071
+
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # Fast-fail on style/lint before spending the 3-OS test matrix.
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      # Two release_publication tests spawn 500-concurrent HTTP bursts that
+      # exhaust the default file-descriptor soft limit on Linux (1024) and macOS
+      # (256). Raising the soft limit to 65536 stays well under both runner
+      # hard caps and does not need sudo. See README "Running tests" section.
+      - name: Test (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ulimit -n 65536 && cargo test --workspace
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        run: cargo test --workspace
+
+  ingest-smoke:
+    name: Ingest smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            shell: bash
+          - name: macos-aarch64
+            os: macos-latest
+            shell: bash
+          - name: windows-x86_64
+            os: windows-latest
+            shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run Unix ingest smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: scripts/smoke-ingest-from-ao2.sh
+      - name: Run Windows ingest smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: ./scripts/smoke-ingest-from-ao2.ps1
+
+  smoke:
+    name: Release archive smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    needs: ingest-smoke
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            target_label: linux-x86_64
+            binary: target/release/ao2-cp-server
+            archive: dist/ao2-control-plane-0.1.12-linux-x86_64.tar.gz
+            shell: bash
+          - name: macos-aarch64
+            os: macos-latest
+            target_label: macos-aarch64
+            binary: target/release/ao2-cp-server
+            archive: dist/ao2-control-plane-0.1.12-macos-aarch64.tar.gz
+            shell: bash
+          - name: windows-x86_64
+            os: windows-latest
+            target_label: windows-x86_64
+            binary: target/release/ao2-cp-server.exe
+            archive: dist/ao2-control-plane-0.1.12-windows-x86_64.tar.gz
+            shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+      - name: Package archive
+        shell: bash
+        run: |
+          scripts/package-local.sh \
+            --out-dir dist \
+            --version 0.1.12 \
+            --binary "${{ matrix.binary }}" \
+            --target-label "${{ matrix.target_label }}"
+      - name: Run Unix archive smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: |
+          AO2_CP_ARCHIVE="${{ matrix.archive }}" \
+            AO2_CP_SMOKE_JSON="target/release-smoke/${{ matrix.target_label }}.json" \
+            scripts/smoke-release-archive.sh
+      - name: Run Windows archive smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: |
+          $env:AO2_CP_ARCHIVE = "${{ matrix.archive }}"
+          $env:AO2_CP_SMOKE_JSON = "target/release-smoke/${{ matrix.target_label }}.json"
+          ./scripts/smoke-release-archive.ps1
+      - name: Upload smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ao2-control-plane-smoke-${{ matrix.target_label }}
+          path: target/release-smoke/${{ matrix.target_label }}.json

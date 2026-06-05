@@ -1,0 +1,346 @@
+{
+  "approvals": [
+    {
+      "action_digest": "e599b65edfdea955ac14129a25bd808d573e0f3da946ba1e8c82f069a67af6ae",
+      "approver": "human:local-user",
+      "created_at": "2026-05-28T02:34:41.941216Z",
+      "expires_at": "2026-05-28T03:04:41.941216Z",
+      "requested_action": "filesystem:write_file",
+      "requester": "role:implementer",
+      "risk_class": "external_write",
+      "run_id": "factory-app-smoke",
+      "scope": "provider_sandbox_patch",
+      "status": "approved",
+      "ticket_id": "approval-a47414f6-5533-4d40-8cdb-b404c10ed67e"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "art-7bb9e82d-68e9-4487-a94d-7066f0e16eae",
+      "artifact_type": "context_bundle",
+      "digest": "b43acd3c54de9e855f875a6fd72fdf7a94cbb367de23e7ec1a362a5bd0b34356",
+      "input_refs": [],
+      "media_type": "application/json",
+      "producer": "planner",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-7bb9e82d-68e9-4487-a94d-7066f0e16eae/context.json"
+    },
+    {
+      "artifact_id": "art-1a812184-7323-4598-be8a-2d25b226263b",
+      "artifact_type": "plan",
+      "digest": "d97aa0a76b04b6704f8f5ea31a2e391910a288c9bbf7defd2e06485961b3d4b2",
+      "input_refs": [
+        "art-7bb9e82d-68e9-4487-a94d-7066f0e16eae"
+      ],
+      "media_type": "text/markdown",
+      "producer": "planner",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-1a812184-7323-4598-be8a-2d25b226263b/plan.md"
+    },
+    {
+      "artifact_id": "art-2a37634e-755a-4f6f-b02a-f76e98e0fbfe",
+      "artifact_type": "provider_prompt_transcript",
+      "digest": "80d5be1852c96393074ee160bfa853172232417eaf39d44bc50122398e8a73fb",
+      "input_refs": [],
+      "media_type": "application/json",
+      "producer": "implementer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-2a37634e-755a-4f6f-b02a-f76e98e0fbfe/provider-prompt-transcript.json"
+    },
+    {
+      "artifact_id": "art-43944c50-6629-4ac5-a998-37a8e714667a",
+      "artifact_type": "provider_transcript_summary",
+      "digest": "e2abf043b8d046b446a357996c73d4cfc0f4bdc21c4e58254d9f5f836db8f3c4",
+      "input_refs": [
+        "art-2a37634e-755a-4f6f-b02a-f76e98e0fbfe"
+      ],
+      "media_type": "application/json",
+      "producer": "implementer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-43944c50-6629-4ac5-a998-37a8e714667a/provider-transcript-summary.json"
+    },
+    {
+      "artifact_id": "art-9f02f93c-e633-4934-b38e-34eea9c9cd3b",
+      "artifact_type": "sandbox_patch_preview",
+      "digest": "da8419014d93e2408b1973bc9552c29e45326079c9e791a78ca517b51fc05529",
+      "input_refs": [
+        "art-2a37634e-755a-4f6f-b02a-f76e98e0fbfe"
+      ],
+      "media_type": "application/json",
+      "producer": "implementer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-9f02f93c-e633-4934-b38e-34eea9c9cd3b/sandbox-patch-preview.json"
+    },
+    {
+      "artifact_id": "art-7278cf99-f948-4a23-a53d-36d3951463de",
+      "artifact_type": "sandbox_patch_apply",
+      "digest": "624e149fa1580a12b30d819c3870e690759ce69f03b47275d549ca3662018992",
+      "input_refs": [
+        "art-9f02f93c-e633-4934-b38e-34eea9c9cd3b"
+      ],
+      "media_type": "application/json",
+      "producer": "implementer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-7278cf99-f948-4a23-a53d-36d3951463de/sandbox-patch-apply.json"
+    },
+    {
+      "artifact_id": "art-66a30996-9955-4536-9d80-2fed8ddd1b29",
+      "artifact_type": "patch_summary",
+      "digest": "f5907521c98847b9f51f88f788a8c3306a36ab06ea95cc50d309f32ab45f6bc7",
+      "input_refs": [
+        "art-7278cf99-f948-4a23-a53d-36d3951463de",
+        "art-43944c50-6629-4ac5-a998-37a8e714667a"
+      ],
+      "media_type": "text/markdown",
+      "producer": "implementer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-66a30996-9955-4536-9d80-2fed8ddd1b29/provider-patch.md"
+    },
+    {
+      "artifact_id": "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c",
+      "artifact_type": "test_log",
+      "digest": "fe14384e44986d70c2388f3d6fcd44a5b363d620590f2599a7dabd2fbf74156e",
+      "input_refs": [],
+      "media_type": "text/plain",
+      "producer": "test-engineer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c/pytest.log"
+    },
+    {
+      "artifact_id": "art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66",
+      "artifact_type": "review",
+      "digest": "29dbe07fd5338edc48e82afcf9813bcb49c8151b3f486d2805154bfd15625563",
+      "input_refs": [
+        "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c"
+      ],
+      "media_type": "application/json",
+      "producer": "reviewer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66/review-accepted.json"
+    },
+    {
+      "artifact_id": "art-46564164-fda7-4db9-87c9-bbe1553b3677",
+      "artifact_type": "closure_report",
+      "digest": "8369303c6411da9c8df95ebcedeb7658cb0d94600f64f3948a666308797eabdc",
+      "input_refs": [
+        "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c",
+        "art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66"
+      ],
+      "media_type": "application/json",
+      "producer": "evaluator-closer",
+      "sensitivity": "internal",
+      "uri": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/discount-service-target/.ao2/runs/factory-app-smoke/artifacts/art-46564164-fda7-4db9-87c9-bbe1553b3677/closure-accepted.json"
+    }
+  ],
+  "closures": [
+    {
+      "acceptance_criteria_results": [
+        "The implementation rejects negative prices.: mapped to verifier evidence",
+        "The implementation rejects discount rates outside 0..1.: mapped to verifier evidence",
+        "The verifier can run with `python -m pytest -q`.: mapped to verifier evidence",
+        "risky git push was denied before execution",
+        "repository changes were promoted through exact-digest sandbox apply"
+      ],
+      "blockers": [],
+      "cost_summary": "observed_provider_cost_usd=0.000000; provider_summary_count=1; cost_reported_summary_count=0; total_tokens=19",
+      "created_at": "2026-05-28T02:34:42.026842Z",
+      "evidence_refs": [
+        "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c",
+        "art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66"
+      ],
+      "policy_exceptions": [],
+      "unresolved_concerns": [],
+      "verdict": "accepted"
+    }
+  ],
+  "factory_v3_compatibility": {
+    "ao2_execution_owner": true,
+    "factory_v3_role": "parity_oracle_only",
+    "legacy_roles_runspec": false,
+    "source": "factory-v3-style request/profile/runspec/role-contract inputs"
+  },
+  "markers": [
+    "policy_denied_git_push",
+    "real_project_template"
+  ],
+  "objective": "Build from greenfield spec: Factory App Discount Service",
+  "policy_decisions": [
+    {
+      "action": "git:push",
+      "approval_ticket_id": null,
+      "created_at": "2026-05-28T02:34:41.941184Z",
+      "decision": "deny",
+      "decision_id": "pol-0c3eded4-2c6e-445a-a511-5c4eef34469c",
+      "policy_version": "ao2.local.deny-by-default.v1",
+      "principal": "role:implementer",
+      "reason": "git push is an external write and is denied in local MVP",
+      "request_digest": "d7cbf0c0913a9e8e243eae1edcd08e3095618e57ecd0edec26db6a1d8c61512c",
+      "resource": "origin main"
+    },
+    {
+      "action": "filesystem:write_file",
+      "approval_ticket_id": null,
+      "created_at": "2026-05-28T02:34:41.941214Z",
+      "decision": "allow",
+      "decision_id": "pol-9f963c85-ea42-419d-aff1-454baef6ead6",
+      "policy_version": "ao2.local.deny-by-default.v1",
+      "principal": "role:implementer",
+      "reason": "allowed by local MVP policy",
+      "request_digest": "e599b65edfdea955ac14129a25bd808d573e0f3da946ba1e8c82f069a67af6ae",
+      "resource": "provider_sandbox_patch"
+    }
+  ],
+  "provider_summaries": [
+    {
+      "blockers": [],
+      "changed_files": [
+        "discount_service/discounts.py"
+      ],
+      "concerns": [],
+      "cost_usd": null,
+      "provider": "scripted",
+      "raw_summary": "factory app run fixed discount validation",
+      "transcript_ids": [],
+      "usage": {
+        "input_tokens": 19,
+        "output_tokens": null,
+        "total_tokens": null
+      }
+    }
+  ],
+  "repair_attempts": [],
+  "repair_source": null,
+  "roles": [
+    "planner-intake",
+    "implementer",
+    "evaluator-closer"
+  ],
+  "run_health": {
+    "accepted_repair_attempts": 0,
+    "attention_required": false,
+    "budget_exhausted": false,
+    "evidence_refs": [
+      "art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66",
+      "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c"
+    ],
+    "failed_repair_attempts": 0,
+    "next_action": "No operator action required; keep the signed evidence pack for replay.",
+    "repair_attempt_count": 0,
+    "repair_status": "clean",
+    "schema_version": "ao2.run-health.v1",
+    "timeline": [
+      {
+        "created_at": "2026-05-28T02:34:42.026842Z",
+        "evidence_refs": [
+          "art-b79c97d4-8e08-4f8a-8bdf-2ad10155f20c",
+          "art-42c9f3f3-4c83-432b-98ca-3bd8fd101c66"
+        ],
+        "kind": "closure",
+        "unresolved_concerns": [],
+        "verdict": "accepted"
+      }
+    ],
+    "unresolved_concerns": [],
+    "verdict": "accepted"
+  },
+  "run_id": "factory-app-smoke",
+  "runtime_contract": {
+    "execution_owner": "ao2",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "provider_adapter_contract": {
+      "blocker_count": 0,
+      "changed_files": [
+        "discount_service/discounts.py"
+      ],
+      "concern_count": 0,
+      "cost": {
+        "input_tokens": 19,
+        "observed_cost_usd": 0.0,
+        "output_tokens": 0,
+        "provider_summary_count": 1,
+        "reported_summary_count": 0,
+        "total_tokens": 19
+      },
+      "evidence_refs": [
+        "art-2a37634e-755a-4f6f-b02a-f76e98e0fbfe",
+        "art-43944c50-6629-4ac5-a998-37a8e714667a",
+        "art-9f02f93c-e633-4934-b38e-34eea9c9cd3b",
+        "art-7278cf99-f948-4a23-a53d-36d3951463de",
+        "art-66a30996-9955-4536-9d80-2fed8ddd1b29"
+      ],
+      "factory_v3_role": "parity_oracle_only",
+      "fulfilled": true,
+      "owner": "ao2-provider-adapter-contract",
+      "provider_summary_count": 1,
+      "providers": [
+        "scripted"
+      ],
+      "required_contract_fields": [
+        "evidence",
+        "concerns",
+        "blockers",
+        "changed_files",
+        "sandbox",
+        "secret_redaction"
+      ],
+      "requirements": {
+        "blockers": true,
+        "changed_files": true,
+        "concerns": true,
+        "evidence": true,
+        "sandbox": true,
+        "secret_redaction": true
+      },
+      "schema_version": "ao2.provider-adapter-contract.v1",
+      "secret_redaction_contract": "adapter command/stdout/stderr/transcript artifacts are stored only after redaction; provider API-key auth is rejected before execution",
+      "status": "observed"
+    }
+  },
+  "schema_version": "ao2.evidence-pack.v1",
+  "template_kind": "real_project",
+  "verdict": "accepted",
+  "verifier_command": "python -m pytest -q",
+  "workflow_dependencies": [
+    {
+      "from": "planner-intake",
+      "source": "factory-v3-runspec-deps",
+      "to": "implementer"
+    },
+    {
+      "from": "implementer",
+      "source": "factory-v3-runspec-deps",
+      "to": "evaluator-closer"
+    }
+  ],
+  "workflow_id": "factory-v3-compat-greenfield-medium@0.1.0",
+  "workflow_tasks": [
+    {
+      "agent": "planner-intake",
+      "id": "planner-intake",
+      "kind": "agent",
+      "policy_profile": "ao2-greenfield-planner",
+      "prompt_file": "",
+      "provider": "scripted",
+      "role": "planner-intake"
+    },
+    {
+      "agent": "implementer",
+      "id": "implementer",
+      "kind": "agent",
+      "policy_profile": "ao2-greenfield-implementer",
+      "prompt_file": "",
+      "provider": "scripted",
+      "role": "implementer"
+    },
+    {
+      "agent": "evaluator-closer",
+      "id": "evaluator-closer",
+      "kind": "agent",
+      "policy_profile": "ao2-greenfield-evaluator-closer",
+      "prompt_file": "",
+      "provider": "scripted",
+      "role": "evaluator-closer"
+    }
+  ]
+}

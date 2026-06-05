@@ -1,0 +1,51 @@
+{
+  "schema_version": "ao2.public-export-manifest.v1",
+  "repo": "ao2-control-plane",
+  "source": {
+    "repo": "ao2-control-plane",
+    "code_export_baseline_commit": "cb17771de4ae05a72454a797edb3babe0621ef8c"
+  },
+  "destination": "ao-public-repos/ao2-control-plane",
+  "strategy": "clean-copy-no-private-history",
+  "public_role": "optional self-hosted read-only observer for signed AO2 evidence",
+  "include": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
+    "deny.toml",
+    "LICENSE",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "README.md",
+    ".github/workflows/ci.yml",
+    "crates/",
+    "deploy/",
+    "docs/DEPLOYMENT.md",
+    "docs/SECURITY.md",
+    "docs/releases/",
+    "docs/runbooks/",
+    "docs/security/",
+    "scripts/",
+    "tests/"
+  ],
+  "exclude": [
+    ".git/",
+    ".DS_Store",
+    "target/",
+    "dist/",
+    "docs/status/",
+    "generated runtime data",
+    "private release/status artifacts",
+    "local absolute paths",
+    "private AO2 links",
+    "secrets",
+    "signing keys",
+    "bearer tokens"
+  ],
+  "trust_boundary": {
+    "role": "read_only_observer",
+    "mutates_ao_artifacts": false,
+    "provider_api_key_auth": "forbidden",
+    "ingest_authority": "ao2-local-cli"
+  }
+}

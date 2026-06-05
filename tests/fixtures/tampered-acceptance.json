@@ -1,0 +1,340 @@
+{
+  "schema_version": "ao2.codex-provider-pilot-acceptance.v1",
+  "status": "passed",
+  "provider": "claude",
+  "run_id": "live-codex-provider-pilot",
+  "root": "<root>",
+  "target": "<target>",
+  "provider_prompt_file": "<prompt>",
+  "evidence_pack": "<evidence>",
+  "cockpit": "<cockpit>",
+  "artifacts": {
+    "doctor": "<path>",
+    "smoke": "<path>",
+    "pilot_plan": "<path>",
+    "run_stdout": "<path>",
+    "run_stderr": "<path>",
+    "replay": "<path>",
+    "score": "<path>",
+    "pytest": "<path>"
+  },
+  "smoke": {
+    "history_entry_count": 1,
+    "history_path": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/history.json",
+    "live_providers": [
+      "codex"
+    ],
+    "minimum_score": 90,
+    "providers": [
+      {
+        "available": true,
+        "doctor": {
+          "available": true,
+          "blocker": null,
+          "command": "built-in",
+          "provider": "scripted",
+          "version": "built-in scripted provider"
+        },
+        "minimum_score": 90,
+        "provider": "scripted",
+        "run_id": "provider-smoke-scripted-18b10c8aed24aee812547",
+        "score": 100,
+        "scorecard": {
+          "blocker_count": 0,
+          "changed_files_count": 1,
+          "dimensions": [
+            {
+              "evidence": "replay has zero digest failures",
+              "max_points": 25,
+              "name": "replay_integrity",
+              "points": 25,
+              "status": "pass"
+            },
+            {
+              "evidence": "provider transcript summary includes a parsed summary",
+              "max_points": 25,
+              "name": "provider_summary",
+              "points": 25,
+              "status": "pass"
+            },
+            {
+              "evidence": "provider transcript summary includes changed files",
+              "max_points": 20,
+              "name": "changed_files",
+              "points": 20,
+              "status": "pass"
+            },
+            {
+              "evidence": "provider transcript summaries contain no blockers",
+              "max_points": 15,
+              "name": "blocker_hygiene",
+              "points": 15,
+              "status": "pass"
+            },
+            {
+              "evidence": "sandbox patch and policy-denied action markers are present",
+              "max_points": 15,
+              "name": "policy_boundary",
+              "points": 15,
+              "status": "pass"
+            }
+          ],
+          "evidence_pack": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/provider-smoke-scripted-18b10c8aed24aee812547/repo/.ao2/runs/provider-smoke-scripted-18b10c8aed24aee812547/evidence-pack/evidence-pack.json",
+          "max_score": 100,
+          "provider_summary_count": 1,
+          "replay": {
+            "artifact_count": 10,
+            "digest_failures": 0,
+            "event_count": 27,
+            "status": "accepted"
+          },
+          "run_id": "provider-smoke-scripted-18b10c8aed24aee812547",
+          "schema": "ao2.provider-evidence-scorecard.v1",
+          "score": 100,
+          "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/provider-smoke-scripted-18b10c8aed24aee812547/repo",
+          "verdict": "ready"
+        },
+        "status": "Accepted",
+        "verdict": "ready"
+      },
+      {
+        "available": true,
+        "doctor": {
+          "available": true,
+          "blocker": null,
+          "command": "codex",
+          "provider": "codex",
+          "version": "codex-cli 0.130.0"
+        },
+        "minimum_score": 90,
+        "provider": "codex",
+        "run_id": "provider-smoke-codex-18b10c8af2fb53d012547",
+        "score": 90,
+        "scorecard": {
+          "blocker_count": 0,
+          "changed_files_count": 2,
+          "dimensions": [
+            {
+              "evidence": "replay has zero digest failures",
+              "max_points": 25,
+              "name": "replay_integrity",
+              "points": 25,
+              "status": "pass"
+            },
+            {
+              "evidence": "provider transcript summary exists but lacks raw summary text",
+              "max_points": 25,
+              "name": "provider_summary",
+              "points": 15,
+              "status": "warn"
+            },
+            {
+              "evidence": "provider transcript summary includes changed files",
+              "max_points": 20,
+              "name": "changed_files",
+              "points": 20,
+              "status": "pass"
+            },
+            {
+              "evidence": "provider transcript summaries contain no blockers",
+              "max_points": 15,
+              "name": "blocker_hygiene",
+              "points": 15,
+              "status": "pass"
+            },
+            {
+              "evidence": "sandbox patch and policy-denied action markers are present",
+              "max_points": 15,
+              "name": "policy_boundary",
+              "points": 15,
+              "status": "pass"
+            }
+          ],
+          "evidence_pack": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/provider-smoke-codex-18b10c8af2fb53d012547/repo/.ao2/runs/provider-smoke-codex-18b10c8af2fb53d012547/evidence-pack/evidence-pack.json",
+          "max_score": 100,
+          "provider_summary_count": 1,
+          "replay": {
+            "artifact_count": 10,
+            "digest_failures": 0,
+            "event_count": 27,
+            "status": "accepted"
+          },
+          "run_id": "provider-smoke-codex-18b10c8af2fb53d012547",
+          "schema": "ao2.provider-evidence-scorecard.v1",
+          "score": 90,
+          "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/provider-smoke-codex-18b10c8af2fb53d012547/repo",
+          "verdict": "ready"
+        },
+        "status": "Accepted",
+        "verdict": "ready"
+      },
+      {
+        "available": true,
+        "doctor": {
+          "available": true,
+          "blocker": null,
+          "command": "claude",
+          "provider": "claude",
+          "version": "2.1.144 (Claude Code)"
+        },
+        "minimum_score": 90,
+        "provider": "claude",
+        "run_id": "",
+        "score": 0,
+        "scorecard": null,
+        "verdict": "not_run"
+      }
+    ],
+    "schema": "ao2.provider-smoke-all.v1",
+    "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service"
+  },
+  "pilot": {
+    "command": [
+      "ao2",
+      "run",
+      "--template",
+      "bug-fix",
+      "--target",
+      "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service",
+      "--run-id",
+      "live-codex-provider-pilot",
+      "--provider",
+      "codex",
+      "--provider-prompt-file",
+      "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/codex-pilot-prompt.txt",
+      "--max-repair-attempts",
+      "1"
+    ],
+    "gate": {
+      "history_entry_count": 1,
+      "history_path": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/provider-smoke/history.json",
+      "minimum_score": 90,
+      "providers": [
+        {
+          "guard_env": "",
+          "minimum_score": 90,
+          "provider": "codex",
+          "run_id": "provider-smoke-codex-18b10c8af2fb53d012547",
+          "score": 90,
+          "verdict": "ready"
+        }
+      ],
+      "reasons": [],
+      "required_providers": [
+        "codex"
+      ],
+      "schema": "ao2.provider-readiness-gate.v1",
+      "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service",
+      "verdict": "ready"
+    },
+    "max_repair_attempts": 1,
+    "minimum_score": 90,
+    "mode": "command_preview",
+    "provider": "codex",
+    "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/codex-pilot-prompt.txt",
+    "run_id": "live-codex-provider-pilot",
+    "schema": "ao2.provider-pilot-plan.v1",
+    "shell_command": "ao2 run --template bug-fix --target /tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service --run-id live-codex-provider-pilot --provider codex --provider-prompt-file /tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/codex-pilot-prompt.txt --max-repair-attempts 1",
+    "status": "ready",
+    "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service",
+    "template": "bug-fix",
+    "workflow": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/generated-workflows/bug-fix.yaml"
+  },
+  "replay": {
+    "run_id": "live-codex-provider-pilot",
+    "status": "accepted",
+    "event_count": 33,
+    "artifact_count": 13,
+    "event_types": [
+      "run.created",
+      "run.compiled",
+      "artifact.created",
+      "artifact.created",
+      "tool.requested",
+      "tool.denied",
+      "approval.requested",
+      "approval.granted",
+      "role.started",
+      "artifact.created",
+      "artifact.created",
+      "adapter.transcript.parsed",
+      "adapter.completed",
+      "artifact.created",
+      "sandbox.patch.previewed",
+      "artifact.created",
+      "sandbox.patch.applied",
+      "artifact.created",
+      "role.completed",
+      "role.started",
+      "artifact.created",
+      "role.completed",
+      "artifact.created",
+      "closure.rejected",
+      "repair.attempt.started",
+      "artifact.created",
+      "role.started",
+      "artifact.created",
+      "task.completed",
+      "artifact.created",
+      "repair.attempt.completed",
+      "artifact.created",
+      "closure.accepted"
+    ],
+    "digest_failures": []
+  },
+  "score": {
+    "blocker_count": 0,
+    "changed_files_count": 2,
+    "dimensions": [
+      {
+        "evidence": "replay has zero digest failures",
+        "max_points": 25,
+        "name": "replay_integrity",
+        "points": 25,
+        "status": "pass"
+      },
+      {
+        "evidence": "provider transcript summary includes a parsed summary",
+        "max_points": 25,
+        "name": "provider_summary",
+        "points": 25,
+        "status": "pass"
+      },
+      {
+        "evidence": "provider transcript summary includes changed files",
+        "max_points": 20,
+        "name": "changed_files",
+        "points": 20,
+        "status": "pass"
+      },
+      {
+        "evidence": "provider transcript summaries contain no blockers",
+        "max_points": 15,
+        "name": "blocker_hygiene",
+        "points": 15,
+        "status": "pass"
+      },
+      {
+        "evidence": "sandbox patch and policy-denied action markers are present",
+        "max_points": 15,
+        "name": "policy_boundary",
+        "points": 15,
+        "status": "pass"
+      }
+    ],
+    "evidence_pack": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service/.ao2/runs/live-codex-provider-pilot/evidence-pack/evidence-pack.json",
+    "max_score": 100,
+    "provider_summary_count": 1,
+    "replay": {
+      "artifact_count": 13,
+      "digest_failures": 0,
+      "event_count": 33,
+      "status": "accepted"
+    },
+    "run_id": "live-codex-provider-pilot",
+    "schema": "ao2.provider-evidence-scorecard.v1",
+    "score": 100,
+    "target": "/tmp/ao2-public-test/ao2/target/provider-pilot-acceptance/v0.4.66/discount-service",
+    "verdict": "ready"
+  }
+}

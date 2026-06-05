@@ -1,0 +1,9 @@
+3d81c1ca7cf5a3263dd1cd3a20cea590a27754ad797aa90c6ebda520cc59f229  app-run-bundles/0/app-run-evidence-bundle.tgz
+ce4128f13f5c9019e13b2ca59cc5ad85589e4c518c633e03dadbe9edebd99c53  app-run-bundles/1/app-run-evidence-bundle.tgz
+77fac3137f820d8b753b6229da1c658292c2edd928119982b54247698b238027  app-runs/0/factory-app-run.json
+07d213e38145545d4eee9a8d0aefd2b179a5ae8d985de789043e83ba0901b58f  app-runs/1/factory-app-run.json
+b6029dddcb55ad7b7763fc569c18ec4af14f8a1da94a1ac44c8bb8dc1f35172d  manifest.json
+84f8c11af2b3bdbb10aaa2a6e6274fd9acc9c57be5ecc191dc1ee40652484579  project-plan/project-plan.json
+0a7e51f15a0421ab0169933e009c0f2b3ffdae45ce49bb29c5c287a5403a56ec  project-run.json
+b9f781a067312195e05963456670ac0a78be004e5b71fbd202a1e50079e916fc  project-spec/missed-call-recovery-project.md
+5d571066b6b9e53fce71b6ed1373ef0f61c92b82101a2f488ae6b5a0a7ec7541  project-state/factory-project-run-state.json

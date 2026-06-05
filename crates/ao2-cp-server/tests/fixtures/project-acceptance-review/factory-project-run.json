@@ -1,0 +1,301 @@
+{
+  "acceptance_rubric": {
+    "accepted": true,
+    "blockers": [],
+    "path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+    "rubric_schema": "ao2.factory-acceptance-rubric.v1",
+    "schema_version": "ao2.factory-acceptance-rubric-validation.v1",
+    "sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+    "signature_status": "signed",
+    "signature_verified": true
+  },
+  "app_run_count": 2,
+  "app_runs": [
+    {
+      "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+      "app_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run-failed/app-run-steps/intake/missed-call-recovery-project-intake-factory-app-run.json",
+      "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-bundles/0-app-run-evidence-bundle.tgz",
+      "bundle_sha256": "3231f294bc1a7258da24d35c223e6478509df5bb289973e151c67f8ca67da9d7",
+      "control_plane_approves_release": false,
+      "index": 0,
+      "release_acceptance_owner": "factory-v3 evaluator-closer",
+      "release_review_ready": true,
+      "run_id": "missed-call-recovery-project-intake"
+    },
+    {
+      "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+      "app_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-steps/messaging/missed-call-recovery-project-messaging-resume-factory-app-run.json",
+      "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-bundles/1-app-run-evidence-bundle.tgz",
+      "bundle_sha256": "1455fcea364d19a5159d77dfbc2433ef2d69f97cd61a9126a4fe8842c1d8fbd0",
+      "control_plane_approves_release": false,
+      "index": 1,
+      "release_acceptance_owner": "factory-v3 evaluator-closer",
+      "release_review_ready": true,
+      "run_id": "missed-call-recovery-project-messaging-resume"
+    }
+  ],
+  "artifacts": {
+    "acceptance_rubric": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+    "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+    "factory_project_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-factory-project-run.json",
+    "factory_project_run_state": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-factory-project-run-state.json",
+    "project_plan": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project-plan.json",
+    "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project.md",
+    "release_review_package": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-release-review-package.tgz"
+  },
+  "created_at": "2026-05-28T12:57:46Z",
+  "factory_replacement_boundary": {
+    "ao2_execution_owner": true,
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "failed_step_count": 0,
+  "project_plan": {
+    "acceptance_rubric": {
+      "must_have_artifacts": [
+        "project-plan/project-plan.json",
+        "project-plan/project-plan-validation.json",
+        "project-run/factory-project-run.json",
+        "project-run/factory-project-run-state.json",
+        "release-review/release-review-package.tgz"
+      ],
+      "project_title": "Missed Call Recovery Project",
+      "run_id": "missed-call-recovery-project",
+      "schema_version": "ao2.factory-acceptance-rubric.v1",
+      "signature": {
+        "public_key_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.public.pem",
+        "public_key_sha256": "f0b3d9f242fa540144668e813a310fc47074f8675183499767d21a450147050b",
+        "schema_version": "ao2.factory-acceptance-rubric-signature.v1",
+        "signature_algorithm": "RSA/SHA-256",
+        "signature_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json.sig",
+        "signature_sha256": "869a01388ae71fd0152bf6e2e4fe03077b0d3e5e3234a8ce6cece5ee6b3427e8",
+        "signature_status": "signed",
+        "signature_verified": true,
+        "signed_payload": "acceptance_rubric_without_signature_field",
+        "signed_payload_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.signed-payload.json",
+        "signed_payload_sha256": "cdcbfdf560473bdb1f4789776598796d3a0e4fb95ad78c03c228a5236eea5cd2",
+        "signer_id": "factory-project-plan-smoke"
+      },
+      "source_project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project.md",
+      "source_project_spec_sha256": "6a3613f0511a322798dfb104d2ca0676534ab5b131cfd64715109cb64a27b042",
+      "status": "accepted",
+      "step_criteria": [
+        {
+          "index": 0,
+          "must_pass": [
+            "implements the requested app step",
+            "preserves AO2/factory trust-boundary fields",
+            "verifier command exits 0: python -m pytest -q"
+          ],
+          "step": "Intake workflow captures missed-call lead data."
+        },
+        {
+          "index": 1,
+          "must_pass": [
+            "implements the requested app step",
+            "preserves AO2/factory trust-boundary fields",
+            "verifier command exits 0: python -m pytest -q"
+          ],
+          "step": "Messaging workflow produces reviewable recovery copy."
+        }
+      ],
+      "thresholds": {
+        "failed_step_count": 0,
+        "required_signature_status": "signed",
+        "verifier_exit_code": 0
+      },
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer_after_signed_evidence",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_oracle_only",
+        "mutates_ao_artifacts": false,
+        "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+        "release_acceptance_owner": "factory-v3 evaluator-closer"
+      },
+      "verifier_grade_pass_fail_criteria": [
+        {
+          "criterion": "AO2 generates a deterministic project plan from this human project spec.",
+          "id": "spec-criterion-1",
+          "required": true
+        },
+        {
+          "criterion": "Intake workflow captures missed-call lead data.",
+          "id": "spec-criterion-2",
+          "required": true
+        },
+        {
+          "criterion": "Messaging workflow produces reviewable recovery copy.",
+          "id": "spec-criterion-3",
+          "required": true
+        },
+        {
+          "criterion": "AO2 dispatches app-run steps from a project plan.",
+          "id": "spec-criterion-4",
+          "required": true
+        },
+        {
+          "criterion": "AO2 collects each app-run evidence bundle into one project release-review package.",
+          "id": "spec-criterion-5",
+          "required": true
+        },
+        {
+          "criterion": "Factory-v3 remains evaluator-closer owner and does not drive execution.",
+          "id": "spec-criterion-6",
+          "required": true
+        },
+        {
+          "criterion": "AO2 Control Plane remains read-only observer after signed evidence exists.",
+          "id": "spec-criterion-7",
+          "required": true
+        }
+      ]
+    },
+    "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+    "app_steps": [
+      {
+        "acceptance_rubric": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+        "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+        "id": "intake",
+        "provider": "scripted",
+        "provider_profile": {
+          "provider_auth": "local OAuth CLI only; API-key provider auth forbidden"
+        },
+        "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/provider-prompts/intake-provider-prompt.sh",
+        "provider_prompt_scaffold": true,
+        "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/specs/intake.md",
+        "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/apps/intake",
+        "title": "Intake workflow captures missed-call lead data.",
+        "verifier_command": "python -m pytest -q"
+      },
+      {
+        "acceptance_rubric": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+        "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+        "id": "messaging",
+        "provider": "scripted",
+        "provider_profile": {
+          "provider_auth": "local OAuth CLI only; API-key provider auth forbidden"
+        },
+        "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/provider-prompts/messaging-provider-prompt.sh",
+        "provider_prompt_scaffold": true,
+        "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/specs/messaging.md",
+        "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/apps/messaging",
+        "title": "Messaging workflow produces reviewable recovery copy.",
+        "verifier_command": "python -m pytest -q"
+      }
+    ],
+    "artifacts": {
+      "acceptance_rubric": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+      "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+      "project_plan": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project-plan.json",
+      "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project",
+      "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project.md"
+    },
+    "factory_replacement_boundary": {
+      "ao2_execution_owner": true,
+      "control_plane_approves_release": false,
+      "control_plane_role": "read_only_observer_after_signed_evidence",
+      "factory_v3_drives_workflow": false,
+      "factory_v3_role": "parity_oracle_only",
+      "mutates_ao_artifacts": false,
+      "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+      "release_acceptance_owner": "factory-v3 evaluator-closer"
+    },
+    "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project",
+    "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project.md",
+    "project_spec_sha256": "6a3613f0511a322798dfb104d2ca0676534ab5b131cfd64715109cb64a27b042",
+    "project_title": "Missed Call Recovery Project",
+    "run_id": "missed-call-recovery-project",
+    "schema_version": "ao2.factory-project-plan.v1",
+    "status": "accepted",
+    "trust_boundary": {
+      "control_plane_approves_release": false,
+      "control_plane_role": "read_only_observer_after_signed_evidence",
+      "execution_owner": "ao2",
+      "factory_v3_role": "parity_oracle_only",
+      "mutates_ao_artifacts": false,
+      "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+      "release_acceptance_owner": "factory-v3 evaluator-closer"
+    }
+  },
+  "project_run_checklist": {
+    "ao2_collected_app_run_bundles": true,
+    "ao2_dispatched_project_plan": true,
+    "ao2_ingested_project_spec": true,
+    "ao2_preserved_partial_evidence": false,
+    "ao2_reused_resume_state": true,
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "release_acceptance_owner": "factory-v3 evaluator-closer",
+    "release_review_package_ready": true
+  },
+  "project_steps": [
+    {
+      "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+      "app_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run-failed/app-run-steps/intake/missed-call-recovery-project-intake-factory-app-run.json",
+      "app_run_sha256": "dc7ea1aac4f24b0f846538a4c186c2a6f5c1c419d4d445d9c419caef3c661ea9",
+      "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-bundles/0-app-run-evidence-bundle.tgz",
+      "bundle_sha256": "3231f294bc1a7258da24d35c223e6478509df5bb289973e151c67f8ca67da9d7",
+      "id": "intake",
+      "index": 0,
+      "reused_from_resume": true,
+      "status": "accepted"
+    },
+    {
+      "acceptance_rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+      "app_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-steps/messaging/missed-call-recovery-project-messaging-resume-factory-app-run.json",
+      "app_run_sha256": "86dff1961bfeb74fe1beaaebdbee33b8bcc0a8edc0ea92dcbbeeeaad87a62d34",
+      "bundle": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/app-run-bundles/1-app-run-evidence-bundle.tgz",
+      "bundle_sha256": "1455fcea364d19a5159d77dfbc2433ef2d69f97cd61a9126a4fe8842c1d8fbd0",
+      "id": "messaging",
+      "index": 1,
+      "reused_from_resume": false,
+      "status": "accepted"
+    }
+  ],
+  "release_review": {
+    "app_run_count": 2,
+    "control_plane_approves_release": false,
+    "package": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-release-review-package.tgz",
+    "ready": true,
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "release_review_package": {
+    "archive": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-release-review-package.tgz",
+    "checksum_entry": "SHA256SUMS",
+    "manifest_entry": "manifest.json",
+    "schema_version": "ao2.factory-project-run-package.v1",
+    "sha256": "846fe34ae3a178bb520e2ad9f3917dce2216a15f4923444e502faea037725dac",
+    "status": "packaged",
+    "trust_boundary": {
+      "control_plane_approves_release": false,
+      "control_plane_role": "read_only_observer_after_signed_evidence",
+      "execution_owner": "ao2",
+      "factory_v3_role": "parity_oracle_only",
+      "mutates_ao_artifacts": false,
+      "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+      "release_acceptance_owner": "factory-v3 evaluator-closer"
+    }
+  },
+  "run_id": "missed-call-recovery-project",
+  "schema_version": "ao2.factory-project-run.v1",
+  "status": "accepted",
+  "step_count": 2,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

@@ -1,0 +1,24 @@
+[package]
+name = "ao2-cp-schema"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+# Private observer crates — shipped as prebuilt tarballs, never published to
+# crates.io. Marking this lets cargo-deny's wildcard guard exempt the
+# intra-workspace `path = "..."` deps (see deny.toml [bans]).
+publish = false
+
+[dependencies]
+uuid = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+sha2.workspace = true
+hex.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+proptest = "1"
+
+[lints]
+workspace = true

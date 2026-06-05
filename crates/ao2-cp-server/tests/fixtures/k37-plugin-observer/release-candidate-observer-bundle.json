@@ -1,0 +1,207 @@
+{
+  "archive_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/k37-plugin-release-candidate-observer-bundle.tar.gz",
+  "archive_sha256": "1b98c9a5055ed7f19d868cb9234d2ea1cfc3b2cfcd68af40cecdaaecde9a6790",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-release-candidate.v1",
+    "ao2.plugin-release-candidate-verification.v1"
+  ],
+  "platform_count": 3,
+  "platform_release_candidates": {
+    "macos": {
+      "bundled_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/bundle/platforms/macos/plugin-release-candidate-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "control_plane_readback": {
+        "approves_release": false,
+        "commit": "bd0c6426867194968ac09d230bbe59f0d25216af",
+        "mutated_by_this_command": false,
+        "repo": "ao2-control-plane",
+        "role": "read_only_observer"
+      },
+      "evidence_sha256": "515d581278cc0b8f87a7dac540bfc00e8af843c9ac409fd3c4aed07fba63e1cd",
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "release_review_inputs": [
+        "ao2.plugin-package.v1",
+        "ao2.plugin-distribution-rehearsal.v1",
+        "ao2.k37-plugin-adapter-observer-bundle.v1",
+        "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+        "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+        "ao2.k37-release-gate-with-replacement-observer-bundle.v1",
+        "ao2.control-plane-fixture-handoff-verification.v1"
+      ],
+      "schema_version": "ao2.plugin-release-candidate-verification.v1",
+      "sha256": "3b7501a06d18cc0165bf749a7b535b63e9a678afda3848e380119e856672d695",
+      "side_effects": {
+        "would_approve_release": false,
+        "would_execute_provider": false,
+        "would_execute_queue": false,
+        "would_mutate_ao_artifacts": false,
+        "would_mutate_control_plane": false,
+        "would_write_memory": false
+      },
+      "source_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/macos/plugin-release-candidate-verification.json",
+      "source_schema_version": "ao2.plugin-release-candidate.v1",
+      "status": "passed",
+      "summary_sha256": "3c499cbc7d051e30aa417a2400aef583c9f9a319b7592f7227461d8a2ffd92fe",
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "bundled_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/bundle/platforms/ubuntu/plugin-release-candidate-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "control_plane_readback": {
+        "approves_release": false,
+        "commit": "bd0c6426867194968ac09d230bbe59f0d25216af",
+        "mutated_by_this_command": false,
+        "repo": "ao2-control-plane",
+        "role": "read_only_observer"
+      },
+      "evidence_sha256": "515d581278cc0b8f87a7dac540bfc00e8af843c9ac409fd3c4aed07fba63e1cd",
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "release_review_inputs": [
+        "ao2.plugin-package.v1",
+        "ao2.plugin-distribution-rehearsal.v1",
+        "ao2.k37-plugin-adapter-observer-bundle.v1",
+        "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+        "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+        "ao2.k37-release-gate-with-replacement-observer-bundle.v1",
+        "ao2.control-plane-fixture-handoff-verification.v1"
+      ],
+      "schema_version": "ao2.plugin-release-candidate-verification.v1",
+      "sha256": "03c67c29b4cad3e296ead7bae604f36807aa2241cc3869a880e41224450b52ea",
+      "side_effects": {
+        "would_approve_release": false,
+        "would_execute_provider": false,
+        "would_execute_queue": false,
+        "would_mutate_ao_artifacts": false,
+        "would_mutate_control_plane": false,
+        "would_write_memory": false
+      },
+      "source_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/ubuntu/plugin-release-candidate-verification.json",
+      "source_schema_version": "ao2.plugin-release-candidate.v1",
+      "status": "passed",
+      "summary_sha256": "f0beb8a6a00494909ac35e22af17cb374f3fafcf9da119717d30c9d1b9564d93",
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "bundled_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/bundle/platforms/windows/plugin-release-candidate-verification.json",
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "control_plane_readback": {
+        "approves_release": false,
+        "commit": "bd0c6426867194968ac09d230bbe59f0d25216af",
+        "mutated_by_this_command": false,
+        "repo": "ao2-control-plane",
+        "role": "read_only_observer"
+      },
+      "evidence_sha256": "515d581278cc0b8f87a7dac540bfc00e8af843c9ac409fd3c4aed07fba63e1cd",
+      "factory_v3_role": "parity_auditor",
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "release_review_inputs": [
+        "ao2.plugin-package.v1",
+        "ao2.plugin-distribution-rehearsal.v1",
+        "ao2.k37-plugin-adapter-observer-bundle.v1",
+        "ao2.k37-plugin-adapter-install-smoke-observer-bundle.v1",
+        "ao2.k37-plugin-consumer-lifecycle-observer-bundle.v1",
+        "ao2.k37-release-gate-with-replacement-observer-bundle.v1",
+        "ao2.control-plane-fixture-handoff-verification.v1"
+      ],
+      "schema_version": "ao2.plugin-release-candidate-verification.v1",
+      "sha256": "5b16d67bbf7b97709a9378cffff3cfe70f1bfeeb58ce5d6f3cd2e699ab06d4f5",
+      "side_effects": {
+        "would_approve_release": false,
+        "would_execute_provider": false,
+        "would_execute_queue": false,
+        "would_mutate_ao_artifacts": false,
+        "would_mutate_control_plane": false,
+        "would_write_memory": false
+      },
+      "source_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/windows/plugin-release-candidate-verification.json",
+      "source_schema_version": "ao2.plugin-release-candidate.v1",
+      "status": "passed",
+      "summary_sha256": "acec59014dd6a25997c86bfcdec32ec494a301bafd6d3eb6a08b6e0dccfe88d1",
+      "token_safe_output_verified": true,
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_release_candidates_sha256": "50073a039cd050dab96f343fe804055f8527b64d1d6e44386f5099ab69ce9c6a",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-plugin-release-candidate-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/plugin-post-c85-release-gate-codex-cron-20260604T061135-0700/release-candidate-observer-bundle/k37-plugin-release-candidate-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 production/plugin readiness"
+}

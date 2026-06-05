@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "path": "fleet-snapshot.json",
+      "role": "source_snapshot"
+    },
+    {
+      "path": "fleet-bundle.json",
+      "role": "portable_bundle"
+    },
+    {
+      "path": "SHA256SUMS",
+      "role": "checksum_manifest"
+    }
+  ],
+  "fleet_snapshot": {
+    "generated_at_ms": 1779224670350,
+    "repositories": [
+      {
+        "audit_event_count": 0,
+        "evidence_pack_count": 0,
+        "queue_job_count": 0,
+        "run_count": 0,
+        "snapshot": {
+          "audit_events": [],
+          "evidence_packs": [],
+          "generated_at_ms": 1779224664810,
+          "provider_smoke_history": {
+            "entries": [],
+            "entry_count": 0,
+            "history_path": "<sanitized-path>",
+            "latest": null,
+            "schema": "ao2.provider-smoke-history.v1",
+            "target": "<sanitized-path>"
+          },
+          "queue": {
+            "jobs": [],
+            "schema_version": "ao2.workbench-queue-file.v1"
+          },
+          "runs": {
+            "runs": [],
+            "schema_version": "ao2.runs-list.v1",
+            "target": "<sanitized-path>"
+          },
+          "schema_version": "ao2.control-plane-snapshot.v1",
+          "snapshot_path": "<sanitized-path>",
+          "target": "<sanitized-path>"
+        },
+        "snapshot_path": "<sanitized-path>",
+        "target": "<sanitized-path>"
+      }
+    ],
+    "schema_version": "ao2.control-plane-fleet-snapshot.v1",
+    "totals": {
+      "audit_event_count": 0,
+      "evidence_pack_count": 0,
+      "queue_job_count": 0,
+      "repository_count": 1,
+      "run_count": 0
+    }
+  },
+  "generated_at_ms": 1779224676191,
+  "health_history": null,
+  "health_trend": null,
+  "schema_version": "ao2.control-plane-fleet-bundle.v1",
+  "source_fleet_path": "<sanitized-path>",
+  "source_health_history_path": null
+}

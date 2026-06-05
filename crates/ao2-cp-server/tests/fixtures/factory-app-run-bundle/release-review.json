@@ -1,0 +1,37 @@
+{
+  "app_run_checklist": {
+    "ao2_executed_generated_governed_plan": true,
+    "ao2_generated_runspec": true,
+    "ao2_generated_work_request": true,
+    "ao2_ingested_plain_spec": true,
+    "ao2_packed_primary_evidence": true,
+    "ao2_signed_evaluator_closure": true,
+    "ao2_verified_primary_run_result": true,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "release_review_artifacts_ready": true
+  },
+  "release_review": {
+    "artifacts": {
+      "evaluator_decision": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-evaluator-decision.json",
+      "evidence_pack": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-evidence-pack.json",
+      "governed_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-governed-run.json",
+      "plan": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/ingest/factory-app-smoke-plan.json"
+    },
+    "control_plane_approves_release": false,
+    "ready": true,
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "schema_version": "ao2.factory-app-run-release-review.v1",
+  "source_app_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/factory-app-run.json",
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

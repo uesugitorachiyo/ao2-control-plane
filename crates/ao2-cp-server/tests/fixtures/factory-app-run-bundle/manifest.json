@@ -1,0 +1,101 @@
+{
+  "artifact_count": 7,
+  "artifacts": [
+    {
+      "bundle_path": "artifacts/factory-app-run/factory-app-run.json",
+      "label": "factory-app-run",
+      "sha256": "e2e011a6306e1b18b3739e4ebbe69c82825d04cd41c20c0aabbd60ac55e5556d",
+      "size_bytes": 75795,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/factory-app-run.json"
+    },
+    {
+      "bundle_path": "artifacts/greenfield-governed-run/greenfield-governed-run.json",
+      "label": "greenfield-governed-run",
+      "sha256": "9d053864c99a9b14bdf59b6de3d0c6a7aa3b1475765f39219893878ef438cd41",
+      "size_bytes": 69305,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/factory-app-smoke-greenfield-governed-run.json"
+    },
+    {
+      "bundle_path": "artifacts/greenfield-ingest/greenfield-ingest.json",
+      "label": "greenfield-ingest",
+      "sha256": "772b843e0254788da8b90eb11325a1902f358610c2a2a79fb72e9f229e14dd63",
+      "size_bytes": 14935,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/ingest/factory-app-smoke-greenfield-ingest.json"
+    },
+    {
+      "bundle_path": "artifacts/plan/plan.json",
+      "label": "plan",
+      "sha256": "aaf4dfc10d52fb20ffdd326467db8ccacac472bd0acd4fd9e91c81d04089c6b9",
+      "size_bytes": 7419,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/ingest/factory-app-smoke-plan.json"
+    },
+    {
+      "bundle_path": "artifacts/governed-run/governed-run.json",
+      "label": "governed-run",
+      "sha256": "230e23248d303d4587ce6e1cc45ad828116521bedf3ef7d3f85f3dbc58235d07",
+      "size_bytes": 49364,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-governed-run.json"
+    },
+    {
+      "bundle_path": "artifacts/evidence-pack/evidence-pack.json",
+      "label": "evidence-pack",
+      "sha256": "54ae8dc2d5da54e4c4d7c73ee59dd8fbb5ade131bfbd4d7f21793502b47e027d",
+      "size_bytes": 13326,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-evidence-pack.json"
+    },
+    {
+      "bundle_path": "artifacts/evaluator-decision/evaluator-decision.json",
+      "label": "evaluator-decision",
+      "sha256": "473f1783db33f579272c537a5426d7e8840956a2e91a06d131e50715ec19b22f",
+      "size_bytes": 3759,
+      "source_path": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/run/governed-run/factory-app-smoke-evaluator-decision.json"
+    }
+  ],
+  "created_at": "2026-05-28T02:34:42Z",
+  "created_at_ms": 1779935682039,
+  "files": [
+    {
+      "path": "artifacts/factory-app-run/factory-app-run.json",
+      "sha256": "e2e011a6306e1b18b3739e4ebbe69c82825d04cd41c20c0aabbd60ac55e5556d"
+    },
+    {
+      "path": "artifacts/greenfield-governed-run/greenfield-governed-run.json",
+      "sha256": "9d053864c99a9b14bdf59b6de3d0c6a7aa3b1475765f39219893878ef438cd41"
+    },
+    {
+      "path": "artifacts/greenfield-ingest/greenfield-ingest.json",
+      "sha256": "772b843e0254788da8b90eb11325a1902f358610c2a2a79fb72e9f229e14dd63"
+    },
+    {
+      "path": "artifacts/plan/plan.json",
+      "sha256": "aaf4dfc10d52fb20ffdd326467db8ccacac472bd0acd4fd9e91c81d04089c6b9"
+    },
+    {
+      "path": "artifacts/governed-run/governed-run.json",
+      "sha256": "230e23248d303d4587ce6e1cc45ad828116521bedf3ef7d3f85f3dbc58235d07"
+    },
+    {
+      "path": "artifacts/evidence-pack/evidence-pack.json",
+      "sha256": "54ae8dc2d5da54e4c4d7c73ee59dd8fbb5ade131bfbd4d7f21793502b47e027d"
+    },
+    {
+      "path": "artifacts/evaluator-decision/evaluator-decision.json",
+      "sha256": "473f1783db33f579272c537a5426d7e8840956a2e91a06d131e50715ec19b22f"
+    },
+    {
+      "path": "release-review.json",
+      "sha256": "e0aa999403acd80a1bb541fefb807547912d47b1df82d2e6d57a1dc184927f82"
+    }
+  ],
+  "schema_version": "ao2.factory-app-run-bundle.v1",
+  "source_app_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T023441Z/factory-app-run.json",
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

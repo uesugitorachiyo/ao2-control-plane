@@ -1,0 +1,41 @@
+{
+  "ao2_git_head": "b762fa7b5224bba9c45ae5c61776d9ecc9da1b6b",
+  "counts": {
+    "failed": 0,
+    "passed": 4,
+    "total_steps": 4
+  },
+  "generated_at_utc": "20260601T220039Z",
+  "next_action": "all replacement-parity steps passed \u2014 AO2 may proceed with the next release-line decision",
+  "overall_verdict": "PASS",
+  "schema_version": "ao2.replacement-parity-verification.v1",
+  "steps": [
+    {
+      "detail": "artifact=/tmp/ao2-public-test/ao2/target/provider-readiness/20260601T220039Z/provider-readiness.json status=passed",
+      "name": "provider_readiness_producer",
+      "status": "PASS"
+    },
+    {
+      "detail": "passed=5/5",
+      "name": "factory_v3_parity_oracle",
+      "status": "PASS"
+    },
+    {
+      "detail": "verified=4/4",
+      "name": "provider_contract_verify_all",
+      "status": "PASS"
+    },
+    {
+      "detail": "license_provenance_gate=passed",
+      "name": "license_provenance_gate",
+      "status": "PASS"
+    }
+  ],
+  "trust_boundary": {
+    "ao2_role": "canonical_producer",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "mutates_control_plane": false,
+    "role": "ao2_canonical_with_factory_v3_parity_oracle"
+  }
+}

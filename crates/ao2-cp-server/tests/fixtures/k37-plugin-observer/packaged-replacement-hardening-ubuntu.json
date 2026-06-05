@@ -1,0 +1,52 @@
+{
+  "schema_version": "ao2.packaged-replacement-hardening.v1",
+  "status": "passed",
+  "platform": "ubuntu",
+  "package": {
+    "summary": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/package/ao2-plugin-package.json",
+    "summary_sha256": "e9d87b5261fb2d367cefb75278726090e73258c139c541766513343f2c004441",
+    "archive": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/package/ao2-plugin-package.tar.gz",
+    "archive_sha256": "2f410fa84aca16867a2858aad9e78e8cb78537e5f28dd1eea82c62c63648f564",
+    "package_verify": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/package-verify.json",
+    "package_verify_sha256": "93a3a8efe34631ba6e0a48e7a6f9f1ea0ebb6b10e8d970741ec9a19de2456fd6"
+  },
+  "factory_replacement": {
+    "app_run": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/app-run/packaged-replacement-app-ubuntu-factory-app-run.json",
+    "app_run_sha256": "ba1baff232639f1e98bc3816657af27e49a90edb21dfc9638e2f5b08980fbee3",
+    "app_run_bundle": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/app-run/packaged-replacement-app-ubuntu-bundle.tgz",
+    "app_run_bundle_sha256": "70f9e0b961c7db498e5e71ad922779698ba9dbd3055eea41401a4321eb2ef369",
+    "project_plan": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/project-plan.json",
+    "project_plan_sha256": "343ff2744fcb0392d1d21002e9e3cba78dd67a7bd78add2c882d7bce16a946e6",
+    "project_run": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/project-run/packaged-replacement-project-ubuntu-factory-project-run.json",
+    "project_run_sha256": "f8568b875a53efca131c086a3b267e5388c472444b33762374d11a7c56570d1c",
+    "release_review_package": "/home/nucx/ao2-packaged-replacement-hardening-20260531T232115/ubuntu/out/project-run/packaged-replacement-project-ubuntu-release-review-package.tgz",
+    "release_review_package_sha256": "b7b9cd93b7fc85382e2aa53f57dbddad56973e532519d82988ff4bbc66212d3f",
+    "rubric_sha256": "d873470b5d706f4d405b58e29d6419398d0c7d4ecd308fc06e8d85bf89ae84da",
+    "project_acceptance_rubric_sha256": "2a49af3ba818ed501888ff75598c23013d30567e0451743d5a131f11b75c9027"
+  },
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false
+  },
+  "trust_boundary": {
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "control_plane_role": "read_only_observer",
+    "mutates_ao_artifacts": false,
+    "control_plane_approves_release": false
+  },
+  "side_effects": {
+    "provider_execution": false,
+    "queue_mutation": false,
+    "memory_write": false,
+    "control_plane_mutation": false,
+    "ao_artifact_mutation": false,
+    "release_approval": false
+  },
+  "token_safe_output": {
+    "bearer_tokens_serialized": false,
+    "cookies_serialized": false,
+    "private_keys_serialized": false,
+    "redaction_policy": "paths_status_and_digests_only"
+  }
+}

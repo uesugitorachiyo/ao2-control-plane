@@ -1,0 +1,100 @@
+{
+  "must_have_artifacts": [
+    "project-plan/project-plan.json",
+    "project-plan/project-plan-validation.json",
+    "project-run/factory-project-run.json",
+    "project-run/factory-project-run-state.json",
+    "release-review/release-review-package.tgz"
+  ],
+  "project_title": "Missed Call Recovery Project",
+  "run_id": "missed-call-recovery-project",
+  "schema_version": "ao2.factory-acceptance-rubric.v1",
+  "signature": {
+    "public_key_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.public.pem",
+    "public_key_sha256": "f0b3d9f242fa540144668e813a310fc47074f8675183499767d21a450147050b",
+    "schema_version": "ao2.factory-acceptance-rubric-signature.v1",
+    "signature_algorithm": "RSA/SHA-256",
+    "signature_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json.sig",
+    "signature_sha256": "869a01388ae71fd0152bf6e2e4fe03077b0d3e5e3234a8ce6cece5ee6b3427e8",
+    "signature_status": "signed",
+    "signature_verified": true,
+    "signed_payload": "acceptance_rubric_without_signature_field",
+    "signed_payload_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.signed-payload.json",
+    "signed_payload_sha256": "cdcbfdf560473bdb1f4789776598796d3a0e4fb95ad78c03c228a5236eea5cd2",
+    "signer_id": "factory-project-plan-smoke"
+  },
+  "source_project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/missed-call-recovery-project.md",
+  "source_project_spec_sha256": "6a3613f0511a322798dfb104d2ca0676534ab5b131cfd64715109cb64a27b042",
+  "status": "accepted",
+  "step_criteria": [
+    {
+      "index": 0,
+      "must_pass": [
+        "implements the requested app step",
+        "preserves AO2/factory trust-boundary fields",
+        "verifier command exits 0: python -m pytest -q"
+      ],
+      "step": "Intake workflow captures missed-call lead data."
+    },
+    {
+      "index": 1,
+      "must_pass": [
+        "implements the requested app step",
+        "preserves AO2/factory trust-boundary fields",
+        "verifier command exits 0: python -m pytest -q"
+      ],
+      "step": "Messaging workflow produces reviewable recovery copy."
+    }
+  ],
+  "thresholds": {
+    "failed_step_count": 0,
+    "required_signature_status": "signed",
+    "verifier_exit_code": 0
+  },
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "verifier_grade_pass_fail_criteria": [
+    {
+      "criterion": "AO2 generates a deterministic project plan from this human project spec.",
+      "id": "spec-criterion-1",
+      "required": true
+    },
+    {
+      "criterion": "Intake workflow captures missed-call lead data.",
+      "id": "spec-criterion-2",
+      "required": true
+    },
+    {
+      "criterion": "Messaging workflow produces reviewable recovery copy.",
+      "id": "spec-criterion-3",
+      "required": true
+    },
+    {
+      "criterion": "AO2 dispatches app-run steps from a project plan.",
+      "id": "spec-criterion-4",
+      "required": true
+    },
+    {
+      "criterion": "AO2 collects each app-run evidence bundle into one project release-review package.",
+      "id": "spec-criterion-5",
+      "required": true
+    },
+    {
+      "criterion": "Factory-v3 remains evaluator-closer owner and does not drive execution.",
+      "id": "spec-criterion-6",
+      "required": true
+    },
+    {
+      "criterion": "AO2 Control Plane remains read-only observer after signed evidence exists.",
+      "id": "spec-criterion-7",
+      "required": true
+    }
+  ]
+}

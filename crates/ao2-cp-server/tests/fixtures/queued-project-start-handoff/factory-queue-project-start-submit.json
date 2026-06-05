@@ -1,0 +1,57 @@
+{
+  "ao2_decision_owner": "ao2-workbench-queue",
+  "control_plane_role": "read_only_observer_after_signed_evidence",
+  "entry": {
+    "attempts": 0,
+    "created_at": "2026-05-28T06:43:54Z",
+    "execution_contract": {
+      "control_plane_approves_release": false,
+      "control_plane_role": "read_only_observer_after_signed_evidence",
+      "execution_owner": "ao2",
+      "factory_v3_role": "parity_oracle_only",
+      "job_kind": "factory_project_start",
+      "mutates_ao_artifacts": false,
+      "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+      "release_acceptance_owner": "factory-v3 evaluator-closer"
+    },
+    "job_kind": "factory_project_start",
+    "parity_checklist_progress": {
+      "ao2_persists_queue_history_cancel_retry_state": true,
+      "ao2_queue_executes_project_start_handoff_job": true,
+      "ao2_queue_owner": "ao2-workbench-queue",
+      "factory_v3_drives_workflow": false
+    },
+    "project_start_request": {
+      "handoff_bundle_out": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-project-start/project-start-handoff.tgz",
+      "handoff_bundle_report": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-project-start/factory-project-start-bundle.json",
+      "max_repair_attempts": 1,
+      "out_dir": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-project-start",
+      "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-generated-project",
+      "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/missed-call-recovery-project.md",
+      "project_spec_sha256": "6a3613f0511a322798dfb104d2ca0676534ab5b131cfd64715109cb64a27b042",
+      "provider": "scripted",
+      "provider_prompt_dir": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-generated-project/provider-prompts",
+      "signer_id": "factory-project-start-queue-smoke",
+      "signing_key": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/project-run-signing-key.pem",
+      "verifier_command": "true"
+    },
+    "run_id": "missed-call-recovery-project-queued",
+    "schema_version": "ao2.factory-project-start-workbench-queue-entry.v1",
+    "status": "queued",
+    "transition_history": [
+      {
+        "at": "2026-05-28T06:43:54Z",
+        "reason": "submitted AO2 project-start handoff job to AO2-native persisted queue",
+        "status": "queued"
+      }
+    ],
+    "updated_at": "2026-05-28T06:43:54Z"
+  },
+  "factory_v3_role": "parity_oracle_only",
+  "job_kind": "factory_project_start",
+  "queue_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T064354Z/queued-generated-project/.ao2/factory-compat/queue.json",
+  "release_acceptance_owner": "factory-v3 evaluator-closer",
+  "run_id": "missed-call-recovery-project-queued",
+  "schema_version": "ao2.factory-project-start-workbench-queue-submit.v1",
+  "status": "queued"
+}

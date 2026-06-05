@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  ao2-control-plane launchd template (per-user LaunchAgent).
+
+  Install to ~/Library/LaunchAgents/com.uesugitorachiyo.ao2-cp-server.plist
+  (NOT under ~/Documents/ — TCC sandboxing blocks launchd execution of
+  scripts/binaries under user document directories).
+
+  Load:    launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.uesugitorachiyo.ao2-cp-server.plist
+  Unload:  launchctl bootout gui/$UID ~/Library/LaunchAgents/com.uesugitorachiyo.ao2-cp-server.plist
+  Inspect: launchctl print gui/$UID/com.uesugitorachiyo.ao2-cp-server
+
+  Replace REPLACE_ME tokens before loading. Plist must be readable by the
+  loading user only (chmod 600 after editing).
+-->
+<dict>
+  <key>Label</key>
+  <string>com.uesugitorachiyo.ao2-cp-server</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/ao2-cp-server</string>
+    <string>--bind</string>
+    <string>127.0.0.1:8744</string>
+    <string>--data-dir</string>
+    <string>REPLACE_ME_ABSOLUTE_DATA_DIR</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>AO2_CP_API_TOKEN</key>
+    <string>REPLACE_ME_FRESH_RANDOM_TOKEN</string>
+    <key>AO2_CP_LOG_LEVEL</key>
+    <string>info</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+    <key>Crashed</key>
+    <true/>
+  </dict>
+
+  <key>ThrottleInterval</key>
+  <integer>5</integer>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <!-- 65536 matches the CI ulimit step; covers the 500-concurrent burst tests. -->
+  <key>SoftResourceLimits</key>
+  <dict>
+    <key>NumberOfFiles</key>
+    <integer>65536</integer>
+  </dict>
+  <key>HardResourceLimits</key>
+  <dict>
+    <key>NumberOfFiles</key>
+    <integer>65536</integer>
+  </dict>
+
+  <!-- Logs land in /var/log/ao2-cp-server/*.log; create dirs with mode 0700 first. -->
+  <key>StandardOutPath</key>
+  <string>/var/log/ao2-cp-server/stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/var/log/ao2-cp-server/stderr.log</string>
+</dict>
+</plist>

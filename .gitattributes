@@ -1,0 +1,11 @@
+crates/ao2-cp-server/tests/fixtures/**/*.json text eol=lf
+crates/ao2-cp-server/tests/fixtures/**/*.md text eol=lf
+crates/ao2-cp-server/tests/fixtures/**/SHA256SUMS text eol=lf
+*.md text eol=lf
+*.rs text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

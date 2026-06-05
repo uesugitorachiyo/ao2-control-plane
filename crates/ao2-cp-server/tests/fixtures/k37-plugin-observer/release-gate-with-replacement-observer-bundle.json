@@ -1,0 +1,220 @@
+{
+  "archive_path": "target/release-gate-with-replacement-observer-bundle-codex-cron-20260602T070000-0700/k37-release-gate-with-replacement-observer-bundle.tar.gz",
+  "archive_sha256": "ab90838557e6b13e969917797a8bb72c49d2a618ee46d4a2eb5e95cbe77f01de",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.release-gate-with-replacement-parity.v1"
+  ],
+  "platform_count": 3,
+  "platform_rollups": {
+    "macos": {
+      "ao2_git_head": "6c2aa6725e2358113c10b565a5df4425c5374e13",
+      "bundled_path": "target/release-gate-with-replacement-observer-bundle-codex-cron-20260602T070000-0700/bundle/platforms/macos/release-gate-with-replacement-rollup.json",
+      "counts": {
+        "non_passed": 0,
+        "passed": 7,
+        "total_stages": 7
+      },
+      "overall_verdict": "PASS",
+      "schema_version": "ao2.release-gate-with-replacement-parity.v1",
+      "sha256": "635af8a6765c04468558d67247fd3b84edfaa97eb722b99058efd4af126f13bd",
+      "source_path": "target/release-gate-self-contained-codex-cron-20260602T054658-0700/macos/release-gate-with-replacement-6c2aa67/rollup.json",
+      "stages": [
+        {
+          "detail": "failures=0",
+          "name": "no_factory_v3_green_path",
+          "status": "PASS"
+        },
+        {
+          "detail": "artifact=/tmp/ao2-public-test/ao2/target/release-gate-self-contained-codex-cron-20260602T054658-0700/macos/release-gate-with-replacement-6c2aa67/provider-readiness.json status=passed",
+          "name": "provider_readiness_producer",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "factory_v3_parity_oracle",
+          "status": "PASS"
+        },
+        {
+          "detail": "verified=4/4",
+          "name": "provider_contract_verify_all",
+          "status": "PASS"
+        },
+        {
+          "detail": "license_provenance_gate=passed",
+          "name": "license_provenance_gate",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "replacement_parity",
+          "status": "PASS"
+        },
+        {
+          "detail": "version=0.4.80",
+          "name": "release_gate",
+          "status": "PASS"
+        }
+      ],
+      "trust_boundary": {
+        "ao2_role": "canonical_producer",
+        "factory_v3_role": "parity_oracle_only",
+        "mutates_ao_artifacts": false,
+        "mutates_control_plane": false,
+        "role": "ao2_canonical_full_release_gate"
+      }
+    },
+    "ubuntu": {
+      "ao2_git_head": "6c2aa6725e2358113c10b565a5df4425c5374e13",
+      "bundled_path": "target/release-gate-with-replacement-observer-bundle-codex-cron-20260602T070000-0700/bundle/platforms/ubuntu/release-gate-with-replacement-rollup.json",
+      "counts": {
+        "non_passed": 0,
+        "passed": 7,
+        "total_stages": 7
+      },
+      "overall_verdict": "PASS",
+      "schema_version": "ao2.release-gate-with-replacement-parity.v1",
+      "sha256": "56f1da7033e516dfc941fe8962ffa1a1c07d424d38d2340aa4d1647af107ba1a",
+      "source_path": "target/release-gate-self-contained-codex-cron-20260602T054658-0700/ubuntu/release-gate-with-replacement-6c2aa67/rollup.json",
+      "stages": [
+        {
+          "detail": "failures=0",
+          "name": "no_factory_v3_green_path",
+          "status": "PASS"
+        },
+        {
+          "detail": "artifact=/home/nucx/ao2-release-gate-self-contained-6c2aa67/src/target/release-gate-self-contained-codex-cron-20260602T054658-0700/ubuntu/release-gate-with-replacement-6c2aa67/provider-readiness.json status=passed",
+          "name": "provider_readiness_producer",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "factory_v3_parity_oracle",
+          "status": "PASS"
+        },
+        {
+          "detail": "verified=4/4",
+          "name": "provider_contract_verify_all",
+          "status": "PASS"
+        },
+        {
+          "detail": "license_provenance_gate=passed",
+          "name": "license_provenance_gate",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "replacement_parity",
+          "status": "PASS"
+        },
+        {
+          "detail": "version=0.4.80",
+          "name": "release_gate",
+          "status": "PASS"
+        }
+      ],
+      "trust_boundary": {
+        "ao2_role": "canonical_producer",
+        "factory_v3_role": "parity_oracle_only",
+        "mutates_ao_artifacts": false,
+        "mutates_control_plane": false,
+        "role": "ao2_canonical_full_release_gate"
+      }
+    },
+    "windows": {
+      "ao2_git_head": "6c2aa6725e2358113c10b565a5df4425c5374e13",
+      "bundled_path": "target/release-gate-with-replacement-observer-bundle-codex-cron-20260602T070000-0700/bundle/platforms/windows/release-gate-with-replacement-rollup.json",
+      "counts": {
+        "non_passed": 0,
+        "passed": 7,
+        "total_stages": 7
+      },
+      "overall_verdict": "PASS",
+      "schema_version": "ao2.release-gate-with-replacement-parity.v1",
+      "sha256": "63398b3deb7d93a898847f4233e0c9ae88cd0990503d7b5d2459db3beca6a85a",
+      "source_path": "target/release-gate-self-contained-codex-cron-20260602T054658-0700/windows/release-gate-with-replacement-6c2aa67/rollup.json",
+      "stages": [
+        {
+          "detail": "failures=0",
+          "name": "no_factory_v3_green_path",
+          "status": "PASS"
+        },
+        {
+          "detail": "artifact=C:/ao2-public-test/AI status=passed",
+          "name": "provider_readiness_producer",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "factory_v3_parity_oracle",
+          "status": "PASS"
+        },
+        {
+          "detail": "verified=4/4",
+          "name": "provider_contract_verify_all",
+          "status": "PASS"
+        },
+        {
+          "detail": "license_provenance_gate=passed",
+          "name": "license_provenance_gate",
+          "status": "PASS"
+        },
+        {
+          "detail": "passed=5/5",
+          "name": "replacement_parity",
+          "status": "PASS"
+        },
+        {
+          "detail": "version=0.4.80",
+          "name": "release_gate",
+          "status": "PASS"
+        }
+      ],
+      "trust_boundary": {
+        "ao2_role": "canonical_producer",
+        "factory_v3_role": "parity_oracle_only",
+        "mutates_ao_artifacts": false,
+        "mutates_control_plane": false,
+        "role": "ao2_canonical_full_release_gate"
+      }
+    }
+  },
+  "platform_rollups_sha256": "8a8d823c5eed2d21ca00798f0a7059ab759b06dbca470f9aff73bd6e4a7dea3d",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "schema_version": "ao2.k37-release-gate-with-replacement-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/release-gate-with-replacement-observer-bundle-codex-cron-20260602T070000-0700/k37-release-gate-with-replacement-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron release-gate self-contained scratch proof"
+}

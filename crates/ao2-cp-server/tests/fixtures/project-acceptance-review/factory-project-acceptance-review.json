@@ -1,0 +1,57 @@
+{
+  "artifacts": {
+    "acceptance_rubric": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+    "project_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-run.json",
+    "release_review_package": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/project-run/missed-call-recovery-project-release-review-package.tgz",
+    "review": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-acceptance-review.json"
+  },
+  "blockers": [],
+  "created_at": "2026-05-28T12:57:46Z",
+  "missing_artifacts": [],
+  "must_have_artifacts_present": true,
+  "project_run": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-run.json",
+  "project_run_sha256": "8f94cdcb7cdcb7237c9ccb6ab8ba2d4fdc5185b2fa933692b2956ffa9b71fd4e",
+  "recommended_decision": "accept",
+  "rubric": {
+    "accepted": true,
+    "blockers": [],
+    "path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/generated-project/rubrics/missed-call-recovery-project-acceptance-rubric.json",
+    "rubric_schema": "ao2.factory-acceptance-rubric.v1",
+    "schema_version": "ao2.factory-acceptance-rubric-validation.v1",
+    "sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+    "signature_status": "signed",
+    "signature_verified": true
+  },
+  "rubric_sha256": "694de662189dcf74d85239215f488395ecec7f65bc23e7fafe1a30c3c9c97ac2",
+  "schema_version": "ao2.factory-project-acceptance-review.v1",
+  "signature": {
+    "public_key_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-acceptance-review.public.pem",
+    "public_key_sha256": "f0b3d9f242fa540144668e813a310fc47074f8675183499767d21a450147050b",
+    "schema_version": "ao2.factory-project-acceptance-review-signature.v1",
+    "signature_algorithm": "RSA/SHA-256",
+    "signature_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-acceptance-review.json.sig",
+    "signature_sha256": "83e15558b811aead7b889cbeb4f3b9ecf0115cc2dbc4c72ad2937b392dd64759",
+    "signature_status": "signed",
+    "signature_verified": true,
+    "signed_payload": "project_acceptance_review_without_signature_field",
+    "signed_payload_path": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T125744Z/factory-project-acceptance-review.signed-payload.json",
+    "signed_payload_sha256": "eefefa0ddb278a9522b9c0f7f17c3a27ca24b13dbeced47005e4897df0c45fdf",
+    "signer_id": "factory-project-acceptance-review-smoke"
+  },
+  "status": "accepted",
+  "thresholds": {
+    "failed_step_count": 0,
+    "release_review_package_ready": true,
+    "release_review_ready": true
+  },
+  "thresholds_satisfied": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

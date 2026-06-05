@@ -1,0 +1,727 @@
+# ao2-control-plane
+
+Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
+
+This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
+
+## License
+
+`ao2-control-plane` is licensed under `MIT OR Apache-2.0`, at your option. See `LICENSE`, `LICENSE-MIT`, and `LICENSE-APACHE`.
+
+## Quickstart
+
+```bash
+git clone https://github.com/uesugitorachiyo/ao2-control-plane
+cd ao2-control-plane
+cargo build --release -p ao2-cp-server
+
+export AO2_CP_API_TOKEN=$(openssl rand -hex 16)
+./target/release/ao2-cp-server --data-dir ./data
+```
+
+Package and smoke an installed local release archive:
+
+```bash
+cargo build --release -p ao2-cp-server
+scripts/package-local.sh --out-dir dist --version 0.1.12 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.12-macos-aarch64.tar.gz \
+  AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
+  scripts/smoke-release-archive.sh
+```
+
+Windows archive smoke uses the PowerShell harness and validates the `.exe`
+manifest, installer checksum, installed binary, health endpoint, and acceptance
+dashboard:
+
+```powershell
+cargo build --release -p ao2-cp-server
+bash scripts/package-local.sh --out-dir dist --version 0.1.12 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.12-windows-x86_64.tar.gz"
+$env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
+./scripts/smoke-release-archive.ps1
+```
+
+The archive contains `bin/ao2-cp-server` or `bin/ao2-cp-server.exe`, `install.sh`,
+`install.ps1`, `SHA256SUMS`, and `RELEASE-MANIFEST.json`. The manifest records
+the server binary SHA-256 plus the Python and PowerShell offline support-bundle
+verifier paths, SHA-256 values, and token-free commands. The smoke installs
+from the archive, starts the installed server, posts provider-pilot acceptance
+fixtures, and verifies the acceptance dashboard source-class counts. CI runs
+format, clippy, tests, packaging, and installed release smokes across Ubuntu,
+macOS, and Windows.
+
+## Running tests
+
+Two release-publication integration tests
+(`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
+`cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww`)
+spawn 500 concurrent HTTP requests and exhaust the default file-descriptor
+soft limit on Linux (1024) and macOS (256). Raise the soft limit before
+running the full workspace test suite on those platforms:
+
+```bash
+ulimit -n 65536 && cargo test --workspace
+```
+
+Failure mode without the raise is `Os { code: 24, kind: Uncategorized,
+message: "Too many open files" }` (EMFILE). Both Linux (hard cap
+1,048,576) and macOS (hard cap unlimited for most users) allow the soft
+limit raise without sudo. CI applies this same `ulimit` step automatically
+in `.github/workflows/ci.yml`. Windows does not need the raise.
+
+### Cross-OS smoke
+
+`scripts/smoke-three-os.sh` is the fast dev-iteration cousin of
+`scripts/smoke-three-os-release.sh`. It packages `git archive HEAD` into
+a tarball, ships it to the Ubuntu (`AO2_CP_UBUNTU_SSH_TARGET`) and
+Windows (`AO2_CP_WINDOWS_SSH_TARGET`, ProxyJump-capable) hosts, runs
+`cargo test -p ao2-cp-server` on all three, and emits a single
+`ao2.cp-smoke-three-os.v1` JSON summary at
+`target/smoke-three-os/<ts>/summary.json`. Use it before pushing to
+catch Windows or Linux drift early:
+
+```bash
+# Run all OSes with the full server test suite
+scripts/smoke-three-os.sh
+
+# Run a subset of tests only
+scripts/smoke-three-os.sh --tests-only metrics_endpoint,status_endpoint
+
+# Skip a host
+scripts/smoke-three-os.sh --skip-windows
+```
+
+Exits 0 if every executed run passed, 1 if any failed, 2 on
+orchestration error.
+
+### PowerShell parity
+
+A cross-OS PowerShell parity test for `Verify-ReleaseSupportBundle.ps1`
+skips silently when `pwsh` (PowerShell 7+) is missing. To make a missing
+`pwsh` fail loudly instead — for release-gate runs and dedicated
+cross-OS smoke hosts — set `AO2_CP_REQUIRE_PWSH=1`:
+
+```bash
+AO2_CP_REQUIRE_PWSH=1 cargo test --release -p ao2-cp-server \
+  --test release_packaging --test release_publication
+```
+
+Then in another terminal:
+
+```bash
+# Health check
+curl http://127.0.0.1:8744/healthz
+
+# Readiness check for operators / cron
+curl http://127.0.0.1:8744/readyz
+
+# Ingest a bundle produced by local ao2
+curl -X POST \
+  -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-binary @~/Documents/ao2/target/provider-pilot-acceptance/v0.4.66/provider-pilot-acceptance.json \
+  http://127.0.0.1:8744/api/v1/acceptance
+
+# List
+curl -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  http://127.0.0.1:8744/api/v1/acceptance
+
+# Ingest an AO2 memory export as read-only evidence
+curl -X POST \
+  -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-binary @./memory-export.json \
+  http://127.0.0.1:8744/api/v1/memory/export
+
+# List ingested memory exports, or open the authenticated dashboard
+curl -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  http://127.0.0.1:8744/api/v1/memory/export
+curl -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  http://127.0.0.1:8744/api/v1/memory/export/dashboard
+```
+
+Signed memory exports produced by `ao2 memory export --signing-key ...` can be
+published through `ao2 memory publish`; AO2 detects the `.json.sig` and
+`memory-export-signing-public.pem` sidecars and posts a signed wrapper to
+`/api/v1/memory/export/signed`. The signed wrapper includes the detached
+signature bytes and public key PEM; the server verifies RSA/SHA-256 before
+storing the export and rejects invalid signatures. Verification is implemented
+with native Rust crypto, so production does not require an `openssl` executable
+or temporary signature files.
+
+Signed AO2 evidence packs can be posted to `/api/v1/evidence-pack/signed` as a
+read-only observer feed. The control plane verifies the detached RSA/SHA-256
+signature, stores the original `ao2.evidence-pack.v1` JSON by canonical digest,
+and stores signature metadata as a sidecar. Open
+`/api/v1/evidence-pack/dashboard` with the bearer token to review signed packs,
+run IDs, verdicts, signer IDs, verification state, summary counters and verdict
+counts for filtered views, and links to per-pack detail pages, raw packs, and
+signature sidecars. The HTML dashboard mirrors the machine summary so operators
+can scan total entries, gate-attention count, unverified signatures, and verdict
+counts without copying bearer tokens into saved links. The detail page re-checks
+the stored
+evidence digest and sidecar identity before rendering signer, fingerprint, and
+uploaded obligation-gate metadata. Use
+`/api/v1/evidence-pack/dashboard?gate=attention` to list only packs whose
+uploaded obligation gates failed, rejected, or still contain failed/unverified
+rubric items. The dashboard also exposes saved read-only views for all signed
+packs, gate attention, unverified signatures, and failed/rejected verdicts.
+These endpoints observe completed AO2 evidence; they do not sit in AO2's local
+trust path and cannot approve, modify, or close AO2 runs.
+Local AO2 can publish to this endpoint with:
+
+```bash
+ao2 evidence publish \
+  --evidence-pack .ao2/runs/<run-id>/evidence-pack/evidence-pack.json \
+  --signing-key .release-signing/ao2-release-signing-key.pem \
+  --signer-id local-operator \
+  --control-plane-url http://127.0.0.1:8744 \
+  --api-token-env AO2_CP_API_TOKEN \
+  --json
+```
+
+The AO2 publish response includes authenticated dashboard/detail URLs and
+signature fingerprint metadata. AO2 Workbench renders a local token-safe receipt
+from that response so operators can inspect the stored digest and signer
+fingerprint without placing the control-plane bearer token in a browser URL.
+
+Storage retention is explicit and token protected. Use the report endpoint first
+to estimate footprint and prune candidates without deleting anything:
+
+```bash
+curl -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  "http://127.0.0.1:8744/api/v1/storage/report?keep_latest=25"
+```
+
+The prune endpoint defaults to dry-run. It only removes old
+`ao2-control-plane` observer copies and related signature sidecars; it never
+touches local AO2 run directories, approvals, or trust-path artifacts. Add
+`execute=true` only after reviewing the dry-run response:
+
+```bash
+curl -X POST -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  "http://127.0.0.1:8744/api/v1/storage/prune?keep_latest=25"
+
+curl -X POST -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  "http://127.0.0.1:8744/api/v1/storage/prune?keep_latest=25&execute=true"
+```
+
+For out-of-band maintenance, the release archive ships `bin/ao2-cp-gc`
+(`bin/ao2-cp-gc.exe` on Windows). It opens the same `--data-dir` the
+server uses and applies the same count-based retention policy without
+going through the HTTP API, so cron jobs can enforce bounded growth
+without minting a bearer token. The binary always requires an explicit
+mode (`--dry-run` or `--apply`) to avoid accidental deletion and emits
+the prune result as JSON on stdout. See
+[`docs/runbooks/storage-retention.md`](docs/runbooks/storage-retention.md)
+for the operator runbook covering cross-OS scheduling examples.
+
+```bash
+ao2-cp-gc --data-dir ./data --keep-latest 100 --dry-run
+ao2-cp-gc --data-dir ./data --keep-latest 100 --apply
+```
+
+The storage support-bundle contract is available at
+`/api/v1/storage/support-bundle/contract.json`. It documents the stable
+`ao2.cp-support-bundle.v1` consumer fields, including
+`phase1_release_readiness.gap_summary`, `critical_path`, per-gap `gap_kind`,
+read-only trust-boundary flags, portable endpoints, and digest-verification
+expectations. Front ends should use this contract and the route index instead of
+hard-coding support-bundle fields or bearer-token-bearing URLs.
+
+Release support-bundle manifests at
+`/api/v1/release/support-bundle/manifest.json` include a
+`verifier_output_schema_sample` object. That sample is token-free and documents
+the offline verifier JSON fields Hermes/factory-v3 can ingest after running
+`python3 verify_release_support_bundle.py --json --checksums SHA256SUMS ...` on
+macOS/Ubuntu or
+`pwsh -File Verify-ReleaseSupportBundle.ps1 -Json -Checksums SHA256SUMS -Path ...`
+on Windows. The sample is an observer contract only: it records digest/checksum
+verification output, read-only trust-boundary fields, and secret-hygiene
+constraints, but it does not approve releases or mutate AO2 artifacts.
+
+## Endpoints
+
+All `/api/v1/*` endpoints require `Authorization: Bearer $AO2_CP_API_TOKEN`.
+`/` is a public local landing page, and `/healthz` plus `/readyz` are public
+operational checks. The landing page links to authenticated dashboards but does
+not embed bearer tokens; operators should inject the header from local tooling
+instead of putting tokens in browser URLs.
+
+For browser-friendly local review without putting the bearer token in a URL,
+generate dashboard snapshots:
+
+```bash
+export AO2_CP_API_TOKEN="$(cat target/long-lived-control-plane/api-token)"
+python3 scripts/cp_dashboard_snapshot.py \
+  --base-url http://127.0.0.1:18745 \
+  --out-dir target/cp-dashboard-snapshots/latest \
+  --open
+```
+
+Windows PowerShell:
+
+```powershell
+$env:AO2_CP_API_TOKEN = Get-Content target\long-lived-control-plane\api-token
+.\scripts\cp-dashboard-snapshot.ps1 `
+  -BaseUrl http://127.0.0.1:18745 `
+  -OutDir target\cp-dashboard-snapshots\latest `
+  -Open
+```
+
+The helper sends `Authorization: Bearer` only as an HTTP header, writes local
+HTML/JSON snapshots plus `manifest.json`, and fails closed if a response body
+contains the bearer value. It is read-only observer tooling; it does not approve
+releases, start providers, or mutate AO artifacts.
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/` | Public local landing page with health links, authenticated dashboard links, and token-safe access guidance. |
+| `GET` | `/healthz` | Public liveness check with server version. |
+| `GET` | `/readyz` | Public readiness check for API-token configuration and writable storage. |
+| `POST` | `/api/v1/acceptance` | Ingest signed provider acceptance evidence. |
+| `GET` | `/api/v1/acceptance` | List acceptance evidence. |
+| `GET` | `/api/v1/acceptance/dashboard` | Render an authenticated read-only provider-pilot acceptance dashboard. |
+| `GET` | `/api/v1/acceptance/dashboard.json` | Fetch provider-pilot acceptance trend JSON for Hermes/front-end integrations. |
+| `GET` | `/api/v1/acceptance/:sha` | Fetch original acceptance evidence by canonical SHA-256. |
+
+The acceptance dashboard reports `source_class` per bundle plus live/fixture
+counts. Live source class is derived from AO2-owned
+`target/provider-pilot-acceptance` evidence or explicit `source_class: "live"`
+metadata in the bundle; copied fixtures remain visible as fixture evidence.
+Provider-readiness artifacts can be ingested unsigned at `/api/v1/provider/readiness` or as a detached RSA/SHA-256 signed observer upload at `/api/v1/provider/readiness/signed`. Signed uploads use schema `ao2.cp-provider-readiness-signed-upload.v1`, store the original `factory-v3/hermes-provider-phase1-readiness/v1` artifact by canonical digest, and retain a token-free signature sidecar at `/api/v1/provider/readiness/:sha/signature`. The detail and dashboard JSON surfaces expose signature verification state and signer metadata without putting bearer tokens in links. By default these signatures are `cryptographic-only` observer metadata using the uploaded public key as a non-authoritative trust anchor. Operators may set `AO2_CP_PROVIDER_READINESS_TRUSTED_KEY_SHA256S` (or `--provider-readiness-trusted-key-sha256s`) to a comma-separated allow-list of public-key SHA-256 digests; matching signed provider-readiness sidecars are then marked with `trust_policy.release_authoritative=true`, `verification_scope=cryptographic-and-pinned-key`, and a configured-key trust anchor while the control plane remains a read-only observer. Phase 1 support-bundle readiness treats a present but non-authoritative provider-readiness signature sidecar as an `untrusted_signature` blocking gap so observer-only upload-key signatures cannot be mistaken for release-authoritative evidence.
+
+The Phase 1 promotion dashboard correlates the latest provider-readiness
+artifact with live provider acceptance evidence and marks release-gate and
+three-OS smoke proof as external AO2/factory-v3 requirements. It is observer
+only; it cannot run the release gate or approve a promotion.
+The Phase 1 promotion history endpoint lists recent checklists, signed
+decisions, and three-OS smoke observer artifacts so Hermes/front-end surfaces can
+audit promotion evidence over time without copying commands or mutating AO
+artifacts. The gap report includes an observer-only `operator_action_queue` and
+dependency-sorted `critical_path` so Hermes can show which governed
+factory-v3/evaluator-closer step is ready to start without approving or mutating
+AO2 artifacts. It also exposes a newest-first `timeline` array that normalizes
+each artifact kind, SHA-256, raw URL, decision signature URL/verified flag, and
+read-only trust-boundary flags for queue surfaces that need one chronologically
+ordered audit stream. The storage support-bundle also includes the history
+endpoint in its operator handoff links and summarizes available
+provider-readiness, Phase 1 decision, and release-evaluator signature sidecars
+with only sanitized verification fields (algorithm, verified flag, signer id,
+public-key digest, trust anchor, scope, and raw sidecar URL). It never embeds
+uploaded public-key PEM material or bearer-token-bearing URLs, so Hermes and AO
+Operator dashboards can discover the promotion audit trail from one authenticated
+read-only bundle.
+
+AO2 release-publication summaries can be posted to
+`/api/v1/release/publication` after the governed release workflow has shipped a
+tag. The release dashboard observes publication state, provenance tag match,
+download verification, rollback status, release doctor status, and archive
+targets without entering the release trust path. Factory v3 / AO Operator still
+owns evaluator closure and release acceptance.
+Factory-v3 materializes that closure separately as
+`factory-v3/ao2-release-evaluator-decision/v1` after it compares the
+control-plane readiness observer with the AO Operator handoff checklist. The
+control plane may observe the surrounding signed evidence, but it must not
+produce or approve that evaluator decision.
+When running `scripts/smoke-three-os-release.sh` for a Phase 1 release
+candidate, set `AO2_CP_RELEASE_CANDIDATE_VERSION` to the AO2 candidate version
+under review. The smoke summary keeps that separate from `AO2_CP_VERSION`, which
+is the control-plane component/package version. Release handoff and readiness
+surfaces use the candidate version to block cross-candidate evidence mixups.
+The release support bundle also includes embedded `ao2.cp-release-assembly.v1`
+and `ao2.cp-release-evaluator-decision-dashboard.v1` sections. The assembly is
+the portable same-candidate manifest for operators: it records the release
+candidate version, required artifact SHA-256 values, provider acceptance
+candidate versions, candidate correlation status, and the fact that factory-v3
+evaluator-closer remains the release acceptance owner. The evaluator-decision
+section is a read-only observer copy of the Factory v3 evaluator-closer dashboard
+so offline handoff reviewers can verify final release acceptance context without
+granting the control plane approval authority. Its
+`portable_bundle_manifest.integrity` block records AO2 Control Plane canonical
+JSON SHA-256 digests for each embedded support-bundle surface so offline macOS,
+Ubuntu, and Windows reviewers can verify copied or archived surfaces with the
+same project canonicalizer without contacting the read-only control plane again.
+Operators can also open `/api/v1/release/support-bundle/manifest.json` for a
+compact scheduler-safe index containing the bundle filename, canonical bundle
+digest, surface check summary, download/verification links, and explicit
+read-only handoff metadata without embedding bearer tokens. Open
+`/api/v1/release/support-bundle/verify` for an
+authenticated read-only HTML verification view, or
+`/api/v1/release/support-bundle/verify.json` for the machine-readable digest
+check result. Exported bundle copies can be verified offline without a server:
+
+```bash
+python3 scripts/fetch_release_support_handoff.py \
+  --base-url http://127.0.0.1:8744 \
+  --out-dir target/release-handoff \
+  --keep-latest 7
+python3 scripts/verify_release_support_bundle.py target/release-handoff/release-support-bundle.json
+python3 scripts/verify_release_support_bundle.py --json target/release-handoff/release-support-bundle.json
+python3 scripts/verify_release_support_bundle.py --checksums target/release-handoff/SHA256SUMS target/release-handoff/release-support-bundle.json
+pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Path target/release-handoff/release-support-bundle.json
+pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Json -Path target/release-handoff/release-support-bundle.json
+pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Checksums target/release-handoff/SHA256SUMS -Path target/release-handoff/release-support-bundle.json
+```
+
+The helper fetches `/api/v1/release/support-bundle/handoff.json`, the portable bundle, checksums, verifier JSON, and manifest JSON into the output directory. It reads the bearer value from `AO2_CP_AUTH_VALUE`, writes a sanitized `fetch-summary.json`, and records `auth_value_stored=false`; do not paste bearer values into command-line arguments or committed artifacts.
+
+The offline verifier requires exactly the six required surfaces (assembly,
+readiness, handoff, cockpit, evaluator decision, and storage support), matching
+manifest and integrity digests, expected JSON paths, and a read-only trust
+boundary. The optional JSON mode is intended for Hermes/scheduler ingestion: it
+preserves the verifier exit code, includes `failures` on rejection, and repeats
+`control_plane_role=read_only_observer` plus
+`release_acceptance_owner=factory-v3 evaluator-closer` so automation does not
+mistake the observer check for release approval. When `--checksums` / `-Checksums`
+is provided, the verifier also confirms the canonical bundle digest is present
+in the downloaded `SHA256SUMS` file and emits `checksum_verified` in JSON output.
+The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
+
+| `POST` | `/api/v1/control-plane/bundle` | Ingest fleet/control-plane bundle evidence. |
+| `GET` | `/api/v1/control-plane/bundle` | List fleet/control-plane bundle evidence. |
+| `GET` | `/api/v1/control-plane/bundle/:sha` | Fetch original fleet/control-plane bundle by canonical SHA-256. |
+| `GET` | `/api/v1/control-plane/routes.json` | Fetch the token-free route index for Hermes/front-end discovery of read-only observer, portable download, signed evidence/memory, and factory-v3 evaluator-owned surfaces. The index includes a `portable_artifacts` section that groups gap reports and support bundles with JSON, download, checksum, manifest, and verification links so schedulers do not need to infer handoff bundles from the full route list. The index is regression-tested against frontend-relevant static routes to reduce discovery drift without placing credentials in URLs. |
+| `POST` | `/api/v1/evidence-pack/signed` | Verify and ingest a signed `ao2.evidence-pack.v1` observer wrapper, storing signature metadata as a sidecar. |
+| `GET` | `/api/v1/evidence-pack` | List ingested AO2 evidence packs. |
+| `GET` | `/api/v1/evidence-pack/dashboard` | Render an authenticated read-only dashboard for signed AO2 evidence packs. |
+| `GET` | `/api/v1/evidence-pack/:sha/detail` | Render an authenticated read-only detail page for one signed AO2 evidence pack. |
+| `GET` | `/api/v1/evidence-pack/:sha/detail.json` | Fetch structured read-only detail JSON for one signed AO2 evidence pack. |
+| `GET` | `/api/v1/evidence-pack/run/:run_id/latest` | Fetch structured detail JSON for the newest signed evidence pack matching a run id. |
+| `GET` | `/api/v1/evidence-pack/:sha/signature` | Fetch signed evidence-pack sidecar metadata by evidence-pack SHA-256, after sidecar identity validation. |
+| `GET` | `/api/v1/evidence-pack/:sha` | Fetch original AO2 evidence pack by canonical SHA-256. |
+| `POST` | `/api/v1/memory/export` | Ingest an `ao2.memory-export.v1` export as read-only evidence. |
+| `POST` | `/api/v1/memory/export/signed` | Verify and ingest a signed memory export wrapper, storing signature metadata as a sidecar. |
+| `GET` | `/api/v1/memory/export` | List ingested AO2 memory exports. |
+| `GET` | `/api/v1/memory/export/dashboard` | Render an authenticated HTML dashboard of memory exports. |
+| `GET` | `/api/v1/memory/export/:sha/signature` | Fetch signed-export sidecar metadata by export SHA-256. |
+| `GET` | `/api/v1/memory/export/:sha` | Fetch original AO2 memory export by canonical SHA-256. |
+| `GET` | `/api/v1/phase1/promotion/dashboard` | Render an authenticated read-only Phase 1 promotion checklist across readiness, acceptance, release-gate, and three-OS smoke proof. |
+| `GET` | `/api/v1/phase1/promotion/dashboard.json` | Fetch the Phase 1 promotion checklist as JSON for Hermes/front-end integrations. |
+| `GET` | `/api/v1/phase1/promotion/operator-panel` | Render a read-only Phase 1 operator panel that mirrors Hermes/factory promotion posture without approving or mutating AO artifacts. |
+| `GET` | `/api/v1/phase1/promotion/operator-panel.json` | Fetch the Phase 1 operator panel as JSON for front ends and support bundles. |
+| `GET` | `/api/v1/phase1/promotion/operator-support-bundle.json` | Fetch the portable read-only Phase 1 operator support bundle. The bundle embeds dashboard, gap report, operator panel, promotion history, newest-first promotion timeline, and per-entry canonical timeline digests for offline evaluator handoff without moving approval into the observer. |
+| `GET` | `/api/v1/phase1/promotion/operator-support-bundle/download` | Download the same operator support bundle with attachment headers, deterministic observer timestamp, digest header, and read-only observer metadata. |
+| `GET` | `/api/v1/phase1/promotion/operator-support-bundle/SHA256SUMS` | Download token-free SHA-256 checksums for the operator support bundle. |
+| `POST` | `/api/v1/phase1/promotion/operator-support-bundle/verify` | Render read-only HTML verification for a submitted operator support bundle by recomputing embedded promotion timeline canonical digests and comparing them with `timeline_integrity`. This does not ingest, approve, or mutate AO artifacts. |
+| `POST` | `/api/v1/phase1/promotion/operator-support-bundle/verify.json` | Fetch machine-readable verification for a submitted operator support bundle, including per-entry expected/actual canonical SHA-256 values and tamper/mismatch counts. |
+| `GET` | `/api/v1/phase1/promotion/gap-report.json` | Fetch only the machine-readable Phase 1 blocking gap report for schedulers and operator handoff artifacts. |
+| `GET` | `/api/v1/phase1/promotion/gap-report/download` | Download the same gap report with attachment headers, digest header, and read-only observer metadata. |
+| `GET` | `/api/v1/phase1/promotion/gap-report/SHA256SUMS` | Download token-free SHA-256 checksums for the portable gap report. |
+| `GET` | `/api/v1/phase1/promotion/portable-manifest` | Render an authenticated HTML manifest of portable Phase 1 observer artifacts, digests, and download/checksum links without approving or mutating AO artifacts. |
+| `GET` | `/api/v1/phase1/promotion/portable-manifest.json` | Fetch the machine-readable portable Phase 1 manifest for Hermes/factory-v3 handoff bundles, including digest scope and trust-boundary metadata. |
+| `GET` | `/api/v1/phase1/promotion/portable-manifest/download` | Download the same portable manifest with attachment headers, a SHA-256 header, deterministic observer timestamp, and read-only observer metadata. |
+| `GET` | `/api/v1/phase1/promotion/portable-manifest/SHA256SUMS` | Download token-free SHA-256 checksums for the portable Phase 1 manifest itself. |
+| `GET` | `/api/v1/phase1/promotion/history.json` | Fetch recent Phase 1 checklists, signed decisions, and three-OS smoke proof as read-only promotion history. |
+| `GET` | `/api/v1/release/cockpit` | Render an authenticated read-only release cockpit that correlates release publication, Phase 1, provider registry, readiness, acceptance, storage observer surfaces, and latest provider acceptance details. |
+| `GET` | `/api/v1/release/cockpit.json` | Fetch the release cockpit as JSON for Hermes/front-end integrations, including detailed latest Codex/Claude provider acceptance summaries and raw evidence links. |
+| `GET` | `/api/v1/release/handoff` | Render an authenticated read-only Phase 1 release-candidate handoff panel for operators and Hermes front ends. |
+| `GET` | `/api/v1/release/handoff.json` | Fetch a read-only Phase 1 release-candidate handoff package for Hermes/factory-v3, correlating cockpit, signed decision, live provider acceptance, and three-OS evidence without approving or mutating AO artifacts. |
+| `GET` | `/api/v1/release/readiness` | Render an authenticated read-only release-readiness verdict that summarizes handoff gates and explicitly defers acceptance to factory-v3 evaluator-closer. |
+| `GET` | `/api/v1/release/readiness.json` | Fetch the machine-readable release-readiness verdict for Hermes/factory-v3 checklists without approving or mutating AO artifacts. |
+| `GET` | `/api/v1/release/support-bundle.json` | Fetch the portable read-only release support bundle, including embedded same-candidate `release_assembly` and evaluator-decision dashboard surfaces for offline factory-v3 evaluator-closer review. |
+| `GET` | `/api/v1/release/support-bundle/manifest.json` | Fetch a compact scheduler-safe support-bundle manifest with filename, canonical digest, surface check summary, and download/verification links. |
+| `GET` | `/api/v1/release/support-bundle/download` | Download the same portable release support bundle with `Content-Disposition`, canonical bundle digest, and read-only observer headers for cross-platform operator handoff. |
+| `GET` | `/api/v1/release/support-bundle/verify` | Render an authenticated read-only HTML verification view for release support-bundle embedded surface digests and trust-boundary posture. |
+| `GET` | `/api/v1/release/support-bundle/verify.json` | Fetch the machine-readable release support-bundle embedded surface digest verification result. |
+| `POST` | `/api/v1/provider/registry` | Ingest AO2 provider/plugin registry evidence as read-only observer data. |
+| `POST` | `/api/v1/provider/registry/signed` | Verify and ingest a signed AO2 provider/plugin registry, storing signature metadata as a sidecar. |
+| `GET` | `/api/v1/provider/registry` | List ingested provider registry artifacts. |
+| `GET` | `/api/v1/provider/registry/latest` | Fetch the newest raw provider registry artifact by canonical SHA-256. |
+| `GET` | `/api/v1/provider/registry/dashboard` | Render an authenticated read-only provider registry dashboard. |
+| `GET` | `/api/v1/provider/registry/dashboard.json` | Fetch provider registry posture as JSON, including latest signature state, provider guards, and operator links. |
+| `GET` | `/api/v1/provider/registry/:sha/detail` | Render authenticated provider registry detail with signature and evidence links. |
+| `GET` | `/api/v1/provider/registry/:sha/detail.json` | Fetch provider registry detail as JSON. |
+| `GET` | `/api/v1/provider/registry/:sha/signature` | Fetch signed registry sidecar metadata by registry SHA-256. |
+| `GET` | `/api/v1/provider/registry/:sha` | Fetch one raw provider registry artifact by canonical SHA-256. |
+| `POST` | `/api/v1/provider/readiness` | Ingest Hermes/AO2 Phase 1 provider readiness evidence as read-only observer data. |
+| `GET` | `/api/v1/provider/readiness` | List ingested provider readiness artifacts. |
+| `GET` | `/api/v1/provider/readiness/latest` | Fetch the newest provider readiness artifact by canonical SHA-256. |
+| `GET` | `/api/v1/provider/readiness/dashboard` | Render an authenticated read-only provider readiness dashboard. |
+| `GET` | `/api/v1/provider/readiness/dashboard.json` | Fetch the provider readiness dashboard as JSON for Hermes/front-end integrations, including readiness trend totals, Phase 1 blockers, and safe next actions. |
+| `GET` | `/api/v1/provider/readiness/support-bundle.json` | Fetch the portable read-only provider readiness support bundle for operator/evaluator handoff. |
+| `GET` | `/api/v1/provider/readiness/support-bundle/download` | Download the provider readiness support bundle with attachment headers and read-only observer metadata. |
+| `GET` | `/api/v1/provider/readiness/support-bundle/SHA256SUMS` | Download token-free SHA-256 checksums for the provider readiness support bundle. |
+| `GET` | `/api/v1/provider/readiness/:sha/detail` | Render authenticated detail for one provider readiness artifact with evidence/memory links. |
+| `GET` | `/api/v1/provider/readiness/:sha/detail.json` | Fetch provider readiness detail as JSON. |
+| `GET` | `/api/v1/provider/readiness/:sha` | Fetch one raw provider readiness artifact by canonical SHA-256. |
+| `POST` | `/api/v1/release/publication` | Ingest an `ao2.release-publication-summary.v1` observer artifact after a governed release ship. |
+| `GET` | `/api/v1/release/publication/latest` | Fetch the newest release-publication summary by canonical SHA-256. |
+| `GET` | `/api/v1/release/publication/dashboard` | Render an authenticated read-only release-publication dashboard. |
+| `GET` | `/api/v1/release/publication/dashboard.json` | Fetch release publication state, provenance, rollback, and archive health for Hermes/front-end integrations. |
+| `GET` | `/api/v1/release/publication/:sha` | Fetch one raw release-publication summary by canonical SHA-256. |
+| `POST` | `/api/v1/release/evaluator-decision` | Ingest a `factory-v3/ao2-release-evaluator-decision/v1` evaluator-closer decision as read-only observer data. |
+| `GET` | `/api/v1/release/evaluator-decision/latest` | Fetch the newest evaluator-closer release decision by canonical SHA-256. |
+| `GET` | `/api/v1/release/evaluator-decision/dashboard` | Render an authenticated read-only evaluator decision dashboard without approving the release. |
+| `GET` | `/api/v1/release/evaluator-decision/dashboard.json` | Fetch evaluator decision state, blockers, release tag, and trust-boundary fields for Hermes/front-end integrations. |
+| `GET` | `/api/v1/release/evaluator-decision/:sha` | Fetch one raw evaluator-closer release decision by canonical SHA-256. |
+| `GET` | `/api/v1/storage/report?keep_latest=N` | Report storage footprint and prune candidates without deleting observer copies. |
+| `GET` | `/api/v1/storage/dashboard` | Render the authenticated read-only storage dashboard. |
+| `GET` | `/api/v1/storage/dashboard.json` | Fetch storage dashboard JSON for Hermes/front-end observer surfaces. |
+| `GET` | `/api/v1/storage/support-bundle.json` | Fetch the storage support bundle manifest for portable observer-retention review. |
+| `GET` | `/api/v1/storage/support-bundle/download` | Download the storage support bundle with attachment headers and digest metadata. |
+| `GET` | `/api/v1/storage/support-bundle/contract.json` | Fetch the token-free support-bundle consumer contract for stable Phase 1 readiness fields, gap classification, trust-boundary flags, and portable endpoints. |
+| `GET` | `/api/v1/storage/support-bundle/SHA256SUMS` | Download token-free storage support bundle checksums. |
+| `POST` | `/api/v1/storage/prune?keep_latest=N` | Dry-run storage pruning. Add `execute=true` to delete old observer copies and rewrite the control-plane index. |
+| `GET` | `/api/v1/metrics` | Prometheus exposition v0.0.4 — request counters by method × status_class, request duration sum/count, in-flight gauge, storage index gauge, audit-log counters (`ao2_cp_audit_log_appended_total`, `..._rotated_total`, `..._persistence_errors_total`, `..._dropped_total`), and audit-log gauges (`ao2_cp_audit_log_file_bytes`, `ao2_cp_audit_log_oldest_resident_age_seconds`). See [`deploy/README.md`](deploy/README.md#prometheus-scraping) for scrape config. |
+| `GET` | `/api/v1/status` | Structured `ao2.cp-status.v1` JSON — build info (version, target, profile), storage stats (index entries, on-disk bytes), retention pressure pct, request totals + error rate + in-flight, process uptime, and an `audit_log` block (`capacity`, `buffered`, `total_appended_since_boot`, `persistence.{enabled,path,last_error,rotation.{max_bytes,count,last_rotated_unix_micros}}`). Token-gated dashboard view of liveness/readiness data. |
+| `GET` | `/api/v1/audit-log` | Bounded ring buffer of recent requests as `ao2.cp-audit-log.v1` JSON. Query params: `limit`, `since_unix_micros`, `method`, `status`, `status_class`, `path_prefix`, `authenticated`. Bearer-token value is never copied into entries. Buffer capacity is `AO2_CP_AUDIT_LOG_CAPACITY` (default 1024). |
+| `GET` | `/api/v1/audit-log/dashboard` | Render an authenticated read-only HTML dashboard of the audit-log ring buffer: capacity/buffered cards, persistence + rotation panels, the same query filters as the JSON surface, a status-class-coloured recent-request table, and an explicit trust-boundary footer. Same query params as `/api/v1/audit-log`. |
+| `GET` | `/api/v1/audit-log/dashboard.json` | Fetch the same dashboard payload as `ao2.cp-audit-log-dashboard.v1` JSON for Hermes/front-end integrations — `links`, `trust_boundary`, `buffer` telemetry (capacity, buffered, total_appended_since_boot, persistence + rotation), and the filtered recent entries. Same query params as `/api/v1/audit-log`. Bearer-token value is never copied into the response. |
+| `GET` | `/api/v1/audit-log/stream` | Server-Sent Events tail of audit-log entries (`event: audit-log`, `id: <timestamp_unix_micros>`, JSON `data:` payload). Accepts the same filter query params as `/api/v1/audit-log` (`method`, `status`, `status_class`, `path_prefix`, `authenticated`); also accepts `last_event_id=<micros>` or the standard `Last-Event-ID` request header to replay buffered entries strictly newer than the supplied id before the live tail begins. Bearer-token gated; emits a 15 s keepalive comment to keep proxies honest. Lossy under load — a `event: lagged` notice tells clients to backfill via `/api/v1/audit-log?since_unix_micros=...`. |
+
+### Structured access log
+
+Every HTTP request emits exactly one JSON line to stderr (via the
+`ao2_cp_server::access` tracing target) with fields: `method`, `path`,
+`status`, `duration_micros`, `auth_attempted`, `authenticated`. The
+bearer token value is never recorded — only the presence of the
+`Authorization` header and the resulting status. Use `RUST_LOG` to
+control verbosity; e.g. `RUST_LOG=ao2_cp_server::access=info` to keep
+only the request log.
+
+### Audit-log operator endpoint
+
+The same request metadata recorded by the access-log middleware is
+also appended to a bounded in-process ring buffer surfaced by
+`GET /api/v1/audit-log` (token-gated). Operators get a queryable
+newest-first view over HTTPS with filters by method, status, status
+class, path prefix, authentication outcome, and a wall-clock
+`since_unix_micros` boundary — no stderr grep required. The buffer
+capacity (`AO2_CP_AUDIT_LOG_CAPACITY`, default `1024`) caps resident
+memory at ~200 KiB; appends past capacity evict the oldest entry.
+
+For audit history that survives restart, set `AO2_CP_AUDIT_LOG_FILE`
+to a writable path. Each entry is then mirrored to that file as
+newline-delimited JSON (one entry per line, flushed on every append)
+in addition to the ring buffer. The file is opened append-only —
+existing history is preserved across restart, and `tail -f` works
+out of the box. Persistence is independent of the ring-buffer
+capacity: setting capacity to `0` keeps zero in memory but still
+appends every entry to disk if a file path is configured.
+
+For bounded growth, set `AO2_CP_AUDIT_LOG_MAX_BYTES=<bytes>`. Once
+the live file grows past the threshold, it is renamed to
+`<path>.1` (replacing any prior sidecar) and a fresh file is
+opened at the original path. There is only **one historical
+generation** — no `.2`, no compression, no time-based rotation.
+Operators who want richer retention pipe the live NDJSON file into
+their own log shipper (`logrotate`, `vector`, `fluent-bit`); the
+built-in rotation exists to guarantee disk-usage stays bounded
+when no shipper is configured, not to be a fully-featured log
+manager. Rotation state is reported alongside other persistence
+telemetry under `audit_log.persistence.rotation` on both
+`/api/v1/status` and `/api/v1/audit-log`:
+
+- `rotation.max_bytes` — configured threshold, or `null` when
+  rotation is disabled and the file grows without bound.
+- `rotation.count` — total rotations since boot. Spikes above
+  the operator's expected cadence indicate runaway traffic or a
+  too-small threshold; zero across a busy interval indicates the
+  threshold has never been reached.
+- `rotation.last_rotated_unix_micros` — wall-clock micros of the
+  most recent rotation, or `null` if none has occurred this
+  process lifetime.
+
+A read-only HTML view of the same buffer is available at
+`GET /api/v1/audit-log/dashboard` and its machine-readable twin at
+`/api/v1/audit-log/dashboard.json` (schema
+`ao2.cp-audit-log-dashboard.v1`). The HTML surface accepts the same
+query filters as `/api/v1/audit-log` (`limit`, `since_unix_micros`,
+`method`, `status`, `status_class`, `path_prefix`, `authenticated`)
+and renders four telemetry cards (ring buffer, persistence, rotation,
+filtering) plus a status-class-coloured table of the filtered recent
+entries. The JSON twin emits the identical telemetry under a `buffer`
+block alongside `links`, `trust_boundary`, and `entries` so Hermes
+can poll either surface. Path strings rendered into the HTML are
+HTML-escaped at write time; raw query strings drive percent-decoded
+audit-log entries but never reach the rendered HTML body, so an
+attacker cannot smuggle a `<script>` tag through a crafted URL.
+
+Shared implementation in `crates/ao2-cp-server/src/audit_log.rs` and
+`handlers/audit_log.rs`; regression coverage in
+`tests/audit_log_endpoint.rs` (14 tests covering auth, ordering,
+filters, bounded-eviction, bearer-token redaction, NDJSON
+persistence, persistence-across-restart, size-based rotation, the
+new HTML + JSON dashboard surfaces, and HTML-injection defence
+through the dashboard).
+
+#### NDJSON shipper integration helper
+
+For operators piping the audit-log NDJSON into Vector, Fluent Bit,
+NXLog, or a `logrotate`-managed rolling archive, ship the
+`scripts/ship-audit-log.sh` (Mac/Linux) and
+`scripts/ship-audit-log.ps1` (Windows) helpers. Both read the live
+NDJSON file (and optionally the rotated `<path>.1` sidecar) and copy
+it to stdout, ready to be piped into the downstream shipper. The
+helpers discover the persistence path by reading
+`/api/v1/status` with the configured bearer (set
+`AO2_CP_API_TOKEN` or pass `--token`/`-Token`); operators who
+already know the path can pass `--path`/`-Path` directly and
+skip the round-trip. With `--follow`/`-Follow` the helpers tail
+the live file with `tail -F` (bash) or `Get-Content -Wait`
+(PowerShell) so they keep producing across rotation events
+without operator intervention. The bearer is forwarded only as
+an `Authorization` header on the status round-trip; it is never
+written to stdout or stderr, and the audit-log NDJSON itself
+already redacts bearer values at write time.
+
+Example: pipe authenticated audit-log NDJSON into Vector on Linux:
+
+```
+AO2_CP_API_TOKEN=$(cat /etc/ao2-cp/token) \
+  scripts/ship-audit-log.sh --include-rotated --follow \
+  | vector --quiet -c /etc/vector/audit-log.toml
+```
+
+Example: pipe the live file into a Fluent Bit `stdin` input on
+Windows (PowerShell):
+
+```
+$env:AO2_CP_API_TOKEN = Get-Content C:\ao2-cp\token
+.\scripts\ship-audit-log.ps1 -IncludeRotated -Follow `
+  | C:\fluent-bit\bin\fluent-bit.exe -i stdin -o stdout
+```
+
+Regression coverage in
+`crates/ao2-cp-server/tests/audit_log_shipper.rs` (4 cross-OS
+integration tests: live-file streaming with bearer redaction,
+rotated-sidecar prefix, bearer-missing rejection, and the
+`--path`/`-Path` override that skips the status round-trip).
+The same test logic runs on bash (Mac/Linux) and PowerShell
+(Windows), so `scripts/smoke-three-os.sh` exercises both
+helpers byte-identically.
+
+#### Audit-log rotation drill
+
+To prove the bounded-growth path on a host, run the portable rotation
+drill. It starts an ephemeral CP with `AO2_CP_AUDIT_LOG_FILE` and a
+small `AO2_CP_AUDIT_LOG_MAX_BYTES`, drives authenticated observer
+traffic, then verifies `/api/v1/status`, `/api/v1/metrics`, the live
+NDJSON file, and the rotated `.1` sidecar:
+
+```bash
+cargo build -p ao2-cp-server
+scripts/cp-audit-log-rotation-drill.sh \
+  --server-bin target/debug/ao2-cp-server \
+  --work-dir target/audit-log-rotation-drill/manual \
+  --out target/audit-log-rotation-drill/manual/rotation-report.json
+```
+
+On Windows, use `scripts/cp-audit-log-rotation-drill.ps1` with the
+same server binary, work directory, and output path. The report schema
+is `ao2.cp-audit-log-rotation-drill.v1`; it is read-only observer
+evidence and does not include bearer-token values.
+
+#### Periodic health snapshot helper
+
+For nightly or cron-driven evidence, use
+`scripts/cp-health-snapshot.sh` on Mac/Linux or
+`scripts/cp-health-snapshot.ps1` on Windows. Both call the shared
+`scripts/cp_health_snapshot.py` implementation, read
+`/api/v1/healthz/extended` with `--api-token-env`, scan local log
+files for ERROR/WARN/PANIC counters, and emit
+`ao2.cp-health-snapshot.v1` JSON:
+
+```bash
+AO2_CP_API_TOKEN="$(cat /etc/ao2-cp/token)" \
+  scripts/cp-health-snapshot.sh \
+    --base-url http://127.0.0.1:8744 \
+    --api-token-env AO2_CP_API_TOKEN \
+    --log-dir /var/log/ao2-cp-server \
+    --out /var/log/ao2-cp-server/health-snapshot.json
+```
+
+The snapshot is read-only observer evidence. It does not mutate AO
+artifacts, does not include bearer-token values, and records log
+finding counts only, not raw log lines.
+
+#### Disaster-recovery restore drill
+
+Before depending on a long-lived control-plane backup, run the portable
+restore drill. It starts an ephemeral CP, ingests fixture evidence,
+archives the content-addressed data directory, restores it into a fresh
+directory, and verifies restored readback is byte-identical by SHA:
+
+```bash
+cargo build -p ao2-cp-server
+scripts/cp-dr-restore-drill.sh \
+  --server-bin target/debug/ao2-cp-server \
+  --work-dir target/dr-restore-drill/manual \
+  --out target/dr-restore-drill/manual/dr-restore-report.json
+```
+
+On Windows, use `scripts/cp-dr-restore-drill.ps1` with the same
+server binary, work directory, and output path. The report schema is
+`ao2.cp-dr-restore-drill.v1`; it is read-only observer evidence and
+does not include bearer-token values.
+
+Both `/api/v1/status` and `/api/v1/audit-log` expose the same
+audit-log telemetry block so a dashboard can poll either surface:
+
+- `capacity` — configured ring-buffer slots.
+- `buffered` — currently resident entries (post-eviction).
+- `total_appended_since_boot` — monotonic count of every append
+  this process has performed since startup; survives ring eviction
+  and lets dashboards estimate request rate without keeping every
+  entry resident.
+- `persistence.enabled` — whether `AO2_CP_AUDIT_LOG_FILE` is set.
+- `persistence.path` — configured file path, or `null` when
+  persistence is disabled.
+- `persistence.last_error` — most recent persistence write/serialise
+  error message (non-clearing peek), or `null` when there has been
+  no failure since boot. Use this on a dashboard panel to surface
+  silent persistence breakage (e.g. `ENOSPC`) without the operator
+  having to grep stderr.
+
+### Content-addressed observer caching
+
+Every content-addressed `GET /api/v1/…/:sha` endpoint supports a
+strong RFC-7232 ETag (`"<sha>"`), `Cache-Control: public, max-age=60,
+must-revalidate`, an `If-None-Match` short-circuit returning `304`
+without re-reading the body, and a parallel `HEAD` route emitting only
+headers. The 304 path avoids the disk read entirely. Endpoints
+covered: `/acceptance/:sha`, `/control-plane/bundle/:sha`,
+`/evidence-pack/:sha`, `/memory/export/:sha`,
+`/phase1/promotion/{checklist,decision,three-os-smoke}/:sha`,
+`/provider/readiness/:sha`, `/provider/registry/{latest,:sha}`,
+`/release/{publication,evaluator-decision}/:sha`. Shared
+implementation lives in `crates/ao2-cp-server/src/handlers/caching.rs`
+and is regression-tested by `tests/observer_caching.rs` (10 tests, one
+per endpoint × four properties) and `tests/provider_registry_caching.rs`.
+
+See also `docs/superpowers/specs/2026-05-19-ao2-control-plane-v01-design.md`.
+
+## Configuration
+
+| Env var | Flag | Default | Required |
+|---|---|---|---|
+| `AO2_CP_BIND` | `--bind` | `127.0.0.1:8744` | no |
+| `AO2_CP_DATA_DIR` | `--data-dir` | `./data` | no |
+| `AO2_CP_API_TOKEN` | `--api-token` | — | **yes** |
+| `AO2_CP_LOG_LEVEL` | `--log-level` | `info` | no |
+| `AO2_CP_MAX_BODY_BYTES` | `--max-body-bytes` | `10485760` | no |
+| `AO2_CP_AUDIT_LOG_CAPACITY` | `--audit-log-capacity` | `1024` | no |
+| `AO2_CP_AUDIT_LOG_FILE` | `--audit-log-file` | _(unset)_ | no |
+| `AO2_CP_AUDIT_LOG_MAX_BYTES` | `--audit-log-max-bytes` | _(unset, no rotation)_ | no |
+
+## Security
+
+See `docs/SECURITY.md`. Highlights:
+- Bearer-token auth on all `/api/v1/*` endpoints
+- Server refuses to start if `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set (forbidden-env preflight)
+- Content-addressed storage (SHA-256 over AO2 canonical JSON v1 / `ao2-canonical-v1`) — tampering is detectable on GET
+- Signed memory exports and evidence-pack observer uploads fail closed unless the detached RSA/SHA-256 signature verifies against the supplied public key
+- Evidence-pack observer endpoints are read-only and remain outside the AO2 local trust path
+- Release-publication observer endpoints are read-only and cannot approve or mutate releases
+- Storage pruning is opt-in, token protected, dry-run by default, and scoped to `ao2-control-plane` observer copies
+- Native signature verification keeps the same behavior on macOS, Ubuntu, and Windows without shelling out
+- No native TLS in v0.1; terminate at a reverse proxy or LAN/VPN. Drop-in Caddy and nginx templates (with TLS + per-IP rate limiting + provider-key header strip) ship in [`deploy/caddy/Caddyfile.example`](deploy/caddy/Caddyfile.example) and [`deploy/nginx/ao2-cp-server.conf.example`](deploy/nginx/ao2-cp-server.conf.example).
+
+## Status
+
+v0.1 — see GitHub releases.
+
+## License
+
+MIT OR Apache-2.0

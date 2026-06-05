@@ -1,0 +1,162 @@
+{
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.plugin-package.v1",
+    "ao2.plugin-package-verification.v1",
+    "ao2.plugin-wrapper-harness.v1"
+  ],
+  "platform_count": 3,
+  "platform_proofs": {
+    "macos": {
+      "normalized_utf8_bom": false,
+      "package_summary": {
+        "archive_sha256": "452e579efb4a51e8c97dca04beae1c869475d822f78caad06842784e979172b6",
+        "install_smoke_sha256": "ea793d8fdeb832da8f3321f54951ee08d2ba4b0bb2c20d6b2a25779e9c75a1bb",
+        "manifest_sha256": "c3f68ecfe9da7035a449566e9cd1b7452f04cf7b3a6a73dab6119983b43f6581",
+        "manifest_verification_sha256": "51b602a5d948ae3b922a6b9cc1e36533b59e85dc79ff67e60c67c8435c685cad",
+        "path": "target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-macos/package/ao2-plugin-package.json",
+        "schema_version": "ao2.plugin-package.v1",
+        "sha256": "d87e258421531fb967316ebcb1fdc217cdcb15aad04f80f40217b3a7273120e6",
+        "status": "packaged"
+      },
+      "package_verification": {
+        "path": "target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-macos/package/package-verification.json",
+        "schema_version": "ao2.plugin-package-verification.v1",
+        "sha256": "34462b64d650aa1675b7f83e7f1aad38d732484665c16072e51dc85798db7ddb",
+        "status": "passed"
+      },
+      "source_root": "target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-macos",
+      "wrapper_harness": {
+        "app_run": {
+          "args_sha256": "7542dae7e77857c7f79c466b931a43a5991f6a5a5d45107955446bcd5b479936",
+          "path": "target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-macos/wrapper-app-run/plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "15483efd293893e2541e9ddfc5a043fdf6c35b84299fab119d40630f925db07f",
+          "status": "accepted"
+        },
+        "project_run": {
+          "args_sha256": "f0c0f3d03c5aef0861ae4f5dfd561715f3edff39ac5807456ef648696c16fda3",
+          "path": "target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-macos/wrapper-project-run/plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "bcc4269bf0c030459101ea32c0e64dcfdfbbb2c8ed803744dec078b7129f85e6",
+          "status": "accepted"
+        }
+      }
+    },
+    "ubuntu": {
+      "normalized_utf8_bom": false,
+      "package_summary": {
+        "archive_sha256": "aab801ce2df95d282dc815f25ae1620c95da8c5bb646edd75cabda554c34ec0a",
+        "install_smoke_sha256": "cd8b458bf513f839d22df0d2845e43b6870a15232aa0f29b5974df4fb6501761",
+        "manifest_sha256": "3f7804541a876ceb462d0c73907bac2d3c792e43e98bf1ed92bf19ff8815033e",
+        "manifest_verification_sha256": "5aa22e04b0cec33bab4f237538a3647e7ad037e306fd325ca52267f53038fc80",
+        "path": "/home/nucx/ao2-self-contained-refresh-20260601T092109-0700/src/target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-ubuntu/package/ao2-plugin-package.json",
+        "schema_version": "ao2.plugin-package.v1",
+        "sha256": "282ac3928129fd9c144cdc609779c848995c71ca1c111fd24c1247ad6238739f",
+        "status": "packaged"
+      },
+      "package_verification": {
+        "path": "/home/nucx/ao2-self-contained-refresh-20260601T092109-0700/src/target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-ubuntu/package/package-verification.json",
+        "schema_version": "ao2.plugin-package-verification.v1",
+        "sha256": "589ab7426556f6d414433071cd676eb9a458ac53cb861b620e6d66c7967cae49",
+        "status": "passed"
+      },
+      "source_root": "/home/nucx/ao2-self-contained-refresh-20260601T092109-0700/src/target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-ubuntu",
+      "wrapper_harness": {
+        "app_run": {
+          "args_sha256": "7542dae7e77857c7f79c466b931a43a5991f6a5a5d45107955446bcd5b479936",
+          "path": "/home/nucx/ao2-self-contained-refresh-20260601T092109-0700/src/target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-ubuntu/wrapper-app-run/plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "5d01789f31bdcc8c0f7fc5167afea8f549da306b12edbe4041fad57f524ed222",
+          "status": "accepted"
+        },
+        "project_run": {
+          "args_sha256": "f0c0f3d03c5aef0861ae4f5dfd561715f3edff39ac5807456ef648696c16fda3",
+          "path": "/home/nucx/ao2-self-contained-refresh-20260601T092109-0700/src/target/self-contained-plugin-refresh-codex-cron-20260601T092109-0700-ubuntu/wrapper-project-run/plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "47612b3fe26de1de94f1f9b9b792465bd1cf8a7be4e4f5ac5e4d0d2fcbce70de",
+          "status": "accepted"
+        }
+      }
+    },
+    "windows": {
+      "normalized_utf8_bom": true,
+      "package_summary": {
+        "archive_sha256": "6865b7352ef7b82b6cee6b9a6b56a9b34c4b152d58885ecc1474b2b3b028c1da",
+        "install_smoke_sha256": "36a162b1d6a72f9197bf82201b666fea34feb8786ee42e742b9854ce28cb3eb2",
+        "manifest_sha256": "671fd917d260636e5623831b7091bba5ddded5951aa97ed156c6b305171adc8d",
+        "manifest_verification_sha256": "b97bec5b545310b8d2feecc7bcd154b2a594fd80f13dfa1da42d99d301ad119f",
+        "path": "C:\\ao2-public-test\\ao2-self-contained-refresh-20260601T092109-0700\\src\\target\\self-contained-plugin-refresh-codex-cron-20260601T092109-0700-windows\\package\\ao2-plugin-package.json",
+        "schema_version": "ao2.plugin-package.v1",
+        "sha256": "0c71da0b4c8ca8af0ec4c12aa2066aaaafa381ec3c212a51134679135dcd572d",
+        "status": "packaged"
+      },
+      "package_verification": {
+        "path": "C:\\ao2-public-test\\ao2-self-contained-refresh-20260601T092109-0700\\src\\target\\self-contained-plugin-refresh-codex-cron-20260601T092109-0700-windows\\package\\package-verification.json",
+        "schema_version": "ao2.plugin-package-verification.v1",
+        "sha256": "8f4328e5bbdbddbe6eb0f9a9178f1e54525955b91b2d6928fd895c6d603857be",
+        "status": "passed"
+      },
+      "source_root": "C:\\ao2-public-test\\ao2-self-contained-refresh-20260601T092109-0700\\src\\target\\self-contained-plugin-refresh-codex-cron-20260601T092109-0700-windows",
+      "wrapper_harness": {
+        "app_run": {
+          "args_sha256": "7542dae7e77857c7f79c466b931a43a5991f6a5a5d45107955446bcd5b479936",
+          "path": "C:\\ao2-public-test\\ao2-self-contained-refresh-20260601T092109-0700\\src\\target\\self-contained-plugin-refresh-codex-cron-20260601T092109-0700-windows\\wrapper-app-run\\plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "c6abb805661cbd30abd7a7a80b97b65fd2641c677e4128a7be798da424c4b8f6",
+          "status": "accepted"
+        },
+        "project_run": {
+          "args_sha256": "f0c0f3d03c5aef0861ae4f5dfd561715f3edff39ac5807456ef648696c16fda3",
+          "path": "C:\\ao2-public-test\\ao2-self-contained-refresh-20260601T092109-0700\\src\\target\\self-contained-plugin-refresh-codex-cron-20260601T092109-0700-windows\\wrapper-project-run\\plugin-wrapper-harness.json",
+          "readiness_sha256": "5da0119d73dc334958bb5d4f3cf276c4ecd5c654e2560744b397d53fc98e0f08",
+          "schema_version": "ao2.plugin-wrapper-harness.v1",
+          "sha256": "98d51720bcd2424e3377b355afd8f30f17e11a6a4eeaf793afc7a48b5e33f734",
+          "status": "accepted"
+        }
+      }
+    }
+  },
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "proof_timestamp": "20260601T092109-0700",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "schema_version": "ao2.k37-self-contained-plugin-package-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "source_commit": "3574c787dc3702cfc1a18973db7b646ca4cad0bb",
+  "status": "ready_for_k37_observation",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  }
+}

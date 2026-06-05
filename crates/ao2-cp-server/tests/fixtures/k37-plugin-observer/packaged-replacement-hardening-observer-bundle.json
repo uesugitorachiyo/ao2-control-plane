@@ -1,0 +1,273 @@
+{
+  "archive_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/bundle/k37-packaged-replacement-hardening-observer-bundle.tar.gz",
+  "archive_sha256": "ef79bc17a432fd05dae3fc0957fe10766dbe95848342a8330ba8b58f228dbeca",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.packaged-replacement-hardening.v1",
+    "ao2.factory-closer-decision.v1",
+    "ao2.factory-closer-decision-verification.v1"
+  ],
+  "platform_count": 3,
+  "platform_proofs": {
+    "macos": {
+      "bundled_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/bundle/bundle/platforms/macos/packaged-replacement-hardening.json",
+      "closer_decision": {
+        "decision": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/closer-decision.json",
+        "decision_sha256": "7ce4b5276b0060ed83bdd6aec7de0f1aee4bf3a5d308f40cceb52b324db1a900",
+        "decision_verification": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/closer-decision-verification.json",
+        "decision_verification_sha256": "b34fb0c90805233e169cef428fa7fd88bfa782be15225e13dbb7d1ac126ecd32",
+        "rubric_sha256": "3a0acaac67f7677394bb2490a9d835a3cd9d600c90ffaed8025c60d700a45b3c",
+        "schema_version": "ao2.factory-closer-decision.v1",
+        "verification_schema_version": "ao2.factory-closer-decision-verification.v1"
+      },
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_replacement": {
+        "app_run": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/app-run/closer-aware-packaged-replacement-app-macos-20260601t032311-factory-app-run.json",
+        "app_run_bundle": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/app-run/closer-aware-packaged-replacement-app-macos-20260601T032311-bundle.tgz",
+        "app_run_bundle_sha256": "8fb207b3b7a42cd0ecd672c63da733636637656e2d036abc5082071e01f8d58c",
+        "app_run_sha256": "dbddcedf49592edb92603ae17c0200703c0747fbd54f66d9f665deaa4af5d00e",
+        "evaluator_rubric": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/evaluator-rubric.json",
+        "evaluator_rubric_sha256": "3a0acaac67f7677394bb2490a9d835a3cd9d600c90ffaed8025c60d700a45b3c",
+        "project_acceptance_rubric_sha256": "e7a982abeeecca429129a126015aa80d329fee910bbedff10481692dc92aa8a6",
+        "project_plan": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/project-plan.json",
+        "project_plan_sha256": "5e034064521fd32323342632dc35e7b0390c077ad1c9cbf8a65564f4185f0d2f",
+        "project_run": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/project-run/closer-aware-packaged-replacement-project-macos-20260601t032311-factory-project-run.json",
+        "project_run_sha256": "da7dcdc9c26cece026f5ee4383362526a3ef2cdf8cbda9c59272de0b69727216",
+        "release_review_package": "/tmp/ao2-public-test/ao2/target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/project-run/closer-aware-packaged-replacement-project-macos-20260601t032311-release-review-package.tgz",
+        "release_review_package_sha256": "9c1c90b6d49d3399e4107908492f5af1a10ef65cde248b607cd8de3ff06c2e2d",
+        "rubric_sha256": "3a0acaac67f7677394bb2490a9d835a3cd9d600c90ffaed8025c60d700a45b3c"
+      },
+      "normalized_utf8_bom": false,
+      "package": {
+        "archive": "target/closer-aware-plugin-chain-codex-cron-20260601T024008-0700/package/ao2-plugin-package.tar.gz",
+        "archive_sha256": "41aa1f301d6e59a7c85dd53300533ec0861e79a77341693aec8599668a736e0c",
+        "package_verify": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/package-verify.json",
+        "package_verify_sha256": "ff76f2162307833a28235dd39f8a2157d233fefd4f4028c1693bb9275f3cd076",
+        "summary": "target/closer-aware-plugin-chain-codex-cron-20260601T024008-0700/package/ao2-plugin-package.json",
+        "summary_sha256": "89feebe22d9f0a95d21828fc80c036d6deaa6d3e445b656f70408790d2e5f3ab"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.packaged-replacement-hardening.v1",
+      "sha256": "a2c66d57037d5d44e179f150ef041138125369501455447ccca309c2b80df423",
+      "side_effects": {
+        "ao_artifact_mutation": false,
+        "control_plane_mutation": false,
+        "memory_write": false,
+        "provider_execution": false,
+        "queue_mutation": false,
+        "release_approval": false
+      },
+      "source_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/macos-real/out/packaged-replacement-hardening.json",
+      "source_sha256": "a2c66d57037d5d44e179f150ef041138125369501455447ccca309c2b80df423",
+      "status": "passed",
+      "token_safe_output": {
+        "bearer_tokens_serialized": false,
+        "cookies_serialized": false,
+        "private_keys_serialized": false,
+        "redaction_policy": "paths_status_and_digests_only"
+      },
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "ubuntu": {
+      "bundled_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/bundle/bundle/platforms/ubuntu/packaged-replacement-hardening.json",
+      "closer_decision": {
+        "decision": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/closer-decision.json",
+        "decision_sha256": "40bf892c94880798383bab6498482acb24b1ee99278c36465d106f1f89803399",
+        "decision_verification": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/closer-decision-verification.json",
+        "decision_verification_sha256": "0645bc6ba00b8a23c3d3b8e9bc0f011aa4d1afa9b01e11f5239479ceb0dbffe5",
+        "rubric_sha256": "1ac8a73fa4bfae69f963871837d2d8461669877d267c2237559e68104f5e2e26",
+        "schema_version": "ao2.factory-closer-decision.v1",
+        "verification_schema_version": "ao2.factory-closer-decision-verification.v1"
+      },
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_replacement": {
+        "app_run": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/app-run/closer-aware-packaged-replacement-app-ubuntu-20260601t032311-factory-app-run.json",
+        "app_run_bundle": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/app-run/closer-aware-packaged-replacement-app-ubuntu-20260601T032311-bundle.tgz",
+        "app_run_bundle_sha256": "bd80914ba622e2d81fe3d6517f8dfc5a1232411dd2857da0883bf69226888dd8",
+        "app_run_sha256": "ced21d4f126e437e6ab8a7d0a00c6c1aac10f93e67734456f96447dca7603d2a",
+        "evaluator_rubric": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/evaluator-rubric.json",
+        "evaluator_rubric_sha256": "1ac8a73fa4bfae69f963871837d2d8461669877d267c2237559e68104f5e2e26",
+        "project_acceptance_rubric_sha256": "eca4551a12d51a544f5557f605630c5c95fbc5c35f426409c72a43693c3c59a1",
+        "project_plan": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/project-plan.json",
+        "project_plan_sha256": "b1296308045abe983791bd1c4f60b9ab8a41ff11b7e28d30046cea83cb2904d0",
+        "project_run": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/project-run/closer-aware-packaged-replacement-project-ubuntu-20260601t032311-factory-project-run.json",
+        "project_run_sha256": "8bfe0f6467435de526219cc4b2a256394261c95b66ebaf1f12463a53e95b0724",
+        "release_review_package": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/project-run/closer-aware-packaged-replacement-project-ubuntu-20260601t032311-release-review-package.tgz",
+        "release_review_package_sha256": "948a3fea04f4b9bb9e620714284d79aae8689c75d710afa6c2632cbe1d856877",
+        "rubric_sha256": "1ac8a73fa4bfae69f963871837d2d8461669877d267c2237559e68104f5e2e26"
+      },
+      "normalized_utf8_bom": false,
+      "package": {
+        "archive": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/target/closer-aware-plugin-chain-codex-cron-20260601T024008-0700/package/ao2-plugin-package.tar.gz",
+        "archive_sha256": "41aa1f301d6e59a7c85dd53300533ec0861e79a77341693aec8599668a736e0c",
+        "package_verify": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/ubuntu/out/package-verify.json",
+        "package_verify_sha256": "7c03a0699f97119c3f71c73ff5ff177d7b5cbcb70d211d11be2bfcc1589a31fa",
+        "summary": "/home/nucx/ao2-closer-aware-replacement-20260601T032311/target/closer-aware-plugin-chain-codex-cron-20260601T024008-0700/package/ao2-plugin-package.json",
+        "summary_sha256": "89feebe22d9f0a95d21828fc80c036d6deaa6d3e445b656f70408790d2e5f3ab"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.packaged-replacement-hardening.v1",
+      "sha256": "37f6368c88e596f1c7ad5df2b8536816187cca4acd6b4466b0723413db36ed26",
+      "side_effects": {
+        "ao_artifact_mutation": false,
+        "control_plane_mutation": false,
+        "memory_write": false,
+        "provider_execution": false,
+        "queue_mutation": false,
+        "release_approval": false
+      },
+      "source_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/collected/ubuntu/packaged-replacement-hardening.json",
+      "source_sha256": "37f6368c88e596f1c7ad5df2b8536816187cca4acd6b4466b0723413db36ed26",
+      "status": "passed",
+      "token_safe_output": {
+        "bearer_tokens_serialized": false,
+        "cookies_serialized": false,
+        "private_keys_serialized": false,
+        "redaction_policy": "paths_status_and_digests_only"
+      },
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    },
+    "windows": {
+      "bundled_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/bundle/bundle/platforms/windows/packaged-replacement-hardening.json",
+      "closer_decision": {
+        "decision": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\closer-decision.json",
+        "decision_sha256": "6dea79157c626301643c18dc592476a958a56a8253c84a7ae8b3d9d780e1f64a",
+        "decision_verification": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\closer-decision-verification.json",
+        "decision_verification_sha256": "1980e0671f1212db7fd731841c09f4f3e070fbc3126b452d49045a53b3d4f410",
+        "rubric_sha256": "08a05b11879d34d34cbcf03ca43c830ba90c23d4c2ee0aa1f360c02f9df87225",
+        "schema_version": "ao2.factory-closer-decision.v1",
+        "verification_schema_version": "ao2.factory-closer-decision-verification.v1"
+      },
+      "control_plane_observation": {
+        "may_approve_release": false,
+        "may_mutate_evidence": false,
+        "may_observe_evidence_bundle_path": true,
+        "role": "read_only_observer"
+      },
+      "factory_replacement": {
+        "app_run": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\app-run\\closer-aware-packaged-replacement-app-windows-20260601t032311-factory-app-run.json",
+        "app_run_bundle": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\app-run\\closer-aware-packaged-replacement-app-windows-20260601T032311-bundle.tgz",
+        "app_run_bundle_sha256": "1c01905afa6aedd61a78ea5e94e9a9ed21cb67ef0cae175d61afcfbc8641c6c7",
+        "app_run_sha256": "2b84463c537f72482e2d391e8feea0c8b2a28fbb6f31cc6288aaca98fb955c97",
+        "evaluator_rubric": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\evaluator-rubric.json",
+        "evaluator_rubric_sha256": "08a05b11879d34d34cbcf03ca43c830ba90c23d4c2ee0aa1f360c02f9df87225",
+        "project_acceptance_rubric_sha256": "ef24eaeef882888f771234f1fc94a7cc7bb50dfd6f82cff97a8b2b3951d5b77d",
+        "project_plan": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\project-plan.json",
+        "project_plan_sha256": "64c85ee75636578229e1cdf173b72616c06cce8a60cce2bd413433c556428dd7",
+        "project_run": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\project-run\\closer-aware-packaged-replacement-project-windows-20260601t032311-factory-project-run.json",
+        "project_run_sha256": "0f39085f18a381fa3e95f62cc2eb8244b1695d9b1f9ff98f8178697274e868fc",
+        "release_review_package": "\\\\?\\C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\project-run\\closer-aware-packaged-replacement-project-windows-20260601t032311-release-review-package.tgz",
+        "release_review_package_sha256": "c20a6855d6f202be096f6b92dba8217f322422d55c094a2a1f688834434f6f31",
+        "rubric_sha256": "08a05b11879d34d34cbcf03ca43c830ba90c23d4c2ee0aa1f360c02f9df87225"
+      },
+      "normalized_utf8_bom": true,
+      "package": {
+        "archive": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\target\\closer-aware-plugin-chain-codex-cron-20260601T024008-0700\\package\\ao2-plugin-package.tar.gz",
+        "archive_sha256": "41aa1f301d6e59a7c85dd53300533ec0861e79a77341693aec8599668a736e0c",
+        "package_verify": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\windows\\out\\package-verify.json",
+        "package_verify_sha256": "94cdf3966380a0961629810f09588b908f18b2a1e15bbadb97f921ca377c02a5",
+        "summary": "C:\\ao2-public-test\\ao2-closer-aware-replacement-20260601T032311\\target\\closer-aware-plugin-chain-codex-cron-20260601T024008-0700\\package\\ao2-plugin-package.json",
+        "summary_sha256": "89feebe22d9f0a95d21828fc80c036d6deaa6d3e445b656f70408790d2e5f3ab"
+      },
+      "provider_auth": {
+        "local_oauth_cli_only": true,
+        "provider_api_key_auth_allowed": false,
+        "provider_api_key_env_required": false
+      },
+      "schema_version": "ao2.packaged-replacement-hardening.v1",
+      "sha256": "fb3399738b4dba5f6e7f514ae3b64664ea6ec953f0519d73a8d57911871bca96",
+      "side_effects": {
+        "ao_artifact_mutation": false,
+        "control_plane_mutation": false,
+        "memory_write": false,
+        "provider_execution": false,
+        "queue_mutation": false,
+        "release_approval": false
+      },
+      "source_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/collected/windows/packaged-replacement-hardening.json",
+      "source_sha256": "385c24b5888d111ca3e08d0030bd15a8e5b20ef12e96890c43af702065a6b9d0",
+      "status": "passed",
+      "token_safe_output": {
+        "bearer_tokens_serialized": false,
+        "cookies_serialized": false,
+        "private_keys_serialized": false,
+        "redaction_policy": "paths_status_and_digests_only"
+      },
+      "trust_boundary": {
+        "control_plane_approves_release": false,
+        "control_plane_role": "read_only_observer",
+        "execution_owner": "ao2",
+        "factory_v3_role": "parity_auditor",
+        "mutates_ao_artifacts": false
+      }
+    }
+  },
+  "platform_proofs_sha256": "20b4452e75dc09409f056e49cf4b5bbaae66b10d3ee953bce8810fb736b25510",
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false,
+    "provider_api_key_env_required": false
+  },
+  "schema_version": "ao2.k37-packaged-replacement-hardening-observer-bundle.v1",
+  "side_effects": {
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/closer-aware-packaged-replacement-refresh-codex-cron-20260601T032311-0700/bundle/k37-packaged-replacement-hardening-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 factory-v3 replacement hardening"
+}

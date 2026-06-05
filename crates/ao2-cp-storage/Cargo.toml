@@ -1,0 +1,24 @@
+[package]
+name = "ao2-cp-storage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false # private observer crate; see ao2-cp-schema/Cargo.toml
+
+[dependencies]
+ao2-cp-schema = { path = "../ao2-cp-schema" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+chrono.workspace = true
+sha2.workspace = true
+hex.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,50 @@
+[package]
+name = "ao2-cp-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false # private observer crate; see ao2-cp-schema/Cargo.toml
+
+[[bin]]
+name = "ao2-cp-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "ao2-cp-gc"
+path = "src/bin/gc.rs"
+
+[lib]
+name = "ao2_cp_server"
+path = "src/lib.rs"
+
+[dependencies]
+ao2-cp-schema = { path = "../ao2-cp-schema" }
+ao2-cp-storage = { path = "../ao2-cp-storage" }
+anyhow.workspace = true
+axum.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+base64.workspace = true
+rsa.workspace = true
+signature.workspace = true
+subtle.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-stream.workspace = true
+futures.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+rand.workspace = true
+reqwest.workspace = true
+tempfile.workspace = true
+
+[lints]
+workspace = true

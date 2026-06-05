@@ -1,0 +1,52 @@
+{
+  "schema_version": "ao2.packaged-replacement-hardening.v1",
+  "status": "passed",
+  "platform": "macos",
+  "package": {
+    "summary": "/tmp/ao2-public-test/ao2/target/clean-package-refresh-codex-cron-20260531T225315-0700-package/package/ao2-plugin-package.json",
+    "summary_sha256": "e9d87b5261fb2d367cefb75278726090e73258c139c541766513343f2c004441",
+    "archive": "/tmp/ao2-public-test/ao2/target/clean-package-refresh-codex-cron-20260531T225315-0700-package/package/ao2-plugin-package.tar.gz",
+    "archive_sha256": "2f410fa84aca16867a2858aad9e78e8cb78537e5f28dd1eea82c62c63648f564",
+    "package_verify": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/package-verify.json",
+    "package_verify_sha256": "3f7779ac1424ef7febd9f75aa934190f05e652957648fe97838474ea4faee461"
+  },
+  "factory_replacement": {
+    "app_run": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/app-run/packaged-replacement-app-macos-factory-app-run.json",
+    "app_run_sha256": "3d0d1a023c33cfc36b78586918c0a28591c6c306141e4e73b0189e700e6d0c5b",
+    "app_run_bundle": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/app-run/packaged-replacement-app-macos-bundle.tgz",
+    "app_run_bundle_sha256": "8f4005aaa6c5939808647e5a1795e31879618af1a29268d78cac00403d6ca3d9",
+    "project_plan": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/project-plan.json",
+    "project_plan_sha256": "3fb66ce7bf3f28d19291ccdc51d29be8cf561df63dc094649bf1effc9e857697",
+    "project_run": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/project-run/packaged-replacement-project-macos-factory-project-run.json",
+    "project_run_sha256": "c097770e070d0cf52e5ef69d4c8341cde69b58d3678aec11b73bcc8b3fc78e93",
+    "release_review_package": "/tmp/ao2-public-test/ao2/target/packaged-replacement-hardening-codex-cron-20260531T232115-0700/macos/out/project-run/packaged-replacement-project-macos-release-review-package.tgz",
+    "release_review_package_sha256": "3a090e99aafe80f12571f038e7bb3013374b9e8102cfe75899b0735fdccc3bb5",
+    "rubric_sha256": "868eaffa9d1171100bb41a7dee9e333f2f8e97fbae6fd78585dc5d0e66231ad0",
+    "project_acceptance_rubric_sha256": "12ca444b05ab100d42c5bbc08756063b9e9f76cfe0f35da9d87e3f28ecf3de38"
+  },
+  "provider_auth": {
+    "local_oauth_cli_only": true,
+    "provider_api_key_auth_allowed": false
+  },
+  "trust_boundary": {
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "control_plane_role": "read_only_observer",
+    "mutates_ao_artifacts": false,
+    "control_plane_approves_release": false
+  },
+  "side_effects": {
+    "provider_execution": false,
+    "queue_mutation": false,
+    "memory_write": false,
+    "control_plane_mutation": false,
+    "ao_artifact_mutation": false,
+    "release_approval": false
+  },
+  "token_safe_output": {
+    "bearer_tokens_serialized": false,
+    "cookies_serialized": false,
+    "private_keys_serialized": false,
+    "redaction_policy": "paths_status_and_digests_only"
+  }
+}

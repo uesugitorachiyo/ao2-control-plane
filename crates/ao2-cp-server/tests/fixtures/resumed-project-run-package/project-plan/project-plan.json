@@ -1,0 +1,21 @@
+{
+  "schema_version": "ao2.factory-project-plan.v1",
+  "app_steps": [
+    {
+      "id": "intake",
+      "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/intake-spec.md",
+      "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/intake-target",
+      "verifier_command": "python -m pytest -q",
+      "provider": "scripted",
+      "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/intake-provider-prompt.sh"
+    },
+    {
+      "id": "messaging",
+      "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/messaging-spec.md",
+      "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/messaging-target",
+      "verifier_command": "python -m pytest -q",
+      "provider": "scripted",
+      "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T041907Z/messaging-provider-prompt.sh"
+    }
+  ]
+}

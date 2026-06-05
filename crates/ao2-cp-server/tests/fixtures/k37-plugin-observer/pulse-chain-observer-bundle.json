@@ -1,0 +1,317 @@
+{
+  "archive_path": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/pulse-chain-observer-bundle/k37-pulse-chain-observer-bundle.tar.gz",
+  "archive_sha256": "8cea4ce50e0c4c15f1fe45bcd913ba79c6844ba1ad3a425f2419a47c5a813ea8",
+  "control_plane_observation": {
+    "may_approve_release": false,
+    "may_mutate_evidence": false,
+    "may_observe_evidence_bundle_path": true,
+    "role": "read_only_observer"
+  },
+  "current_ao2_head": "884bb681d16ac1e2ea61be111b7661471725d8b6",
+  "factory_v3_role": "parity_auditor",
+  "observed_evidence_scope": [
+    "ao2.pulse-chain.v1"
+  ],
+  "platform_chain": {
+    "macos": {
+      "bundled_paths": {
+        "pulse_chain": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/pulse-chain-observer-bundle/bundle/platforms/macos/pulse-chain.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "hosted C85 Release Gate passed before post-C85/plugin-ready Pulse chain evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "chain_steps": [
+        {
+          "executes_task": false,
+          "id": "observe-pulse-once-and-select-next-safe-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "status": "planned"
+        },
+        {
+          "executes_task": false,
+          "id": "prepare-operator-handoff",
+          "reason": "A human/operator or governed follow-on may execute the selected AO2 task after reviewing this evidence.",
+          "status": "planned"
+        }
+      ],
+      "observed_inputs": {
+        "board": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/inputs/BOARD.md",
+        "board_sha256": "10cc5116ff6129059371dd728a29a2dcce71faa506e4026bf74a854831f8d221",
+        "packet": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/inputs/prompt.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "22d8b1847eeb724ebc273b38560062df42f21f2c01d9840737a5261f4e901337"
+      },
+      "prior_once": {
+        "path": "target/pulse-once-post-c85-observer-codex-cron-20260604T070539-0700/macos/once/pulse-once.json",
+        "schema_version": "ao2.pulse-once.v1",
+        "selected_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-next-safe-task",
+          "reason": "Windows Workbench P0 and plugin/K37 observer coverage are current; the next safe AO2 advancement is read-only Pulse once-mode evidence.",
+          "recommended_command": "ao2 pulse run --once --packet <active-packet> --board <coordination-board> --out-dir <evidence-dir> --json",
+          "shape": "greenfield",
+          "title": "AO2 Pulse once-mode replacement slice"
+        },
+        "sha256": "2bbe810b37a160a0d1b549fa3e672a9d24fd52b14a2aabbb59041b2d8cffb47d",
+        "status": "ready_for_operator_execution"
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --chain",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-chain.v1",
+      "sha256": "d3fba68754cfc51c5ad54d4e04e95dbec844593458127ef183190b5aaf879886",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/macos/chain/pulse-chain.json",
+      "status": "planned_without_execution",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "ubuntu": {
+      "bundled_paths": {
+        "pulse_chain": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/pulse-chain-observer-bundle/bundle/platforms/ubuntu/pulse-chain.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "hosted C85 Release Gate passed before post-C85/plugin-ready Pulse chain evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "chain_steps": [
+        {
+          "executes_task": false,
+          "id": "observe-pulse-once-and-select-next-safe-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "status": "planned"
+        },
+        {
+          "executes_task": false,
+          "id": "prepare-operator-handoff",
+          "reason": "A human/operator or governed follow-on may execute the selected AO2 task after reviewing this evidence.",
+          "status": "planned"
+        }
+      ],
+      "observed_inputs": {
+        "board": "../BOARD.md",
+        "board_sha256": "10cc5116ff6129059371dd728a29a2dcce71faa506e4026bf74a854831f8d221",
+        "packet": "../prompt.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "22d8b1847eeb724ebc273b38560062df42f21f2c01d9840737a5261f4e901337"
+      },
+      "prior_once": {
+        "path": "../ubuntu-pulse-once.json",
+        "schema_version": "ao2.pulse-once.v1",
+        "selected_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-next-safe-task",
+          "reason": "Windows Workbench P0 and plugin/K37 observer coverage are current; the next safe AO2 advancement is read-only Pulse once-mode evidence.",
+          "recommended_command": "ao2 pulse run --once --packet <active-packet> --board <coordination-board> --out-dir <evidence-dir> --json",
+          "shape": "greenfield",
+          "title": "AO2 Pulse once-mode replacement slice"
+        },
+        "sha256": "e7004c3612a8002b1470cd1737d424bdb76e19e5954c53839a407dbe8cb82d52",
+        "status": "ready_for_operator_execution"
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --chain",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-chain.v1",
+      "sha256": "52684a24ef1795f3b9011c02f69cc9aad345ce1be1bc0ec27c4b5496d5202919",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/ubuntu/chain/pulse-chain.json",
+      "status": "planned_without_execution",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    },
+    "windows": {
+      "bundled_paths": {
+        "pulse_chain": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/pulse-chain-observer-bundle/bundle/platforms/windows/pulse-chain.json"
+      },
+      "c85": {
+        "hosted_github_actions_checked": true,
+        "reason": "hosted C85 Release Gate passed before post-C85/plugin-ready Pulse chain evidence",
+        "rerun_allowed_without_user_billing_fix": true,
+        "status": "passed"
+      },
+      "chain_steps": [
+        {
+          "executes_task": false,
+          "id": "observe-pulse-once-and-select-next-safe-task",
+          "reason": "Chain mode records the once-mode decision and prepares a bounded evaluator-closed next step without executing it.",
+          "status": "planned"
+        },
+        {
+          "executes_task": false,
+          "id": "prepare-operator-handoff",
+          "reason": "A human/operator or governed follow-on may execute the selected AO2 task after reviewing this evidence.",
+          "status": "planned"
+        }
+      ],
+      "observed_inputs": {
+        "board": "C:\\ao2-public-test\\Documents\\ao2\\target\\pulse-chain-post-c85-windows-completion-20260604T084248-0700\\inputs\\BOARD.md",
+        "board_sha256": "10cc5116ff6129059371dd728a29a2dcce71faa506e4026bf74a854831f8d221",
+        "packet": "C:\\ao2-public-test\\Documents\\ao2\\target\\pulse-chain-post-c85-windows-completion-20260604T084248-0700\\inputs\\prompt.txt",
+        "packet_mentions_c85_deferred": false,
+        "packet_mentions_c85_passed": true,
+        "packet_sha256": "22d8b1847eeb724ebc273b38560062df42f21f2c01d9840737a5261f4e901337"
+      },
+      "prior_once": {
+        "path": "C:\\ao2-public-test\\Documents\\ao2\\target\\pulse-chain-post-c85-windows-completion-20260604T084248-0700\\windows\\once\\pulse-once.json",
+        "schema_version": "ao2.pulse-once.v1",
+        "selected_task": {
+          "classification": "COMPLEX",
+          "id": "ao2-pulse-next-safe-task",
+          "reason": "Windows Workbench P0 and plugin/K37 observer coverage are current; the next safe AO2 advancement is read-only Pulse once-mode evidence.",
+          "recommended_command": "ao2 pulse run --once --packet <active-packet> --board <coordination-board> --out-dir <evidence-dir> --json",
+          "shape": "greenfield",
+          "title": "AO2 Pulse once-mode replacement slice"
+        },
+        "sha256": "b5be6786f101c5e1c299bd316ce90ba9e118633bb594dd35e99672ca604a626f",
+        "status": "ready_for_operator_execution"
+      },
+      "scheduler": {
+        "active_runner": "codex-cron",
+        "fixed_interval_loop_successor": "ao2 pulse run --chain",
+        "hermes_cron_mutated": false,
+        "hermes_frontend_queue_memory_concept": true
+      },
+      "schema_version": "ao2.pulse-chain.v1",
+      "sha256": "da2acbd24ebba49b55572d4c5553b56748bc7039c2924626e29010d5e2560c12",
+      "side_effects": {
+        "control_plane_mutation": false,
+        "hermes_cron_watchdog_mutation": false,
+        "memory_write": false,
+        "mutates_ao_artifacts": false,
+        "provider_execution": false,
+        "queue_execution": false
+      },
+      "source_path": "docs/status/codex-cron-pulse-chain-post-c85-observer-windows-chain-20260604T084248-0700.json",
+      "status": "planned_without_execution",
+      "trust_boundary": {
+        "ao2_control_plane_read_only_observer": true,
+        "ao2_execution_evidence_owner": true,
+        "control_plane_approves_release": false,
+        "control_plane_mutates_ao_artifacts": false,
+        "control_plane_observer_only": true,
+        "factory_v3_evaluator_closer_reference": true,
+        "hermes_frontend_queue_memory_surface": true
+      }
+    }
+  },
+  "platform_chain_sha256": "893aed1ceae5e75862d150b5deabc240fcf4f6f199b2d283099d02e4d52e607f",
+  "platform_count": 3,
+  "platform_progress": {
+    "blocked_platforms": [],
+    "macos": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "required_platforms": [
+      "macos",
+      "ubuntu",
+      "windows"
+    ],
+    "schema_version": "ao2.pulse-platform-progress.v1",
+    "status": "closure_ready",
+    "ubuntu": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    },
+    "windows": {
+      "current_state": "closure_ready",
+      "state_history": [
+        "pending",
+        "reachable",
+        "staged",
+        "running",
+        "passed",
+        "evidence_collected",
+        "closure_ready"
+      ]
+    }
+  },
+  "platforms": [
+    "macos",
+    "ubuntu",
+    "windows"
+  ],
+  "producer": "ao2",
+  "schema_version": "ao2.k37-pulse-chain-observer-bundle.v1",
+  "side_effects": {
+    "control_plane_mutation": false,
+    "hermes_cron_watchdog_mutation": false,
+    "memory_write": false,
+    "mutates_ao_artifacts": false,
+    "provider_execution": false,
+    "queue_execution": false,
+    "would_approve_release": false,
+    "would_execute_provider": false,
+    "would_execute_queue": false,
+    "would_mutate_ao_artifacts": false,
+    "would_mutate_control_plane": false,
+    "would_write_memory": false
+  },
+  "status": "ready_for_k37_observation",
+  "summary_path": "target/pulse-chain-post-c85-observer-codex-cron-20260604T075515-0700/pulse-chain-observer-bundle/k37-pulse-chain-observer-bundle.json",
+  "token_safe_output_verified": true,
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_auditor",
+    "mutates_ao_artifacts": false
+  },
+  "work_source": "codex-cron AO2 Pulse chain-mode evidence"
+}

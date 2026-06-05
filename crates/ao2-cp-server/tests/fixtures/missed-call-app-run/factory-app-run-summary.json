@@ -1,0 +1,29 @@
+{
+  "schema_version": "ao2.factory-app-run-smoke.v1",
+  "status": "passed",
+  "root": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z",
+  "product_fixture": "missed-call-recovery",
+  "product_domain": "missed-call revenue recovery",
+  "run_id": "factory-app-smoke",
+  "run_status": "accepted",
+  "factory_app_schema": "ao2.factory-app-run.v1",
+  "factory_v3_drives_workflow": false,
+  "factory_v3_role": "parity_oracle_only",
+  "control_plane_role": "read_only_observer_after_signed_evidence",
+  "release_acceptance_owner": "factory-v3 evaluator-closer",
+  "control_plane_approves_release": false,
+  "mutates_ao_artifacts": false,
+  "release_review_artifacts_ready": true,
+  "app_run_bundle": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/app-run-evidence-bundle.tgz",
+  "app_run_bundle_status": "bundled",
+  "evaluator_decision_status": "accepted",
+  "artifacts": {
+    "evaluator_decision": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/governed-run/factory-app-smoke-evaluator-decision.json",
+    "evidence_pack": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/governed-run/factory-app-smoke-evidence-pack.json",
+    "factory_app_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/factory-app-smoke-factory-app-run.json",
+    "governed_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/governed-run/factory-app-smoke-governed-run.json",
+    "greenfield_governed_run": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/factory-app-smoke-greenfield-governed-run.json",
+    "greenfield_ingest": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/ingest/factory-app-smoke-greenfield-ingest.json",
+    "plan": "/tmp/ao2-public-test/ao2/target/factory-app-run-smoke/20260528T030540Z/run/ingest/factory-app-smoke-plan.json"
+  }
+}

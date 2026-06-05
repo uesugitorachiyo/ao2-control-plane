@@ -1,0 +1,36 @@
+{
+  "ao2_git_head": "b762fa7b5224bba9c45ae5c61776d9ecc9da1b6b",
+  "counts": {
+    "non_passed": 0,
+    "passed": 3,
+    "total_stages": 3
+  },
+  "generated_at_utc": "20260601T223417Z",
+  "next_action": "release-gate-with-replacement PASS \u2014 AO2 ready to ship the cross-OS release",
+  "overall_verdict": "PASS",
+  "schema_version": "ao2.release-gate-with-replacement-parity.v1",
+  "stages": [
+    {
+      "detail": "failures=0",
+      "name": "no_factory_v3_green_path",
+      "status": "PASS"
+    },
+    {
+      "detail": "passed=4/4",
+      "name": "replacement_parity",
+      "status": "PASS"
+    },
+    {
+      "detail": "version=0.4.80",
+      "name": "release_gate",
+      "status": "PASS"
+    }
+  ],
+  "trust_boundary": {
+    "ao2_role": "canonical_producer",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "mutates_control_plane": false,
+    "role": "ao2_canonical_full_release_gate"
+  }
+}

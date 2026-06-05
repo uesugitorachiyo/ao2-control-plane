@@ -1,0 +1,61 @@
+{
+  "app_steps": [
+    {
+      "id": "intake",
+      "provider": "scripted",
+      "provider_profile": {
+        "provider_auth": "local OAuth CLI only; API-key provider auth forbidden"
+      },
+      "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/provider-prompts/intake-provider-prompt.sh",
+      "provider_prompt_scaffold": true,
+      "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/specs/intake.md",
+      "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/apps/intake",
+      "title": "Intake workflow captures missed-call lead data.",
+      "verifier_command": "true"
+    },
+    {
+      "id": "messaging",
+      "provider": "scripted",
+      "provider_profile": {
+        "provider_auth": "local OAuth CLI only; API-key provider auth forbidden"
+      },
+      "provider_prompt_file": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/provider-prompts/messaging-provider-prompt.sh",
+      "provider_prompt_scaffold": true,
+      "spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/specs/messaging.md",
+      "target": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project/apps/messaging",
+      "title": "Messaging workflow produces reviewable recovery copy.",
+      "verifier_command": "true"
+    }
+  ],
+  "artifacts": {
+    "project_plan": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/project-start/project-plan/project-plan.json",
+    "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project",
+    "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/missed-call-recovery-project.md"
+  },
+  "factory_replacement_boundary": {
+    "ao2_execution_owner": true,
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "factory_v3_drives_workflow": false,
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  },
+  "project_root": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/generated-project",
+  "project_spec": "/tmp/ao2-public-test/ao2/target/factory-project-run-smoke/20260528T060211Z/missed-call-recovery-project.md",
+  "project_spec_sha256": "6a3613f0511a322798dfb104d2ca0676534ab5b131cfd64715109cb64a27b042",
+  "project_title": "Missed Call Recovery Project",
+  "run_id": "missed-call-recovery-project-start",
+  "schema_version": "ao2.factory-project-plan.v1",
+  "status": "accepted",
+  "trust_boundary": {
+    "control_plane_approves_release": false,
+    "control_plane_role": "read_only_observer_after_signed_evidence",
+    "execution_owner": "ao2",
+    "factory_v3_role": "parity_oracle_only",
+    "mutates_ao_artifacts": false,
+    "provider_auth": "local OAuth CLI only; API-key provider auth forbidden",
+    "release_acceptance_owner": "factory-v3 evaluator-closer"
+  }
+}

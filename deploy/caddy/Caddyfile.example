@@ -1,0 +1,104 @@
+# Caddy reverse-proxy template for ao2-control-plane v0.1+.
+#
+# ao2-cp-server intentionally has no native TLS — it binds 127.0.0.1
+# and relies on a reverse proxy for TLS termination, rate limiting,
+# and access control. Caddy ships those three capabilities in a
+# single binary with automatic Let's Encrypt enrollment.
+#
+# Install:
+#   1. Save this file as /etc/caddy/Caddyfile (or import it from
+#      /etc/caddy/conf.d/ao2-cp-server.caddy).
+#   2. Replace every occurrence of `ao2-cp.example.com` with your
+#      DNS name. The name must resolve to this host so Caddy can
+#      complete the ACME HTTP-01 / TLS-ALPN challenge.
+#   3. Ensure ao2-cp-server is listening on 127.0.0.1:8744 (see
+#      deploy/linux/ao2-cp-server.service).
+#   4. `sudo systemctl reload caddy`
+#
+# Trust posture: this proxy template only terminates TLS, rate-limits
+# inbound requests, and forwards to the local observer. It does not
+# inspect bodies, rewrite paths, or store secrets beyond Caddy's
+# automatic certificate cache (default /var/lib/caddy).
+
+{
+    # Global options. Email is required for Let's Encrypt production
+    # issuance; replace with a real address that you own.
+    email ops@example.com
+
+    # Caddy 2 enables HTTP/2 and HTTP/3 by default. We keep both.
+    servers {
+        protocols h1 h2 h3
+    }
+}
+
+ao2-cp.example.com {
+    # Automatic Let's Encrypt cert. To use an internal CA, change to
+    # `tls internal`. For a custom cert, use `tls /path/to/cert.pem
+    # /path/to/key.pem` and remove the email directive above.
+
+    encode zstd gzip
+
+    # Rate limit. Caddy's `rate_limit` directive is provided by the
+    # community plugin `mholt/caddy-ratelimit` (build Caddy with
+    # `xcaddy build --with github.com/mholt/caddy-ratelimit`).
+    #
+    # Defaults below: 120 requests/min per remote IP across all paths,
+    # 600 requests/min per IP for /healthz (which is unauthenticated
+    # and trivially cheap to serve). Raise the API limit if you have
+    # legitimate burst publishers; the AO2 CLI's default backoff
+    # tolerates 429s.
+    #
+    # Remove this block if you do not have the rate-limit plugin
+    # installed. The reverse_proxy directive still functions on
+    # vanilla Caddy.
+    rate_limit {
+        zone api {
+            key {http.request.remote_host}
+            events 120
+            window 1m
+        }
+        zone healthz {
+            key {http.request.remote_host}
+            events 600
+            window 1m
+            match {
+                path /healthz
+            }
+        }
+    }
+
+    # Block forbidden provider keys at the edge as defense-in-depth.
+    # The server-side preflight already refuses to start if
+    # OPENAI_API_KEY / ANTHROPIC_API_KEY is in its env, but if an
+    # operator accidentally proxies a header named like an env key
+    # (e.g. via a misconfigured client), strip it here.
+    request_header {
+        -OPENAI_API_KEY
+        -ANTHROPIC_API_KEY
+    }
+
+    # Localhost-only observer. The control-plane is a read-only
+    # consumer of AO2 evidence; we forward verbatim and let the
+    # server's bearer-token middleware enforce auth.
+    reverse_proxy 127.0.0.1:8744 {
+        # Surface upstream errors verbatim so AO2 CLI publish loops
+        # can read the same status codes regardless of proxy.
+        flush_interval -1
+
+        # Preserve the client IP for the structured-tracing logs.
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+    }
+
+    # Caddy's access log lands in /var/log/caddy/access.log by default.
+    # The control-plane already emits structured JSON tracing on stdout
+    # (capture via journalctl -u ao2-cp-server); the proxy log adds
+    # an IP-attributable counterpart for triage.
+    log {
+        output file /var/log/caddy/ao2-cp.access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+        format json
+    }
+}
