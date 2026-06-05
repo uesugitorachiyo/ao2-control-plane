@@ -216,3 +216,54 @@ def test_backup_restore_drill_negative_only_runs_without_server_binary(tmp_path)
     assert set(scenarios) == {"missing_archive", "corrupted_archive", "version_skew"}
     assert {item["status"] for item in scenarios.values()} == {"passed"}
     assert all(item["expected_rejection_observed"] is True for item in scenarios.values())
+
+
+def test_backup_restore_drill_reports_restore_compatibility_matrix():
+    script = (REPO_ROOT / "scripts/cp_dr_restore_drill.py").read_text(encoding="utf-8")
+
+    for needle in [
+        "compatibility_matrix",
+        "current_manifest",
+        "legacy_missing_manifest",
+        "older_manifest",
+        "future_manifest",
+        "ao2.cp-dr-restore-archive.v0",
+        "accepted_with_warning",
+        "rejected",
+    ]:
+        assert needle in script
+
+
+def test_backup_restore_drill_negative_only_includes_compatibility_matrix(tmp_path):
+    report_path = tmp_path / "dr-restore-compatibility.json"
+    result = subprocess.run(
+        [
+            "python3",
+            str(REPO_ROOT / "scripts" / "cp_dr_restore_drill.py"),
+            "--negative-only",
+            "--work-dir",
+            str(tmp_path / "work"),
+            "--out",
+            str(report_path),
+        ],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    matrix = {item["name"]: item for item in payload["compatibility_matrix"]}
+    assert set(matrix) == {
+        "current_manifest",
+        "legacy_missing_manifest",
+        "older_manifest",
+        "future_manifest",
+    }
+    assert matrix["current_manifest"]["decision"] == "accepted"
+    assert matrix["legacy_missing_manifest"]["decision"] == "accepted_with_warning"
+    assert matrix["older_manifest"]["decision"] == "accepted_with_warning"
+    assert matrix["future_manifest"]["decision"] == "rejected"
+    assert payload["status"] == "passed"
