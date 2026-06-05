@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import stat
@@ -7,6 +8,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = REPO_ROOT / "scripts" / "start-long-lived-dev.sh"
+SMOKE_SCRIPT = REPO_ROOT / "scripts" / "smoke-long-lived-dev.sh"
 
 
 def test_ci_runs_on_public_push_and_pull_request():
@@ -81,4 +83,37 @@ def test_long_lived_dev_docs_reference_bootstrap_script():
 
     assert "scripts/start-long-lived-dev.sh" in readme
     assert "scripts/start-long-lived-dev.sh" in runbook
+    assert "scripts/smoke-long-lived-dev.sh" in runbook
     assert "pull requests and pushes to main" in security
+
+
+def test_long_lived_dev_smoke_script_is_token_safe_and_checks_once_bootstrap(tmp_path):
+    env = os.environ.copy()
+    env["OPENAI_API_KEY"] = "forbidden-openai"
+    env["ANTHROPIC_API_KEY"] = "forbidden-anthropic"
+    env["AO2_CP_LONG_LIVED_SMOKE_ROOT"] = str(tmp_path / "smoke")
+
+    result = subprocess.run(
+        ["bash", str(SMOKE_SCRIPT)],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "forbidden-openai" not in result.stdout + result.stderr
+    assert "forbidden-anthropic" not in result.stdout + result.stderr
+    assert "AO2_CP_API_TOKEN=" not in result.stdout
+    assert "ao2.cp-long-lived-dev-hardening-smoke.v1" not in result.stdout
+    assert "long_lived_dev_smoke=passed" in result.stdout
+
+    summary = tmp_path / "smoke" / "summary.json"
+    payload = json.loads(summary.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "ao2.cp-long-lived-dev-hardening-smoke.v1"
+    assert payload["status"] == "passed"
+    assert payload["trust_boundary"]["provider_api_keys_allowed"] is False
+    assert payload["trust_boundary"]["token_printed"] is False
+    assert {check["status"] for check in payload["checks"]} == {"passed"}

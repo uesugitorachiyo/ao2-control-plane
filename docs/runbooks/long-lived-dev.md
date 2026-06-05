@@ -67,6 +67,18 @@ The bootstrap creates `target/long-lived-control-plane/{data,logs,publishes}`,
 creates or reuses the `0600` token file, starts the server on
 `127.0.0.1:18745`, and prints only token-free status lines.
 
+Fast hardening smoke:
+
+```bash
+scripts/smoke-long-lived-dev.sh
+```
+
+The smoke initializes an isolated `target/long-lived-dev-smoke/...` root with
+`--once-check`, verifies the data/log/publish directories, checks the token is
+`0600` 64-character hex, and emits
+`ao2.cp-long-lived-dev-hardening-smoke.v1`. It does not print bearer-token
+values or provider API-key environment values.
+
 Manual equivalent:
 
 ```bash
