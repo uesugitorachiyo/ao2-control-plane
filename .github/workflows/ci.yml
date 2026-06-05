@@ -55,6 +55,16 @@ jobs:
       - name: Audit dependencies
         run: cargo audit --deny warnings --ignore RUSTSEC-2023-0071
 
+  python-guards:
+    name: Python guard tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Install pytest
+        run: python3 -m pip install pytest
+      - name: Run Python guard tests
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py -q
+
   test:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

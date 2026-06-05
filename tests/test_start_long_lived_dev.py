@@ -117,3 +117,18 @@ def test_long_lived_dev_smoke_script_is_token_safe_and_checks_once_bootstrap(tmp
     assert payload["trust_boundary"]["provider_api_keys_allowed"] is False
     assert payload["trust_boundary"]["token_printed"] is False
     assert {check["status"] for check in payload["checks"]} == {"passed"}
+
+
+def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    script = SMOKE_SCRIPT.read_text(encoding="utf-8")
+    runbook = (REPO_ROOT / "docs/runbooks/long-lived-dev.md").read_text(encoding="utf-8")
+
+    assert "Python guard tests" in ci
+    assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py -q" in ci
+    assert "AO2_CP_LONG_LIVED_SMOKE_LIVE" in script
+    assert "live_restart_readiness" in script
+    assert "/readyz" in script
+    assert "token_reused_after_restart" in script
+    assert "AO2_CP_LONG_LIVED_SMOKE_LIVE=1" in runbook
+    assert "restart" in runbook.lower()

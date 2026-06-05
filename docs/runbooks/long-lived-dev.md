@@ -79,6 +79,17 @@ The smoke initializes an isolated `target/long-lived-dev-smoke/...` root with
 `ao2.cp-long-lived-dev-hardening-smoke.v1`. It does not print bearer-token
 values or provider API-key environment values.
 
+Optional live restart/readiness smoke:
+
+```bash
+AO2_CP_LONG_LIVED_SMOKE_LIVE=1 scripts/smoke-long-lived-dev.sh
+```
+
+Live mode starts the local server, checks public `/readyz`, stops it, restarts
+from the same data root, checks `/readyz` again, and records
+`token_reused_after_restart` in the summary. It remains local-first and writes
+only token-free status and readiness artifacts under the isolated smoke root.
+
 Manual equivalent:
 
 ```bash
