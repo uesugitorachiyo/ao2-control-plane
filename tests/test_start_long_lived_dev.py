@@ -171,3 +171,48 @@ def test_backup_restore_drill_script_is_exposed_and_documented_for_ci():
     assert "cargo build --release -p ao2-cp-server" in ci
     assert "cp-dr-restore-drill.sh" in readme
     assert "cp-dr-restore-drill.sh" in operations
+
+
+def test_backup_restore_drill_covers_negative_restore_scenarios():
+    script = (REPO_ROOT / "scripts/cp_dr_restore_drill.py").read_text(encoding="utf-8")
+
+    for needle in [
+        "RESTORE_ARCHIVE_SCHEMA_VERSION",
+        "ao2.cp-dr-restore-archive.v1",
+        "negative_scenarios",
+        "missing_archive",
+        "corrupted_archive",
+        "version_skew",
+        "--negative-only",
+        "--skip-negative-scenarios",
+    ]:
+        assert needle in script
+
+
+def test_backup_restore_drill_negative_only_runs_without_server_binary(tmp_path):
+    report_path = tmp_path / "dr-restore-negative.json"
+    result = subprocess.run(
+        [
+            "python3",
+            str(REPO_ROOT / "scripts" / "cp_dr_restore_drill.py"),
+            "--negative-only",
+            "--work-dir",
+            str(tmp_path / "work"),
+            "--out",
+            str(report_path),
+        ],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "ao2.cp-dr-restore-drill.v1"
+    assert payload["status"] == "passed"
+    scenarios = {item["name"]: item for item in payload["negative_scenarios"]}
+    assert set(scenarios) == {"missing_archive", "corrupted_archive", "version_skew"}
+    assert {item["status"] for item in scenarios.values()} == {"passed"}
+    assert all(item["expected_rejection_observed"] is True for item in scenarios.values())
