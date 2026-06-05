@@ -194,8 +194,33 @@ def restore_archive_manifest_decision(
             "schema_version": None,
         }
 
-    manifest = json.loads(manifest_file.read().decode("utf-8"))
+    try:
+        manifest = json.loads(manifest_file.read().decode("utf-8"))
+    except json.JSONDecodeError:
+        return {
+            "decision": "rejected",
+            "reason": "manifest_json_invalid",
+            "schema_version": None,
+        }
+    if not isinstance(manifest, dict):
+        return {
+            "decision": "rejected",
+            "reason": "manifest_json_invalid",
+            "schema_version": None,
+        }
     schema_version = manifest.get("schema_version")
+    if "schema_version" not in manifest:
+        return {
+            "decision": "rejected",
+            "reason": "manifest_schema_missing",
+            "schema_version": None,
+        }
+    if not isinstance(schema_version, str):
+        return {
+            "decision": "rejected",
+            "reason": "manifest_schema_not_string",
+            "schema_version": schema_version,
+        }
     if schema_version == RESTORE_ARCHIVE_SCHEMA_VERSION:
         return {
             "decision": "accepted",
@@ -226,6 +251,8 @@ def restore_data_dir(archive_path: Path, restore_root: Path) -> Path:
         if decision["decision"] == "rejected":
             if decision["reason"] == "manifest_unreadable":
                 raise ValueError("restore archive manifest is unreadable")
+            if decision["reason"] != "unsupported_restore_archive_schema_version":
+                raise ValueError(str(decision["reason"]))
             raise ValueError(
                 "unsupported restore archive schema_version: "
                 f"{decision.get('schema_version')!r}"
@@ -256,6 +283,41 @@ def write_restore_archive_variant(
             archive.addfile(manifest_info, BytesIO(manifest))
         data = b"{}"
         data_info = tarfile.TarInfo("data/schema-version.json")
+        data_info.size = len(data)
+        data_info.mtime = int(time.time())
+        archive.addfile(data_info, BytesIO(data))
+
+
+def write_restore_archive_with_manifest_bytes(path: Path, manifest: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(path, "w:gz") as archive:
+        manifest_info = tarfile.TarInfo(RESTORE_MANIFEST_NAME)
+        manifest_info.size = len(manifest)
+        manifest_info.mtime = int(time.time())
+        archive.addfile(manifest_info, BytesIO(manifest))
+        data = b"{}"
+        data_info = tarfile.TarInfo("data/schema-version.json")
+        data_info.size = len(data)
+        data_info.mtime = int(time.time())
+        archive.addfile(data_info, BytesIO(data))
+
+
+def write_unsafe_path_archive(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(path, "w:gz") as archive:
+        manifest = json.dumps(
+            {
+                "schema_version": RESTORE_ARCHIVE_SCHEMA_VERSION,
+                "archive_root": "data",
+            },
+            sort_keys=True,
+        ).encode("utf-8")
+        manifest_info = tarfile.TarInfo(RESTORE_MANIFEST_NAME)
+        manifest_info.size = len(manifest)
+        manifest_info.mtime = int(time.time())
+        archive.addfile(manifest_info, BytesIO(manifest))
+        data = b"{}"
+        data_info = tarfile.TarInfo("../unsafe-path-member.json")
         data_info.size = len(data)
         data_info.mtime = int(time.time())
         archive.addfile(data_info, BytesIO(data))
@@ -390,15 +452,61 @@ def run_negative_scenarios(work_dir: Path) -> list[dict[str, Any]]:
     write_skewed_archive(skewed)
     expect_rejection("version_skew", skewed, "unsupported restore archive schema_version")
 
+    malformed = negative_root / "malformed-manifest-json" / "ao2-cp-data.tar.gz"
+    write_restore_archive_with_manifest_bytes(malformed, b"{not-json")
+    expect_rejection("malformed_manifest_json", malformed, "manifest_json_invalid")
+
+    missing_schema = negative_root / "missing-manifest-schema" / "ao2-cp-data.tar.gz"
+    write_restore_archive_with_manifest_bytes(
+        missing_schema,
+        json.dumps({"archive_root": "data"}, sort_keys=True).encode("utf-8"),
+    )
+    expect_rejection("missing_manifest_schema", missing_schema, "manifest_schema_missing")
+
+    non_string_schema = negative_root / "non-string-manifest-schema" / "ao2-cp-data.tar.gz"
+    write_restore_archive_with_manifest_bytes(
+        non_string_schema,
+        json.dumps({"schema_version": 1, "archive_root": "data"}, sort_keys=True).encode("utf-8"),
+    )
+    expect_rejection("non_string_manifest_schema", non_string_schema, "manifest_schema_not_string")
+
+    unsafe_path = negative_root / "unsafe-path-member" / "ao2-cp-data.tar.gz"
+    write_unsafe_path_archive(unsafe_path)
+    expect_rejection("unsafe_path_member", unsafe_path, "unsafe archive member")
+
     return scenarios
+
+
+def malformed_restore_corpus(scenarios: list[dict[str, Any]]) -> dict[str, Any]:
+    names = [
+        "malformed_manifest_json",
+        "missing_manifest_schema",
+        "non_string_manifest_schema",
+        "unsafe_path_member",
+    ]
+    by_name = {str(item["name"]): item for item in scenarios}
+    if not scenarios:
+        return {
+            "status": "skipped",
+            "scenario_names": [],
+            "required_scenario_names": names,
+        }
+    observed = [name for name in names if name in by_name]
+    passed = all(by_name.get(name, {}).get("status") == "passed" for name in names)
+    return {
+        "status": "passed" if passed else "failed",
+        "scenario_names": observed,
+        "required_scenario_names": names,
+    }
 
 
 def negative_report(work_dir: Path) -> dict[str, Any]:
     scenarios = run_negative_scenarios(work_dir)
     compatibility_matrix = run_compatibility_matrix(work_dir)
+    malformed_corpus = malformed_restore_corpus(scenarios)
     status = "passed" if all(
         item["status"] == "passed" for item in scenarios + compatibility_matrix
-    ) else "failed"
+    ) and malformed_corpus["status"] == "passed" else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
@@ -406,6 +514,7 @@ def negative_report(work_dir: Path) -> dict[str, Any]:
         "work_dir": str(work_dir),
         "negative_scenarios": scenarios,
         "compatibility_matrix": compatibility_matrix,
+        "malformed_restore_corpus": malformed_corpus,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
@@ -519,12 +628,15 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
 
     negative_scenarios = [] if args.skip_negative_scenarios else run_negative_scenarios(work_dir)
     compatibility_matrix = run_compatibility_matrix(work_dir)
+    malformed_corpus = malformed_restore_corpus(negative_scenarios)
     negative_status = all(item["status"] == "passed" for item in negative_scenarios)
     compatibility_status = all(item["status"] == "passed" for item in compatibility_matrix)
+    malformed_status = malformed_corpus["status"] in {"passed", "skipped"}
     status = "passed" if (
         all(item["byte_identical"] for item in restored_readback)
         and negative_status
         and compatibility_status
+        and malformed_status
     ) else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -539,6 +651,7 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         "restored_readback": restored_readback,
         "negative_scenarios": negative_scenarios,
         "compatibility_matrix": compatibility_matrix,
+        "malformed_restore_corpus": malformed_corpus,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,

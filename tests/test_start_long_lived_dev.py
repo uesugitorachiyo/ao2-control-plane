@@ -213,7 +213,15 @@ def test_backup_restore_drill_negative_only_runs_without_server_binary(tmp_path)
     assert payload["schema_version"] == "ao2.cp-dr-restore-drill.v1"
     assert payload["status"] == "passed"
     scenarios = {item["name"]: item for item in payload["negative_scenarios"]}
-    assert set(scenarios) == {"missing_archive", "corrupted_archive", "version_skew"}
+    assert set(scenarios) == {
+        "missing_archive",
+        "corrupted_archive",
+        "version_skew",
+        "malformed_manifest_json",
+        "missing_manifest_schema",
+        "non_string_manifest_schema",
+        "unsafe_path_member",
+    }
     assert {item["status"] for item in scenarios.values()} == {"passed"}
     assert all(item["expected_rejection_observed"] is True for item in scenarios.values())
 
@@ -267,3 +275,57 @@ def test_backup_restore_drill_negative_only_includes_compatibility_matrix(tmp_pa
     assert matrix["older_manifest"]["decision"] == "accepted_with_warning"
     assert matrix["future_manifest"]["decision"] == "rejected"
     assert payload["status"] == "passed"
+
+
+def test_backup_restore_drill_negative_only_includes_malformed_restore_corpus(tmp_path):
+    script = (REPO_ROOT / "scripts/cp_dr_restore_drill.py").read_text(encoding="utf-8")
+
+    for needle in [
+        "malformed_manifest_json",
+        "missing_manifest_schema",
+        "non_string_manifest_schema",
+        "unsafe_path_member",
+        "malformed_restore_corpus",
+        "manifest_json_invalid",
+        "manifest_schema_missing",
+        "manifest_schema_not_string",
+        "unsafe archive member",
+    ]:
+        assert needle in script
+
+    report_path = tmp_path / "dr-restore-malformed-corpus.json"
+    result = subprocess.run(
+        [
+            "python3",
+            str(REPO_ROOT / "scripts" / "cp_dr_restore_drill.py"),
+            "--negative-only",
+            "--work-dir",
+            str(tmp_path / "work"),
+            "--out",
+            str(report_path),
+        ],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    scenarios = {item["name"]: item for item in payload["negative_scenarios"]}
+    for name in [
+        "malformed_manifest_json",
+        "missing_manifest_schema",
+        "non_string_manifest_schema",
+        "unsafe_path_member",
+    ]:
+        assert scenarios[name]["status"] == "passed"
+        assert scenarios[name]["expected_rejection_observed"] is True
+    assert payload["malformed_restore_corpus"]["status"] == "passed"
+    assert set(payload["malformed_restore_corpus"]["scenario_names"]) == {
+        "malformed_manifest_json",
+        "missing_manifest_schema",
+        "non_string_manifest_schema",
+        "unsafe_path_member",
+    }
