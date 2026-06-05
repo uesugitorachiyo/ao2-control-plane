@@ -48,7 +48,7 @@ Not implemented in v0.1. If exposed to untrusted clients, add at the reverse pro
 
 ## Dependency advisories
 
-`cargo audit` runs in CI on every push and PR (see the `audit` job in
+`cargo audit` runs in CI on pull requests and pushes to main (see the `audit` job in
 `.github/workflows/ci.yml`). The current suppression list and per-advisory
 disposition rationale live in `docs/security/advisory-dispositions.md`.
 Adding a new ignore requires updating both files in the same PR.

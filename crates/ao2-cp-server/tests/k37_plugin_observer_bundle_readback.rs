@@ -92,7 +92,9 @@ fn sha256_hex(text: &str) -> String {
 }
 
 fn sha256_hex_without_fixture_newline(text: &str) -> String {
-    Sha256::digest(text.strip_suffix('\n').unwrap_or(text).as_bytes())
+    let normalized = text.replace("\r\n", "\n");
+    let normalized = normalized.strip_suffix('\n').unwrap_or(&normalized);
+    Sha256::digest(normalized.as_bytes())
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect()
@@ -1383,9 +1385,9 @@ fn replacement_gate_rollups_observe_three_platform_current_proof() {
         (
             "windows",
             REPLACEMENT_PARITY_VERIFICATION_WINDOWS,
-            "a8cf629ee8e57d8ab36cd639521c28d7c5908ecb77d614c43714b3c484362c9a",
+            "8b708bd2dc66f5fb246c79ac9cbf7315cf258952544391d9e450b9a9a440afaf",
             RELEASE_GATE_ROLLUP_WINDOWS,
-            "ba1280f641b4faac2eabfe8515dd189db015599313e057a2dd65a337361ed990",
+            "377e2935afd7bf2ff777a7e2afa1f5ba9ad1135a61de44b4fa0b243d17bf9eb2",
         ),
     ];
 
