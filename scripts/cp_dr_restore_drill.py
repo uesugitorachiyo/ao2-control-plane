@@ -32,6 +32,9 @@ from typing import Any
 
 SCHEMA_VERSION = "ao2.cp-dr-restore-drill.v1"
 RESTORE_ARCHIVE_SCHEMA_VERSION = "ao2.cp-dr-restore-archive.v1"
+RESTORE_ARCHIVE_LEGACY_SCHEMA_VERSION = "ao2.cp-dr-restore-archive.v0"
+RESTORE_ARCHIVE_FUTURE_SCHEMA_VERSION = "ao2.cp-dr-restore-archive.v999"
+RESTORE_MANIFEST_NAME = "ao2-cp-restore-manifest.json"
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FIXTURES = (
     ("acceptance_codex", "/api/v1/acceptance", "tests/fixtures/codex-acceptance-v0.4.66.json"),
@@ -164,11 +167,52 @@ def archive_data_dir(data_dir: Path, archive_path: Path) -> None:
             indent=2,
             sort_keys=True,
         ).encode("utf-8")
-        manifest_info = tarfile.TarInfo("ao2-cp-restore-manifest.json")
+        manifest_info = tarfile.TarInfo(RESTORE_MANIFEST_NAME)
         manifest_info.size = len(manifest)
         manifest_info.mtime = int(time.time())
         archive.addfile(manifest_info, BytesIO(manifest))
         archive.add(data_dir, arcname="data")
+
+
+def restore_archive_manifest_decision(
+    archive: tarfile.TarFile,
+    members: list[tarfile.TarInfo],
+) -> dict[str, Any]:
+    manifest_member = next((member for member in members if member.name == RESTORE_MANIFEST_NAME), None)
+    if manifest_member is None:
+        return {
+            "decision": "accepted_with_warning",
+            "reason": "legacy_missing_manifest",
+            "schema_version": None,
+        }
+
+    manifest_file = archive.extractfile(manifest_member)
+    if manifest_file is None:
+        return {
+            "decision": "rejected",
+            "reason": "manifest_unreadable",
+            "schema_version": None,
+        }
+
+    manifest = json.loads(manifest_file.read().decode("utf-8"))
+    schema_version = manifest.get("schema_version")
+    if schema_version == RESTORE_ARCHIVE_SCHEMA_VERSION:
+        return {
+            "decision": "accepted",
+            "reason": "current_manifest",
+            "schema_version": schema_version,
+        }
+    if schema_version == RESTORE_ARCHIVE_LEGACY_SCHEMA_VERSION:
+        return {
+            "decision": "accepted_with_warning",
+            "reason": "older_manifest",
+            "schema_version": schema_version,
+        }
+    return {
+        "decision": "rejected",
+        "reason": "unsupported_restore_archive_schema_version",
+        "schema_version": schema_version,
+    }
 
 
 def restore_data_dir(archive_path: Path, restore_root: Path) -> Path:
@@ -178,40 +222,129 @@ def restore_data_dir(archive_path: Path, restore_root: Path) -> Path:
         for member in members:
             if member.name.startswith("/") or ".." in Path(member.name).parts:
                 raise ValueError(f"unsafe archive member: {member.name}")
-        manifest_member = next((member for member in members if member.name == "ao2-cp-restore-manifest.json"), None)
-        if manifest_member is not None:
-            manifest_file = archive.extractfile(manifest_member)
-            if manifest_file is None:
+        decision = restore_archive_manifest_decision(archive, members)
+        if decision["decision"] == "rejected":
+            if decision["reason"] == "manifest_unreadable":
                 raise ValueError("restore archive manifest is unreadable")
-            manifest = json.loads(manifest_file.read().decode("utf-8"))
-            if manifest.get("schema_version") != RESTORE_ARCHIVE_SCHEMA_VERSION:
-                raise ValueError(
-                    "unsupported restore archive schema_version: "
-                    f"{manifest.get('schema_version')!r}"
-                )
+            raise ValueError(
+                "unsupported restore archive schema_version: "
+                f"{decision.get('schema_version')!r}"
+            )
         archive.extractall(restore_root)
     return restore_root / "data"
 
 
-def write_skewed_archive(path: Path) -> None:
+def write_restore_archive_variant(
+    path: Path,
+    *,
+    schema_version: str | None,
+    include_manifest: bool = True,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tarfile.open(path, "w:gz") as archive:
-        manifest = json.dumps(
-            {
-                "schema_version": "ao2.cp-dr-restore-archive.v999",
-                "archive_root": "data",
-            },
-            sort_keys=True,
-        ).encode("utf-8")
-        manifest_info = tarfile.TarInfo("ao2-cp-restore-manifest.json")
-        manifest_info.size = len(manifest)
-        manifest_info.mtime = int(time.time())
-        archive.addfile(manifest_info, BytesIO(manifest))
+        if include_manifest:
+            manifest = json.dumps(
+                {
+                    "schema_version": schema_version,
+                    "archive_root": "data",
+                },
+                sort_keys=True,
+            ).encode("utf-8")
+            manifest_info = tarfile.TarInfo(RESTORE_MANIFEST_NAME)
+            manifest_info.size = len(manifest)
+            manifest_info.mtime = int(time.time())
+            archive.addfile(manifest_info, BytesIO(manifest))
         data = b"{}"
         data_info = tarfile.TarInfo("data/schema-version.json")
         data_info.size = len(data)
         data_info.mtime = int(time.time())
         archive.addfile(data_info, BytesIO(data))
+
+
+def write_skewed_archive(path: Path) -> None:
+    write_restore_archive_variant(path, schema_version=RESTORE_ARCHIVE_FUTURE_SCHEMA_VERSION)
+
+
+def inspect_restore_archive(path: Path) -> dict[str, Any]:
+    with tarfile.open(path, "r:gz") as archive:
+        members = archive.getmembers()
+        for member in members:
+            if member.name.startswith("/") or ".." in Path(member.name).parts:
+                return {
+                    "decision": "rejected",
+                    "reason": "unsafe_archive_member",
+                    "schema_version": None,
+                }
+        return restore_archive_manifest_decision(archive, members)
+
+
+def run_compatibility_matrix(work_dir: Path) -> list[dict[str, Any]]:
+    matrix_root = work_dir / "compatibility-matrix"
+    matrix_root.mkdir(parents=True, exist_ok=True)
+    cases: list[dict[str, Any]] = [
+        {
+            "name": "current_manifest",
+            "schema_version": RESTORE_ARCHIVE_SCHEMA_VERSION,
+            "include_manifest": True,
+            "expected_decision": "accepted",
+        },
+        {
+            "name": "legacy_missing_manifest",
+            "schema_version": None,
+            "include_manifest": False,
+            "expected_decision": "accepted_with_warning",
+        },
+        {
+            "name": "older_manifest",
+            "schema_version": RESTORE_ARCHIVE_LEGACY_SCHEMA_VERSION,
+            "include_manifest": True,
+            "expected_decision": "accepted_with_warning",
+        },
+        {
+            "name": "future_manifest",
+            "schema_version": RESTORE_ARCHIVE_FUTURE_SCHEMA_VERSION,
+            "include_manifest": True,
+            "expected_decision": "rejected",
+        },
+    ]
+    results: list[dict[str, Any]] = []
+
+    for case in cases:
+        name = str(case["name"])
+        archive_path = matrix_root / name / "ao2-cp-data.tar.gz"
+        write_restore_archive_variant(
+            archive_path,
+            schema_version=case["schema_version"],
+            include_manifest=bool(case["include_manifest"]),
+        )
+        decision = inspect_restore_archive(archive_path)
+        restore_error: str | None = None
+        restored = False
+        try:
+            restore_data_dir(archive_path, matrix_root / name / "restore-root")
+            restored = True
+        except Exception as exc:
+            restore_error = str(exc)
+
+        expected_decision = str(case["expected_decision"])
+        decision_matches = decision["decision"] == expected_decision
+        restore_matches = (expected_decision == "rejected" and not restored) or (
+            expected_decision != "rejected" and restored
+        )
+        results.append(
+            {
+                "name": name,
+                "status": "passed" if decision_matches and restore_matches else "failed",
+                "decision": decision["decision"],
+                "expected_decision": expected_decision,
+                "reason": decision["reason"],
+                "schema_version": decision.get("schema_version"),
+                "restore_accepted": restored,
+                "restore_error": restore_error,
+            }
+        )
+
+    return results
 
 
 def run_negative_scenarios(work_dir: Path) -> list[dict[str, Any]]:
@@ -262,12 +395,17 @@ def run_negative_scenarios(work_dir: Path) -> list[dict[str, Any]]:
 
 def negative_report(work_dir: Path) -> dict[str, Any]:
     scenarios = run_negative_scenarios(work_dir)
+    compatibility_matrix = run_compatibility_matrix(work_dir)
+    status = "passed" if all(
+        item["status"] == "passed" for item in scenarios + compatibility_matrix
+    ) else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
-        "status": "passed" if all(item["status"] == "passed" for item in scenarios) else "failed",
+        "status": status,
         "work_dir": str(work_dir),
         "negative_scenarios": scenarios,
+        "compatibility_matrix": compatibility_matrix,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
@@ -380,8 +518,14 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
             restored.stop()
 
     negative_scenarios = [] if args.skip_negative_scenarios else run_negative_scenarios(work_dir)
+    compatibility_matrix = run_compatibility_matrix(work_dir)
     negative_status = all(item["status"] == "passed" for item in negative_scenarios)
-    status = "passed" if all(item["byte_identical"] for item in restored_readback) and negative_status else "failed"
+    compatibility_status = all(item["status"] == "passed" for item in compatibility_matrix)
+    status = "passed" if (
+        all(item["byte_identical"] for item in restored_readback)
+        and negative_status
+        and compatibility_status
+    ) else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
@@ -394,6 +538,7 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         "ingested_evidence": evidence,
         "restored_readback": restored_readback,
         "negative_scenarios": negative_scenarios,
+        "compatibility_matrix": compatibility_matrix,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
