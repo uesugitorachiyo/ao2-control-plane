@@ -182,6 +182,56 @@ fn signed_evidence_pack_with_body(
     })
 }
 
+fn signed_operator_packet(tamper_signature: bool) -> serde_json::Value {
+    use base64::prelude::{Engine as _, BASE64_STANDARD};
+    let operator_packet = serde_json::json!({
+        "schema_version": "ao2.operator-evidence-packet.v1",
+        "run_id": "operator-run-001",
+        "status": "passed",
+        "operator_id": "local-operator",
+        "generated_at_utc": "2026-06-07T00:00:00Z",
+        "summary": {
+            "recommended_task": "verify signed operator packet readback",
+            "evidence_count": 2
+        },
+        "evidence": [
+            {"kind": "support_bundle", "sha256": "a".repeat(64)},
+            {"kind": "release_gate", "sha256": "b".repeat(64)}
+        ],
+        "trust_boundary": {
+            "control_plane_role": "read_only_observer_after_signed_operator_packet",
+            "mutates_ao2": false
+        }
+    });
+    let operator_packet_raw = serde_json::to_string_pretty(&operator_packet).unwrap();
+    let private_key = RsaPrivateKey::new(&mut OsRng, 2048).unwrap();
+    let public_key_pem = RsaPublicKey::from(&private_key)
+        .to_public_key_pem(LineEnding::LF)
+        .unwrap();
+    let signing_key = SigningKey::<sha2::Sha256>::new(private_key);
+    let mut signature = signing_key.sign(operator_packet_raw.as_bytes()).to_vec();
+    if tamper_signature {
+        signature[0] ^= 0xff;
+    }
+    let signature_hex = signature
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+
+    serde_json::json!({
+        "schema_version": "ao2.cp-operator-packet-signed-upload.v1",
+        "operator_packet": operator_packet,
+        "operator_packet_b64": BASE64_STANDARD.encode(operator_packet_raw.as_bytes()),
+        "signature": {
+            "schema_version": "ao2.cp-operator-packet-signature.v1",
+            "signature_algorithm": "RSA/SHA-256",
+            "signature_hex": signature_hex,
+            "public_key_pem": public_key_pem,
+            "signer_id": "ao2-local-operator"
+        }
+    })
+}
+
 /// A schema-valid evidence pack whose on-the-wire bytes deliberately differ from the
 /// server's `to_string_pretty(&evidence_pack)`: compact separators plus a float carrying
 /// more significant digits than an `f64` round-trips to. Re-serializing the parsed value
@@ -981,6 +1031,110 @@ async fn evidence_pack_latest_by_run_id_returns_structured_detail_json() {
     assert_eq!(body["sha256"], sha);
     assert_eq!(body["run_id"], "observer-run-001");
     assert_eq!(body["signature"]["verified"], true);
+}
+
+#[tokio::test]
+async fn operator_packet_signed_upload_round_trips_through_observer_readback() {
+    let (base, _dir) = spawn_server().await;
+    let client = reqwest::Client::new();
+    let payload = signed_operator_packet(false);
+
+    let ingest = client
+        .post(format!("{base}/api/v1/operator-packet/signed"))
+        .header("authorization", "Bearer secret")
+        .json(&payload)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(ingest.status(), 200);
+    let receipt: serde_json::Value = ingest.json().await.unwrap();
+    let sha = receipt["sha256"].as_str().unwrap();
+    assert_eq!(receipt["schema_version"], "ao2.cp-ingest-receipt.v1");
+    assert_eq!(
+        receipt["ingested_schema_version"],
+        "ao2.operator-evidence-packet.v1"
+    );
+
+    let dashboard = client
+        .get(format!("{base}/api/v1/operator-packet/dashboard.json"))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(dashboard.status(), 200);
+    let dashboard_body: serde_json::Value = dashboard.json().await.unwrap();
+    assert_eq!(
+        dashboard_body["schema_version"],
+        "ao2.cp-operator-packet-dashboard.v1"
+    );
+    assert_eq!(dashboard_body["entry_count"], 1);
+    assert_eq!(dashboard_body["summary"]["read_only_observer"], true);
+    assert_eq!(dashboard_body["entries"][0]["sha256"], sha);
+    assert_eq!(dashboard_body["entries"][0]["run_id"], "operator-run-001");
+    assert_eq!(dashboard_body["entries"][0]["status"], "passed");
+
+    let detail = client
+        .get(format!("{base}/api/v1/operator-packet/{sha}/detail.json"))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(detail.status(), 200);
+    let detail_body: serde_json::Value = detail.json().await.unwrap();
+    assert_eq!(
+        detail_body["schema_version"],
+        "ao2.cp-operator-packet-detail.v1"
+    );
+    assert_eq!(detail_body["sha256"], sha);
+    assert_eq!(detail_body["run_id"], "operator-run-001");
+    assert_eq!(
+        detail_body["operator_packet"]["schema_version"],
+        "ao2.operator-evidence-packet.v1"
+    );
+    assert_eq!(detail_body["signature"]["verified"], true);
+    assert_eq!(
+        detail_body["trust_boundary"]["role"],
+        "read_only_observer_for_signed_operator_packets"
+    );
+
+    let latest = client
+        .get(format!(
+            "{base}/api/v1/operator-packet/run/operator-run-001/latest"
+        ))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(latest.status(), 200);
+    let latest_body: serde_json::Value = latest.json().await.unwrap();
+    assert_eq!(latest_body["sha256"], sha);
+
+    let raw = client
+        .get(format!("{base}/api/v1/operator-packet/{sha}"))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(raw.status(), 200);
+    let raw_body: serde_json::Value = raw.json().await.unwrap();
+    assert_eq!(
+        raw_body["schema_version"],
+        "ao2.operator-evidence-packet.v1"
+    );
+
+    let signature = client
+        .get(format!("{base}/api/v1/operator-packet/{sha}/signature"))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(signature.status(), 200);
+    let signature_body: serde_json::Value = signature.json().await.unwrap();
+    assert_eq!(
+        signature_body["schema_version"],
+        "ao2.cp-operator-packet-signature.v1"
+    );
+    assert_eq!(signature_body["operator_packet_sha256"], sha);
 }
 
 #[tokio::test]
