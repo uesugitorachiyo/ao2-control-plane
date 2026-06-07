@@ -1149,6 +1149,8 @@ impl Storage {
             BundleKind::HermesWatchdogPanel,
             BundleKind::MemoryExport,
             BundleKind::MemoryExportSignature,
+            BundleKind::OperatorPacket,
+            BundleKind::OperatorPacketSignature,
             BundleKind::Phase1PromotionChecklist,
             BundleKind::Phase1PromotionDecision,
             BundleKind::Phase1PromotionDecisionSignature,
@@ -1182,7 +1184,7 @@ impl Storage {
     }
 }
 
-fn all_bundle_kinds() -> [BundleKind; 21] {
+fn all_bundle_kinds() -> [BundleKind; 23] {
     [
         BundleKind::AcceptanceCodex,
         BundleKind::AcceptanceClaude,
@@ -1193,6 +1195,8 @@ fn all_bundle_kinds() -> [BundleKind; 21] {
         BundleKind::HermesWatchdogPanel,
         BundleKind::MemoryExport,
         BundleKind::MemoryExportSignature,
+        BundleKind::OperatorPacket,
+        BundleKind::OperatorPacketSignature,
         BundleKind::Phase1PromotionChecklist,
         BundleKind::Phase1PromotionDecision,
         BundleKind::Phase1PromotionDecisionSignature,
@@ -1208,7 +1212,7 @@ fn all_bundle_kinds() -> [BundleKind; 21] {
     ]
 }
 
-fn all_prunable_primary_kinds() -> [BundleKind; 15] {
+fn all_prunable_primary_kinds() -> [BundleKind; 16] {
     [
         BundleKind::AcceptanceCodex,
         BundleKind::AcceptanceClaude,
@@ -1217,6 +1221,7 @@ fn all_prunable_primary_kinds() -> [BundleKind; 15] {
         BundleKind::EvidencePack,
         BundleKind::HermesWatchdogPanel,
         BundleKind::MemoryExport,
+        BundleKind::OperatorPacket,
         BundleKind::Phase1PromotionChecklist,
         BundleKind::Phase1PromotionDecision,
         BundleKind::Phase1PromotionInputsVerification,
@@ -1232,6 +1237,7 @@ fn related_kinds(kind: BundleKind) -> &'static [BundleKind] {
     match kind {
         BundleKind::EvidencePack => &[BundleKind::EvidencePackSignature],
         BundleKind::MemoryExport => &[BundleKind::MemoryExportSignature],
+        BundleKind::OperatorPacket => &[BundleKind::OperatorPacketSignature],
         BundleKind::Phase1PromotionDecision => &[BundleKind::Phase1PromotionDecisionSignature],
         BundleKind::ProviderReadiness => &[BundleKind::ProviderReadinessSignature],
         BundleKind::ProviderRegistry => &[BundleKind::ProviderRegistrySignature],
@@ -1249,6 +1255,7 @@ fn entry_kind(entry: &IndexEntry) -> Option<BundleKind> {
         "ao2.evidence-pack.v1" => Some(BundleKind::EvidencePack),
         "factory-v3/hermes-ao2-watchdog-panel/v1" => Some(BundleKind::HermesWatchdogPanel),
         "ao2.memory-export.v1" => Some(BundleKind::MemoryExport),
+        "ao2.operator-evidence-packet.v1" => Some(BundleKind::OperatorPacket),
         "factory-v3/ao2-phase1-promotion-checklist/v1" => {
             Some(BundleKind::Phase1PromotionChecklist)
         }

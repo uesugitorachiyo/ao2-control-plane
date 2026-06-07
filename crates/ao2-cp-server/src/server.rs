@@ -239,6 +239,43 @@ pub fn build_router(state: Arc<AppState>) -> Router {
                 .head(handlers::evidence_pack::head_evidence_pack),
         )
         .route(
+            "/operator-packet",
+            get(handlers::operator_packet::list_operator_packets),
+        )
+        .route(
+            "/operator-packet/signed",
+            post(handlers::operator_packet::post_signed_operator_packet),
+        )
+        .route(
+            "/operator-packet/dashboard",
+            get(handlers::operator_packet::operator_packet_dashboard),
+        )
+        .route(
+            "/operator-packet/dashboard.json",
+            get(handlers::operator_packet::operator_packet_dashboard_json),
+        )
+        .route(
+            "/operator-packet/run/:run_id/latest",
+            get(handlers::operator_packet::latest_operator_packet_detail_for_run),
+        )
+        .route(
+            "/operator-packet/:sha/detail",
+            get(handlers::operator_packet::operator_packet_detail),
+        )
+        .route(
+            "/operator-packet/:sha/detail.json",
+            get(handlers::operator_packet::operator_packet_detail_json),
+        )
+        .route(
+            "/operator-packet/:sha/signature",
+            get(handlers::operator_packet::get_operator_packet_signature),
+        )
+        .route(
+            "/operator-packet/:sha",
+            get(handlers::operator_packet::get_operator_packet)
+                .head(handlers::operator_packet::head_operator_packet),
+        )
+        .route(
             "/hermes/watchdog/panel",
             post(handlers::hermes_watchdog::post_watchdog_panel)
                 .get(handlers::hermes_watchdog::watchdog_panel),
