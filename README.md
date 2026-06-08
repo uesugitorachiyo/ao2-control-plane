@@ -4,6 +4,58 @@ Optional server layer for AO2 evidence ingest. Receives signed acceptance bundle
 
 This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
 
+## What it does
+
+`ao2-control-plane` turns AO2's local evidence into a durable, authenticated
+operator view. AO2 still runs locally and owns evaluator closure; the control
+plane receives completed evidence after the fact, verifies it, stores it, and
+makes it easier to inspect.
+
+Today it is useful as a read-only evidence archive and audit viewer:
+
+- ingest signed AO2 evidence packs, memory exports, acceptance bundles, and
+  control-plane bundles;
+- verify detached signatures, canonical digests, and stored sidecars;
+- keep evidence in content-addressed flat-file storage;
+- expose authenticated APIs and HTML dashboards for signed packs, source
+  classes, verdicts, signer metadata, and gate-attention views;
+- support backup/restore drills, storage-retention reports, dry-run pruning,
+  and release support-bundle verification;
+- provide cross-platform release archive smokes for Ubuntu, macOS, and
+  Windows.
+
+That makes it possible to answer operator questions without digging through
+local run directories:
+
+- What ran?
+- What evidence was published?
+- Who or what signed it?
+- Which gates need attention?
+- Is the stored evidence still digest-valid?
+- Can the evidence archive be restored and verified later?
+
+## Operations Cockpit Direction
+
+The current UI is intentionally read-only. The next product direction is an
+AO2 operations cockpit built from real evidence rather than manually maintained
+task cards.
+
+The intended cockpit surfaces are:
+
+- a live run timeline for AO2 and Pulse activity;
+- an overnight Pulse report summarizing completed iterations, failures,
+  generated tasks, and publish attempts;
+- a gate-attention inbox for failed, rejected, unsigned, unverified, or missing
+  evidence;
+- a release-readiness board for AO2 and `ao2-control-plane` CI, smoke, artifact,
+  and ship/no-ship status;
+- an evidence-backed process board where cards come from AO2 packets, run
+  summaries, and gate results.
+
+This is different from a generic Kanban board: the useful unit is not a manual
+task note, but a card backed by evidence that can be opened, verified, and
+audited.
+
 ## License
 
 `ao2-control-plane` is licensed under `MIT OR Apache-2.0`, at your option. See `LICENSE`, `LICENSE-MIT`, and `LICENSE-APACHE`.
