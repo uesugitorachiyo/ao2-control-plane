@@ -11480,6 +11480,31 @@ fn package_local_default_version_matches_workspace_version_lane_ppppp() {
 }
 
 #[test]
+fn ci_compares_shared_release_support_fixture_with_ao2() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let ci = fs::read_to_string(root.join(".github/workflows/ci.yml")).expect("ci workflow exists");
+    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+
+    for needle in [
+        "release-support-fixture-parity:",
+        "name: Release support fixture parity with AO2",
+        "repository: uesugitorachiyo/ao2",
+        "path: ao2",
+        "cmp -s ao2-control-plane/tests/fixtures/release-support-bundle-contract-v1.json ao2/tests/fixtures/release-support-bundle-contract-v1.json",
+        "shasum -a 256 ao2-control-plane/tests/fixtures/release-support-bundle-contract-v1.json ao2/tests/fixtures/release-support-bundle-contract-v1.json",
+        "target/release-support-fixture-parity/summary.json",
+        "ao2-control-plane-release-support-fixture-parity",
+    ] {
+        assert!(
+            ci.contains(needle),
+            "missing release-support fixture parity CI marker: {needle}"
+        );
+    }
+    assert!(readme.contains("Release support fixture parity with AO2"));
+    assert!(readme.contains("ao2-control-plane-release-support-fixture-parity"));
+}
+
+#[test]
 fn public_repo_license_and_release_examples_match_workspace_version() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let workspace_toml =
