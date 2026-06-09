@@ -1069,6 +1069,7 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
 
     // Both verifiers MUST agree on the support-bundle surface ids they require.
     let required_surface_ids = [
+        "ci_evidence_index",
         "release_assembly",
         "release_readiness",
         "release_candidate_handoff",
@@ -1086,6 +1087,7 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
 
     // Both verifiers MUST share the same expected JSON paths for each surface.
     let expected_paths = [
+        ("ci_evidence_index", "$.ci_evidence_index"),
         ("release_assembly", "$.release_assembly"),
         ("release_readiness", "$.readiness"),
         ("release_candidate_handoff", "$.handoff"),
@@ -1096,6 +1098,35 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
     for (_, path) in expected_paths {
         assert!(py.contains(path), "python verifier missing path {path}");
         assert!(ps.contains(path), "powershell verifier missing path {path}");
+    }
+
+    // Both verifiers MUST semantically validate the embedded CI evidence index,
+    // not only its digest/path/schema envelope.
+    let ci_evidence_semantic_markers = [
+        "REQUIRED_CI_EVIDENCE_FAMILY_IDS",
+        "risky-pr-golden-bridge-smoke",
+        "ingest-smoke",
+        "release-archive-smoke",
+        "backup-restore-drill",
+        "ci_evidence_index.evidence_families",
+        "credential_material_included",
+        "credential_material_in_urls",
+        "download-ci-artifact",
+        "read-only-observer",
+    ];
+    for marker in ci_evidence_semantic_markers {
+        assert!(
+            py.contains(marker),
+            "python verifier missing CI evidence semantic marker {marker}"
+        );
+        assert!(
+            ps.contains(marker)
+                || ps.contains(&marker.replace(
+                    "REQUIRED_CI_EVIDENCE_FAMILY_IDS",
+                    "RequiredCiEvidenceFamilyIds"
+                )),
+            "powershell verifier missing CI evidence semantic marker {marker}"
+        );
     }
 
     // Both verifiers MUST pin the same portable-bundle-manifest schema version.
