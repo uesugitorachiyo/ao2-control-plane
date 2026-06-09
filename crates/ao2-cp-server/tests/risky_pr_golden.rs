@@ -1,10 +1,11 @@
 use ao2_cp_server::metrics::Metrics;
 use ao2_cp_server::server::AppState;
 use ao2_cp_storage::Storage;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tempfile::tempdir;
+use tokio::sync::Mutex;
 
-static ENV_LOCK: Mutex<()> = Mutex::new(());
+static ENV_LOCK: Mutex<()> = Mutex::const_new(());
 
 async fn spawn_server() -> (String, tempfile::TempDir) {
     let dir = tempdir().unwrap();
@@ -63,7 +64,7 @@ fn write_manifest(dir: &tempfile::TempDir) -> std::path::PathBuf {
 
 #[tokio::test(flavor = "current_thread")]
 async fn risky_pr_golden_manifest_json_and_dashboard_are_read_only_observer_surfaces() {
-    let _guard = ENV_LOCK.lock().unwrap();
+    let _guard = ENV_LOCK.lock().await;
     let manifest_dir = tempdir().unwrap();
     let manifest_path = write_manifest(&manifest_dir);
     std::env::set_var("AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST", &manifest_path);
@@ -128,7 +129,7 @@ async fn risky_pr_golden_manifest_json_and_dashboard_are_read_only_observer_surf
 
 #[tokio::test(flavor = "current_thread")]
 async fn risky_pr_golden_manifest_returns_not_found_when_not_configured() {
-    let _guard = ENV_LOCK.lock().unwrap();
+    let _guard = ENV_LOCK.lock().await;
     std::env::remove_var("AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST");
 
     let (base, _data_dir) = spawn_server().await;
