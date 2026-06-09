@@ -121,6 +121,16 @@ fn release_publication_fixture() -> String {
             "release_comparison_verification": {
                 "path": "/work/ao2/target/release-download/v0.4.79/release-comparison-verification.json",
                 "sha256": "cc5a2edb8c4ad2ecf5b19ebf1b95ad4dc85a8cfd816b5dfc81ca4ee52dc61729"
+            },
+            "install_verification": {
+                "schema_version": "ao2.install-verification-evidence.v1",
+                "path": "/work/ao2/target/release-download/v0.4.79/ao2.install-verification.json",
+                "sha256": "d99d8e85f64cff9964e29869668718c64fb33ae696f9e3658d2f503f47953f77",
+                "status": "verified",
+                "offline_verification": {"status": "verified"},
+                "provider_api_keys_required": false,
+                "control_plane_approves_release": false,
+                "mutates_ao_artifacts": false
             }
         }
     })
@@ -158,6 +168,17 @@ fn tampered_top_level_candidate_correlation_release_publication_fixture() -> Str
             "blockers": [],
         }),
     );
+    value.to_string()
+}
+
+fn release_publication_without_install_verification_fixture() -> String {
+    let mut value: serde_json::Value =
+        serde_json::from_str(&release_publication_fixture()).expect("base fixture parses");
+    value
+        .get_mut("artifacts")
+        .and_then(serde_json::Value::as_object_mut)
+        .expect("release publication artifacts object")
+        .remove("install_verification");
     value.to_string()
 }
 
@@ -1493,6 +1514,42 @@ async fn release_candidate_handoff_correlates_ready_release_without_mutating_tru
         readiness_body["three_os_smoke_details"]["targets"]["windows"]["artifact_url"],
         "/evidence/windows-smoke.json"
     );
+    assert_eq!(
+        readiness_body["install_verification"]["schema_version"],
+        "ao2.install-verification-evidence.v1"
+    );
+    assert_eq!(readiness_body["install_verification"]["status"], "verified");
+    assert_eq!(
+        readiness_body["install_verification"]["offline_verification_status"],
+        "verified"
+    );
+    assert_eq!(
+        readiness_body["install_verification"]["provider_api_keys_required"],
+        false
+    );
+    assert_eq!(
+        readiness_body["install_verification"]["control_plane_approves_release"],
+        false
+    );
+    assert_eq!(
+        readiness_body["install_verification"]["mutates_ao_artifacts"],
+        false
+    );
+    assert_eq!(
+        readiness_body["install_verification"]["path"],
+        "/work/ao2/target/release-download/v0.4.79/ao2.install-verification.json"
+    );
+    assert_eq!(
+        readiness_body["install_verification"]["sha256"],
+        "d99d8e85f64cff9964e29869668718c64fb33ae696f9e3658d2f503f47953f77"
+    );
+    assert!(readiness_body["gate_results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|gate| gate["id"] == "install_verification"
+            && gate["status"] == "passed"
+            && gate["observed"] == "verified/offline_verified/read_only"));
     assert!(!serde_json::to_string(&readiness_body)
         .unwrap()
         .contains("secret"));
@@ -1512,6 +1569,10 @@ async fn release_candidate_handoff_correlates_ready_release_without_mutating_tru
     assert!(readiness_html.contains("macOS"));
     assert!(readiness_html.contains("Ubuntu"));
     assert!(readiness_html.contains("Windows"));
+    assert!(readiness_html.contains("Install Verification Trust"));
+    assert!(readiness_html.contains("ao2.install-verification-evidence.v1"));
+    assert!(readiness_html.contains("offline verified"));
+    assert!(readiness_html.contains("does not approve releases"));
     assert!(readiness_html.contains("/evidence/windows-smoke.json"));
     assert!(readiness_html.contains("91"));
     assert!(readiness_html.contains("/api/v1/release/handoff"));
@@ -1523,8 +1584,23 @@ async fn publish_release_readiness_inputs(
     base: &str,
     three_os_smoke: String,
 ) {
+    publish_release_readiness_inputs_with_publication(
+        client,
+        base,
+        three_os_smoke,
+        release_publication_fixture(),
+    )
+    .await;
+}
+
+async fn publish_release_readiness_inputs_with_publication(
+    client: &reqwest::Client,
+    base: &str,
+    three_os_smoke: String,
+    release_publication: String,
+) {
     for (path, body) in [
-        ("/api/v1/release/publication", release_publication_fixture()),
+        ("/api/v1/release/publication", release_publication),
         ("/api/v1/provider/registry", provider_registry_fixture()),
         ("/api/v1/provider/readiness", provider_readiness_fixture()),
         (
@@ -1572,6 +1648,51 @@ async fn publish_release_readiness_inputs(
         .await
         .unwrap();
     assert_eq!(decision.status(), 200);
+}
+
+#[tokio::test]
+async fn release_readiness_blocks_missing_install_verification_evidence() {
+    let (base, _dir) = spawn_server().await;
+    let client = reqwest::Client::new();
+    publish_release_readiness_inputs_with_publication(
+        &client,
+        &base,
+        three_os_release_smoke_fixture(),
+        release_publication_without_install_verification_fixture(),
+    )
+    .await;
+
+    let readiness = client
+        .get(format!("{base}/api/v1/release/readiness.json"))
+        .header("authorization", "Bearer secret")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(readiness.status(), 200);
+    let body: serde_json::Value = readiness.json().await.unwrap();
+
+    assert_eq!(body["status"], "attention");
+    assert_eq!(body["install_verification"]["status"], "missing");
+    assert_eq!(
+        body["install_verification"]["control_plane_approves_release"],
+        false
+    );
+    assert_eq!(body["install_verification"]["mutates_ao_artifacts"], false);
+    assert!(body["gate_results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|gate| gate["id"] == "install_verification"
+            && gate["status"] == "blocked"
+            && gate["expected"] == "verified/offline_verified/read_only"));
+    assert!(body["blockers"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|blocker| blocker
+            .as_str()
+            .unwrap_or("")
+            .contains("install_verification")));
 }
 
 #[tokio::test]
