@@ -34,6 +34,7 @@ SURFACE_PATHS = {
     "release_candidate_handoff": ["handoff"],
     "release_cockpit": ["cockpit"],
     "release_evaluator_decision": ["evaluator_decision"],
+    "install_verification": ["install_verification"],
     "storage_support_bundle": ["storage_support"],
 }
 
@@ -44,6 +45,7 @@ EXPECTED_JSON_PATHS = {
     "release_candidate_handoff": "$.handoff",
     "release_cockpit": "$.cockpit",
     "release_evaluator_decision": "$.evaluator_decision",
+    "install_verification": "$.install_verification",
     "storage_support_bundle": "$.storage_support",
 }
 

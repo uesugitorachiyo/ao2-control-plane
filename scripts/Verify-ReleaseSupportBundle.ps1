@@ -24,6 +24,7 @@ $SurfacePaths = @{
     release_candidate_handoff = @("handoff")
     release_cockpit = @("cockpit")
     release_evaluator_decision = @("evaluator_decision")
+    install_verification = @("install_verification")
     storage_support_bundle = @("storage_support")
 }
 
@@ -34,6 +35,7 @@ $ExpectedJsonPaths = @{
     release_candidate_handoff = '$.handoff'
     release_cockpit = '$.cockpit'
     release_evaluator_decision = '$.evaluator_decision'
+    install_verification = '$.install_verification'
     storage_support_bundle = '$.storage_support'
 }
 
@@ -44,6 +46,7 @@ $RequiredSurfaceIds = @(
     'release_candidate_handoff',
     'release_cockpit',
     'release_evaluator_decision',
+    'install_verification',
     'storage_support_bundle'
 )
 $EXPECTED_MANIFEST_SCHEMA = 'ao2.cp-release-support-bundle-manifest.v1'

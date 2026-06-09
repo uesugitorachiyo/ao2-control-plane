@@ -2425,6 +2425,24 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     assert_eq!(body["cockpit"]["status"], "ready");
     assert_eq!(body["evaluator_decision"]["state"], "accepted");
     assert_eq!(
+        body["install_verification"]["schema_version"],
+        "ao2.install-verification-evidence.v1"
+    );
+    assert_eq!(body["install_verification"]["status"], "verified");
+    assert_eq!(
+        body["install_verification"]["offline_verification_status"],
+        "verified"
+    );
+    assert_eq!(
+        body["install_verification"]["provider_api_keys_required"],
+        false
+    );
+    assert_eq!(
+        body["install_verification"]["control_plane_approves_release"],
+        false
+    );
+    assert_eq!(body["install_verification"]["mutates_ao_artifacts"], false);
+    assert_eq!(
         body["evaluator_decision"]["trust_boundary"]["role"],
         "read_only_observer"
     );
@@ -2528,6 +2546,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
         "release_candidate_handoff",
         "release_cockpit",
         "release_evaluator_decision",
+        "install_verification",
         "storage_support_bundle",
     ] {
         let digest = integrity["surface_sha256"][surface].as_str().unwrap();
@@ -2541,6 +2560,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
         ("release_candidate_handoff", &body["handoff"]),
         ("release_cockpit", &body["cockpit"]),
         ("release_evaluator_decision", &body["evaluator_decision"]),
+        ("install_verification", &body["install_verification"]),
         ("storage_support_bundle", &body["storage_support"]),
     ] {
         let expected = sha256_of_canonical(embedded_value).unwrap();
@@ -2568,6 +2588,14 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
             && surface["endpoint"] == "/api/v1/ci/evidence-index.json"
             && surface["schema_version"] == "ao2.cp-ci-evidence-index.v1"
             && surface["sha256"] == integrity["surface_sha256"]["ci_evidence_index"]));
+    assert!(body["portable_bundle_manifest"]["included_surfaces"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|surface| surface["id"] == "install_verification"
+            && surface["path"] == "$.install_verification"
+            && surface["schema_version"] == "ao2.install-verification-evidence.v1"
+            && surface["sha256"] == integrity["surface_sha256"]["install_verification"]));
     for family in body["ci_evidence_index"]["evidence_families"]
         .as_array()
         .unwrap()
@@ -2686,6 +2714,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     assert!(verification_html.contains("release_assembly"));
     assert!(verification_html.contains("ci_evidence_index"));
     assert!(verification_html.contains("release_evaluator_decision"));
+    assert!(verification_html.contains("install_verification"));
     assert!(verification_html.contains("storage_support_bundle"));
     assert!(verification_html.contains("/api/v1/release/support-bundle/verify.json?keep_latest=7"));
     assert!(!verification_html.contains("secret"));
@@ -2705,7 +2734,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
         "ao2.cp-release-support-bundle-verification.v1"
     );
     assert_eq!(verification_body["status"], "passed");
-    assert_eq!(verification_body["surface_count"], 7);
+    assert_eq!(verification_body["surface_count"], 8);
     assert_eq!(verification_body["blockers"].as_array().unwrap().len(), 0);
     assert_eq!(
         verification_body["trust_boundary_check"]["status"],
@@ -2878,7 +2907,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     );
     assert_eq!(manifest_body["keep_latest"], 7);
     assert_eq!(manifest_body["release"]["version"], "0.4.79");
-    assert_eq!(manifest_body["verification"]["surface_count"], 7);
+    assert_eq!(manifest_body["verification"]["surface_count"], 8);
     assert_eq!(manifest_body["verification"]["blocker_count"], 0);
     assert_eq!(
         manifest_body["verification"]["trust_boundary_status"],
@@ -2890,13 +2919,13 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     );
     assert_eq!(
         manifest_body["portable_bundle_manifest"]["included_surface_count"],
-        7
+        8
     );
     assert_eq!(
         manifest_body["portable_bundle_manifest"]["integrity_algorithm"],
         "sha256-ao2-cp-canonical-json-v1"
     );
-    assert_eq!(manifest_body["surface_checks"].as_array().unwrap().len(), 7);
+    assert_eq!(manifest_body["surface_checks"].as_array().unwrap().len(), 8);
     assert!(manifest_body["surface_checks"]
         .as_array()
         .unwrap()
@@ -2911,6 +2940,13 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
         .any(|check| check["id"] == "ci_evidence_index"
             && check["status"] == "passed"
             && check["path"] == "$.ci_evidence_index"));
+    assert!(manifest_body["surface_checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|check| check["id"] == "install_verification"
+            && check["status"] == "passed"
+            && check["path"] == "$.install_verification"));
     assert_eq!(
         manifest_body["links"]["release_support_bundle_download"],
         "/api/v1/release/support-bundle/download?keep_latest=7"
@@ -2960,7 +2996,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     );
     assert_eq!(verifier_sample["status"], "passed");
     assert_eq!(verifier_sample["checksum_verified"], true);
-    assert_eq!(verifier_sample["surface_count"], 7);
+    assert_eq!(verifier_sample["surface_count"], 8);
     assert_eq!(verifier_sample["control_plane_role"], "read_only_observer");
     assert_eq!(
         verifier_sample["release_acceptance_owner"],
@@ -3027,6 +3063,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     let checksums_text = checksums.text().await.unwrap();
     assert!(checksums_text.contains("  ao2-release-support-bundle-0.4.79.json"));
     assert!(checksums_text.contains("  surfaces/ci_evidence_index.json"));
+    assert!(checksums_text.contains("  surfaces/install_verification.json"));
     assert!(checksums_text.contains("  surfaces/release_assembly.json"));
     assert!(checksums_text.contains("  surfaces/storage_support_bundle.json"));
     assert!(
@@ -3140,7 +3177,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     let verifier_json: serde_json::Value = serde_json::from_slice(&verifier_json_pass.stdout)
         .expect("JSON verifier emits machine-readable JSON");
     assert_eq!(verifier_json["status"], "passed");
-    assert_eq!(verifier_json["surface_count"], 7);
+    assert_eq!(verifier_json["surface_count"], 8);
     assert_eq!(verifier_json["control_plane_role"], "read_only_observer");
     assert_eq!(
         verifier_json["release_acceptance_owner"],
@@ -3199,7 +3236,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
             .expect("fetch-summary.json is machine-readable JSON");
     assert_eq!(fetch_summary["status"], "passed");
     assert_eq!(fetch_summary["ci_evidence_index_verified"], true);
-    assert_eq!(fetch_summary["ci_evidence_index_surface_count"], 7);
+    assert_eq!(fetch_summary["ci_evidence_index_surface_count"], 8);
     assert_eq!(fetch_summary["ci_evidence_index_family_count"], 4);
     assert_eq!(
         fetch_summary["ci_evidence_index_token_hygiene_status"],
