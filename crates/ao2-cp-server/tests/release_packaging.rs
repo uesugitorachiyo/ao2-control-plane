@@ -1113,6 +1113,11 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
         "credential_material_in_urls",
         "download-ci-artifact",
         "read-only-observer",
+        "ci_artifact_provenance",
+        "github-actions",
+        "workflow_file",
+        "artifact_download_url_template",
+        "digest_reference",
     ];
     for marker in ci_evidence_semantic_markers {
         assert!(

@@ -2447,6 +2447,37 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
             && surface["endpoint"] == "/api/v1/ci/evidence-index.json"
             && surface["schema_version"] == "ao2.cp-ci-evidence-index.v1"
             && surface["sha256"] == integrity["surface_sha256"]["ci_evidence_index"]));
+    for family in body["ci_evidence_index"]["evidence_families"]
+        .as_array()
+        .unwrap()
+    {
+        let provenance = &family["ci_artifact_provenance"];
+        assert_eq!(provenance["provider"], "github-actions");
+        assert_eq!(provenance["workflow_file"], ".github/workflows/ci.yml");
+        assert_eq!(provenance["workflow_name"], "CI");
+        assert_eq!(provenance["run_id_source"], "github_actions_run_id");
+        assert_eq!(provenance["token_free"], true);
+        assert!(
+            provenance["artifact_names"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|name| name.as_str().unwrap().contains("ao2-control-plane")),
+            "CI provenance must name the downloadable GitHub artifact family"
+        );
+        assert!(provenance["run_url_template"]
+            .as_str()
+            .unwrap()
+            .contains("/actions/runs/<run_id>"));
+        assert!(provenance["artifact_download_url_template"]
+            .as_str()
+            .unwrap()
+            .contains("/actions/runs/<run_id>/artifacts"));
+        assert!(provenance["digest_reference"]
+            .as_str()
+            .unwrap()
+            .contains("summary"));
+    }
     assert!(body["portable_bundle_manifest"]["included_surfaces"]
         .as_array()
         .unwrap()
@@ -3122,6 +3153,53 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
             .as_str()
             .unwrap()
             .contains("ci_evidence_index.evidence_families")));
+
+    let mut tampered_ci_provenance_bundle = download_body.clone();
+    tampered_ci_provenance_bundle["ci_evidence_index"]["evidence_families"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("ci_artifact_provenance");
+    let tampered_ci_provenance_sha =
+        sha256_of_canonical(&tampered_ci_provenance_bundle["ci_evidence_index"]).unwrap();
+    tampered_ci_provenance_bundle["portable_bundle_manifest"]["integrity"]["surface_sha256"]
+        ["ci_evidence_index"] = serde_json::json!(tampered_ci_provenance_sha);
+    for surface in tampered_ci_provenance_bundle["portable_bundle_manifest"]["included_surfaces"]
+        .as_array_mut()
+        .unwrap()
+    {
+        if surface["id"] == "ci_evidence_index" {
+            surface["sha256"] = serde_json::json!(tampered_ci_provenance_sha.clone());
+        }
+    }
+    let tampered_ci_provenance_bundle_path = verifier_dir
+        .path()
+        .join("release-support-bundle-ci-evidence-provenance-tamper.json");
+    fs::write(
+        &tampered_ci_provenance_bundle_path,
+        serde_json::to_string_pretty(&tampered_ci_provenance_bundle).unwrap(),
+    )
+    .unwrap();
+    let verifier_ci_provenance_fail = Command::new("python3")
+        .arg(&verifier)
+        .arg("--json")
+        .arg(&tampered_ci_provenance_bundle_path)
+        .output()
+        .expect("run python support-bundle verifier against CI provenance tamper");
+    assert!(
+        !verifier_ci_provenance_fail.status.success(),
+        "verifier should reject CI evidence provenance removal even when its manifest digest is recomputed\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&verifier_ci_provenance_fail.stdout),
+        String::from_utf8_lossy(&verifier_ci_provenance_fail.stderr)
+    );
+    let verifier_ci_provenance_fail_json: serde_json::Value =
+        serde_json::from_slice(&verifier_ci_provenance_fail.stdout)
+            .expect("CI provenance verifier failure emits machine-readable JSON");
+    assert_eq!(verifier_ci_provenance_fail_json["status"], "failed");
+    assert!(verifier_ci_provenance_fail_json["failures"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|failure| failure.as_str().unwrap().contains("ci_artifact_provenance")));
 
     let mismatched_checksums_path = verifier_dir.path().join("SHA256SUMS.mismatch");
     fs::write(

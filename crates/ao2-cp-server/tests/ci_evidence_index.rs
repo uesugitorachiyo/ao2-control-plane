@@ -85,6 +85,33 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
                 .as_bool()
                 .unwrap()
     }));
+    for item in evidence {
+        let provenance = &item["ci_artifact_provenance"];
+        assert_eq!(provenance["provider"], "github-actions");
+        assert_eq!(provenance["workflow_file"], ".github/workflows/ci.yml");
+        assert_eq!(provenance["workflow_name"], "CI");
+        assert_eq!(provenance["run_id_source"], "github_actions_run_id");
+        assert_eq!(provenance["token_free"], true);
+        assert!(!provenance["job_names"].as_array().unwrap().is_empty());
+        assert!(!provenance["artifact_names"].as_array().unwrap().is_empty());
+        assert!(provenance["artifact_names"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|name| name.as_str().unwrap().contains("ao2-control-plane")));
+        assert!(provenance["run_url_template"]
+            .as_str()
+            .unwrap()
+            .contains("/actions/runs/<run_id>"));
+        assert!(provenance["artifact_download_url_template"]
+            .as_str()
+            .unwrap()
+            .contains("/actions/runs/<run_id>/artifacts"));
+        assert!(provenance["digest_reference"]
+            .as_str()
+            .unwrap()
+            .contains("summary"));
+    }
 
     let html_response = client
         .get(format!("{base}/api/v1/ci/evidence-index"))

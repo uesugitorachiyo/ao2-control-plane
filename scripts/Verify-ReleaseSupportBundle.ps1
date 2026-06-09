@@ -522,6 +522,51 @@ function Get-CiEvidenceIndexSemanticFailures {
         if (([string]$family.artifact_name_pattern) -notlike '*ao2-control-plane*') {
             $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.artifact_name_pattern expected ao2-control-plane artifact pattern")
         }
+        $provenance = $family.ci_artifact_provenance
+        if ($null -eq $provenance -or $provenance -isnot [pscustomobject]) {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance expected object")
+        } else {
+            if ([string]$provenance.provider -ne 'github-actions') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.provider expected github-actions")
+            }
+            if ([string]$provenance.workflow_file -ne '.github/workflows/ci.yml') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.workflow_file expected .github/workflows/ci.yml")
+            }
+            if ([string]$provenance.workflow_name -ne 'CI') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.workflow_name expected CI")
+            }
+            if ([string]$provenance.run_id_source -ne 'github_actions_run_id') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.run_id_source expected github_actions_run_id")
+            }
+            if ($provenance.token_free -ne $true) {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.token_free expected true")
+            }
+            $jobNames = @()
+            if ($null -ne $provenance.PSObject.Properties['job_names']) {
+                $jobNames = @($provenance.job_names)
+            }
+            if ($jobNames.Count -eq 0) {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.job_names expected non-empty array")
+            }
+            $artifactNames = @()
+            if ($null -ne $provenance.PSObject.Properties['artifact_names']) {
+                $artifactNames = @($provenance.artifact_names)
+            }
+            if ($artifactNames.Count -eq 0) {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.artifact_names expected non-empty array")
+            } elseif (($artifactNames | Where-Object { ([string]$_) -notlike '*ao2-control-plane*' }).Count -gt 0) {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.artifact_names expected ao2-control-plane artifact names")
+            }
+            if (([string]$provenance.run_url_template) -notlike '*/actions/runs/<run_id>*') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.run_url_template expected GitHub Actions run template")
+            }
+            if (([string]$provenance.artifact_download_url_template) -notlike '*/actions/runs/<run_id>/artifacts*') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.artifact_download_url_template expected GitHub Actions artifact template")
+            }
+            if (([string]$provenance.digest_reference) -notlike '*summary*') {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.ci_artifact_provenance.digest_reference expected summary digest reference")
+            }
+        }
         $trust = $family.trust_boundary
         if ($null -eq $trust -or $trust -isnot [pscustomobject]) {
             $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.trust_boundary expected object")
