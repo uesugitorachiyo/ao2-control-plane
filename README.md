@@ -338,7 +338,9 @@ CI also runs a fixture-backed variant of this smoke across Ubuntu, macOS, and
 Windows via `scripts/smoke-risky-pr-golden-bridge.py` and
 `tests/fixtures/risky-pr-golden-artifact-manifest.json`. That fixture path keeps
 the trust-boundary contract continuously checked on pull requests without
-depending on a sibling AO2 checkout.
+depending on a sibling AO2 checkout. Each CI job uploads the full smoke
+evidence directory, including `summary.json`, the JSON/HTML observer captures,
+and server stdout/stderr logs for triage.
 
 ## Endpoints
 

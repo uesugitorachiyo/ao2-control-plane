@@ -206,6 +206,11 @@ def main() -> int:
     summary = {
         "bind": args.bind,
         "checks": checks,
+        "evidence_files": {
+            "html_observer_name": "artifact-manifest.html",
+            "json_observer_name": "artifact-manifest-observer.json",
+            "summary_name": "summary.json",
+        },
         "html_observer": str(html_path),
         "json_observer": str(json_path),
         "manifest": {
@@ -215,6 +220,10 @@ def main() -> int:
             "schema_version": manifest.get("schema_version"),
         },
         "schema_version": SUMMARY_SCHEMA,
+        "server_logs": {
+            "stderr": str(stderr_path),
+            "stdout": str(stdout_path),
+        },
         "status": status,
         "trust_boundary": {
             "control_plane_approves_release": False,

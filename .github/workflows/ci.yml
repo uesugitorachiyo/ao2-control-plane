@@ -188,7 +188,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ao2-control-plane-risky-pr-golden-bridge-${{ matrix.name }}
-          path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}/summary.json
+          path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}
           if-no-files-found: error
 
   ingest-smoke:
