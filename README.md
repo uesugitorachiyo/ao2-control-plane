@@ -307,6 +307,17 @@ on Windows. The sample is an observer contract only: it records digest/checksum
 verification output, read-only trust-boundary fields, and secret-hygiene
 constraints, but it does not approve releases or mutate AO2 artifacts.
 
+AO2 Risky PR golden CI artifact manifests can be observed from the control
+plane by setting `AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST` to AO2's generated
+`artifact-manifest.json` path, for example
+`../ao2/target/risky-pr-golden-ci/artifact-manifest.json` after the CI artifact
+is downloaded locally. `/api/v1/risky-pr/golden/artifact-manifest.json` wraps the
+`ao2.risky-pr-golden-artifact-manifest.v1` manifest in
+`ao2.cp-risky-pr-golden-artifact-manifest-observer.v1` read-only metadata, and
+`/api/v1/risky-pr/golden/artifact-manifest` renders the same artifact list as an
+HTML operator view. These routes never store the manifest, expose bearer
+material, approve releases, or mutate AO2 artifacts.
+
 ## Endpoints
 
 All `/api/v1/*` endpoints require `Authorization: Bearer $AO2_CP_API_TOKEN`.
@@ -480,6 +491,8 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `GET` | `/api/v1/phase1/promotion/portable-manifest/download` | Download the same portable manifest with attachment headers, a SHA-256 header, deterministic observer timestamp, and read-only observer metadata. |
 | `GET` | `/api/v1/phase1/promotion/portable-manifest/SHA256SUMS` | Download token-free SHA-256 checksums for the portable Phase 1 manifest itself. |
 | `GET` | `/api/v1/phase1/promotion/history.json` | Fetch recent Phase 1 checklists, signed decisions, and three-OS smoke proof as read-only promotion history. |
+| `GET` | `/api/v1/risky-pr/golden/artifact-manifest` | Render an authenticated read-only HTML view of AO2's Risky PR golden CI artifact manifest configured by `AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST`. |
+| `GET` | `/api/v1/risky-pr/golden/artifact-manifest.json` | Fetch the machine-readable `ao2.cp-risky-pr-golden-artifact-manifest-observer.v1` wrapper around AO2's generated artifact manifest without storing or mutating AO2 evidence. |
 | `GET` | `/api/v1/release/cockpit` | Render an authenticated read-only release cockpit that correlates release publication, Phase 1, provider registry, readiness, acceptance, storage observer surfaces, and latest provider acceptance details. |
 | `GET` | `/api/v1/release/cockpit.json` | Fetch the release cockpit as JSON for Hermes/front-end integrations, including detailed latest Codex/Claude provider acceptance summaries and raw evidence links. |
 | `GET` | `/api/v1/release/handoff` | Render an authenticated read-only Phase 1 release-candidate handoff panel for operators and Hermes front ends. |

@@ -530,6 +530,14 @@ pub fn build_router(state: Arc<AppState>) -> Router {
                 .head(handlers::provider_readiness::head_provider_readiness),
         )
         .route(
+            "/risky-pr/golden/artifact-manifest",
+            get(handlers::risky_pr_golden::risky_pr_golden_artifact_manifest),
+        )
+        .route(
+            "/risky-pr/golden/artifact-manifest.json",
+            get(handlers::risky_pr_golden::risky_pr_golden_artifact_manifest_json),
+        )
+        .route(
             "/release/publication",
             post(handlers::release_publication::post_release_publication),
         )

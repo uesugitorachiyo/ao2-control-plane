@@ -12,4 +12,5 @@ pub mod phase1_promotion;
 pub mod provider_readiness;
 pub mod provider_registry;
 pub mod release_publication;
+pub mod risky_pr_golden;
 pub mod storage;
