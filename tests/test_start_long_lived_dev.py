@@ -167,7 +167,7 @@ def test_ci_runs_cross_os_risky_pr_golden_bridge_fixture_smoke():
         "windows-x86_64",
         "scripts/smoke-risky-pr-golden-bridge.py",
         "tests/fixtures/risky-pr-golden-artifact-manifest.json",
-        "target/risky-pr-golden-bridge-smoke/${{ matrix.name }}/summary.json",
+        "target/risky-pr-golden-bridge-smoke/${{ matrix.name }}",
         "ao2-control-plane-risky-pr-golden-bridge-${{ matrix.name }}",
     ]:
         assert needle in ci
@@ -191,6 +191,23 @@ def test_ci_runs_cross_os_risky_pr_golden_bridge_fixture_smoke():
     assert fixture["schema_version"] == "ao2.risky-pr-golden-artifact-manifest.v1"
     assert fixture["status"] == "indexed"
     assert fixture["artifact_count"] == len(fixture["artifacts"])
+
+
+def test_risky_pr_golden_bridge_ci_artifact_uploads_complete_evidence_directory():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    script = RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY.read_text(encoding="utf-8")
+
+    assert "path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}" in ci
+    assert "path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}/summary.json" not in ci
+
+    for needle in [
+        '"server_logs"',
+        '"stdout"',
+        '"stderr"',
+        '"artifact-manifest-observer.json"',
+        '"artifact-manifest.html"',
+    ]:
+        assert needle in script
 
 
 def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():

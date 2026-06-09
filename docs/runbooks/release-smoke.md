@@ -41,6 +41,8 @@ Pull-request CI runs the same trust-boundary check with
 `tests/fixtures/risky-pr-golden-artifact-manifest.json` on Ubuntu, macOS, and
 Windows. Use the CI fixture result to verify cross-OS behavior; use the AO2
 bridge command above when validating a freshly generated AO2 artifact manifest.
+The CI artifact is the full smoke evidence directory: `summary.json`, captured
+JSON/HTML observer responses, and server stdout/stderr logs.
 
 ## 1. The two parity verdicts
 
