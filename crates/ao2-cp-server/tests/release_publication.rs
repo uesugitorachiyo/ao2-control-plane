@@ -15,6 +15,8 @@ const CODEX_ACCEPTANCE_FIXTURE: &str =
     include_str!("../../../tests/fixtures/codex-acceptance-v0.4.66.json");
 const CLAUDE_ACCEPTANCE_FIXTURE: &str =
     include_str!("../../../tests/fixtures/claude-acceptance-v0.4.66.json");
+const RELEASE_SUPPORT_CONTRACT_FIXTURE: &str =
+    include_str!("../../../tests/fixtures/release-support-bundle-contract-v1.json");
 
 async fn spawn_server() -> (String, tempfile::TempDir) {
     let dir = tempdir().unwrap();
@@ -3204,6 +3206,49 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
             .expect("checksum verifier emits machine-readable JSON");
     assert_eq!(verifier_checksum_json["status"], "passed");
     assert_eq!(verifier_checksum_json["checksum_verified"], true);
+
+    let shared_contract_fixture: serde_json::Value =
+        serde_json::from_str(RELEASE_SUPPORT_CONTRACT_FIXTURE)
+            .expect("shared release-support contract fixture is valid JSON");
+    let shared_fixture_path = verifier_dir
+        .path()
+        .join("release-support-bundle-contract-v1.json");
+    fs::write(
+        &shared_fixture_path,
+        serde_json::to_string_pretty(&shared_contract_fixture).unwrap(),
+    )
+    .unwrap();
+    let shared_fixture_sha = sha256_of_canonical(&shared_contract_fixture).unwrap();
+    let shared_fixture_checksums_path = verifier_dir.path().join("fixture-SHA256SUMS");
+    fs::write(
+        &shared_fixture_checksums_path,
+        format!("{shared_fixture_sha}  release-support-bundle-contract-v1.json\n"),
+    )
+    .unwrap();
+    let shared_fixture_verifier_pass = Command::new("python3")
+        .arg(&verifier)
+        .arg("--json")
+        .arg("--checksums")
+        .arg(&shared_fixture_checksums_path)
+        .arg(&shared_fixture_path)
+        .output()
+        .expect("run python support-bundle verifier against shared contract fixture");
+    assert!(
+        shared_fixture_verifier_pass.status.success(),
+        "shared release-support fixture should verify\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&shared_fixture_verifier_pass.stdout),
+        String::from_utf8_lossy(&shared_fixture_verifier_pass.stderr)
+    );
+    let shared_fixture_json: serde_json::Value =
+        serde_json::from_slice(&shared_fixture_verifier_pass.stdout)
+            .expect("shared fixture verifier emits machine-readable JSON");
+    assert_eq!(shared_fixture_json["status"], "passed");
+    assert_eq!(shared_fixture_json["checksum_verified"], true);
+    assert_eq!(shared_fixture_json["surface_count"], 8);
+    assert_eq!(
+        shared_fixture_json["control_plane_role"],
+        "read_only_observer"
+    );
 
     let fetcher = root.join("scripts/fetch_release_support_handoff.py");
     let fetch_dir = tempdir().unwrap();
