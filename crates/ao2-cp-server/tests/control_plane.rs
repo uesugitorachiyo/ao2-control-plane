@@ -231,6 +231,27 @@ async fn route_index_surfaces_frontend_safe_observer_contracts() {
         "/api/v1/storage/support-bundle/contract.json"
     );
 
+    let ci_evidence_index = portable_artifacts
+        .iter()
+        .find(|artifact| artifact["id"] == "ci_evidence_index")
+        .expect("CI evidence index portable artifact is advertised");
+    assert_eq!(ci_evidence_index["owner"], "ao2-control-plane observer");
+    assert_eq!(
+        ci_evidence_index["release_acceptance_owner"],
+        "factory-v3 evaluator-closer"
+    );
+    assert_eq!(ci_evidence_index["mutates_ao_artifacts"], false);
+    assert_eq!(ci_evidence_index["control_plane_approves_release"], false);
+    assert_eq!(ci_evidence_index["credential_material_in_urls"], false);
+    assert_eq!(
+        ci_evidence_index["links"]["html"],
+        "/api/v1/ci/evidence-index"
+    );
+    assert_eq!(
+        ci_evidence_index["links"]["json"],
+        "/api/v1/ci/evidence-index.json"
+    );
+
     let serialized = serde_json::to_string(&body).unwrap();
     assert!(!serialized.contains("secret"));
     assert!(!serialized.contains("Bearer"));
