@@ -1,6 +1,7 @@
 pub mod acceptance;
 pub mod audit_log;
 pub mod caching;
+pub mod ci_evidence;
 pub mod control_plane;
 pub mod evidence_pack;
 pub mod health;

@@ -44,6 +44,13 @@ bridge command above when validating a freshly generated AO2 artifact manifest.
 The CI artifact is the full smoke evidence directory: `summary.json`, captured
 JSON/HTML observer responses, and server stdout/stderr logs.
 
+The authenticated CI evidence index at `/api/v1/ci/evidence-index.json`
+summarizes the stable production-readiness artifact families under
+`ao2.cp-ci-evidence-index.v1`: Risky PR golden bridge smoke, ingest smoke,
+release archive smoke, and backup/restore drill. Use it as the operator-facing
+map from CI job names to artifact names and schema versions before downloading
+individual GitHub Actions artifacts.
+
 ## 1. The two parity verdicts
 
 Operators see two related-but-independent verdicts on every
