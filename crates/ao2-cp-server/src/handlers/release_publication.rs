@@ -2209,6 +2209,7 @@ async fn release_support_bundle_value(
     let handoff = release_candidate_handoff_value(state).await?;
     let cockpit = release_cockpit_value(state).await?;
     let evaluator_decision = release_evaluator_decision_dashboard_value(state).await?;
+    let ci_evidence_index = crate::handlers::ci_evidence::ci_evidence_index_value();
     let storage_support = state
         .storage
         .support_bundle(retention_policy(keep_latest)?)
@@ -2230,6 +2231,7 @@ async fn release_support_bundle_value(
     let handoff_sha = support_bundle_surface_sha256(&handoff)?;
     let cockpit_sha = support_bundle_surface_sha256(&cockpit)?;
     let evaluator_decision_sha = support_bundle_surface_sha256(&evaluator_decision)?;
+    let ci_evidence_index_sha = support_bundle_surface_sha256(&ci_evidence_index)?;
     let storage_support_sha = support_bundle_surface_sha256(&storage_support)?;
 
     Ok(serde_json::json!({
@@ -2242,6 +2244,7 @@ async fn release_support_bundle_value(
         "handoff": handoff,
         "cockpit": cockpit,
         "evaluator_decision": evaluator_decision,
+        "ci_evidence_index": ci_evidence_index,
         "storage_support": storage_support,
         "portable_bundle_manifest": {
             "schema_version": RELEASE_SUPPORT_BUNDLE_MANIFEST_SCHEMA,
@@ -2283,6 +2286,13 @@ async fn release_support_bundle_value(
                     "sha256": evaluator_decision_sha
                 },
                 {
+                    "id": "ci_evidence_index",
+                    "schema_version": "ao2.cp-ci-evidence-index.v1",
+                    "path": "$.ci_evidence_index",
+                    "endpoint": "/api/v1/ci/evidence-index.json",
+                    "sha256": ci_evidence_index_sha
+                },
+                {
                     "id": "storage_support_bundle",
                     "schema_version": "ao2.cp-support-bundle.v1",
                     "path": "$.storage_support",
@@ -2299,10 +2309,11 @@ async fn release_support_bundle_value(
                     "release_candidate_handoff": handoff_sha,
                     "release_cockpit": cockpit_sha,
                     "release_evaluator_decision": evaluator_decision_sha,
+                    "ci_evidence_index": ci_evidence_index_sha,
                     "storage_support_bundle": storage_support_sha
                 },
                 "verification_plan": {
-                    "surface_count": 6,
+                    "surface_count": 7,
                     "expected_fail_closed": true,
                     "trust_boundary": "offline digest verification only; no AO2 artifact mutation and no release approval",
                     "cross_platform_commands": {
@@ -2313,6 +2324,7 @@ async fn release_support_bundle_value(
                         "recompute each embedded support-bundle surface sha256 with canonical JSON",
                         "compare every recomputed digest to portable_bundle_manifest.integrity.surface_sha256",
                         "fail closed if any included surface path, schema_version, or sha256 is missing",
+                        "confirm CI evidence index remains a read-only observer surface before offline release review",
                         "confirm factory-v3 evaluator decision remains an observed dashboard surface and not a control-plane approval",
                         "confirm trust_boundary.role remains read_only_observer before evaluator-closer review"
                     ]
@@ -2362,6 +2374,7 @@ async fn release_support_bundle_value(
             "release_readiness_json": "/api/v1/release/readiness.json",
             "release_candidate_handoff_json": "/api/v1/release/handoff.json",
             "release_cockpit_json": "/api/v1/release/cockpit.json",
+            "ci_evidence_index_json": "/api/v1/ci/evidence-index.json",
             "storage_support_bundle_json": format!("/api/v1/storage/support-bundle.json?keep_latest={keep_latest}"),
             "phase1_gap_report_json": "/api/v1/phase1/promotion/gap-report.json",
             "evaluator_decision_dashboard_json": "/api/v1/release/evaluator-decision/dashboard.json"
@@ -2423,7 +2436,8 @@ fn release_support_bundle_filename(bundle: &serde_json::Value) -> String {
     format!("ao2-release-support-bundle-{sanitized_version}.json")
 }
 
-const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 6] = [
+const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 7] = [
+    "ci_evidence_index",
     "release_assembly",
     "release_readiness",
     "release_candidate_handoff",
@@ -2860,6 +2874,7 @@ fn support_bundle_surface_by_id<'a>(
         "release_candidate_handoff" => bundle.get("handoff"),
         "release_cockpit" => bundle.get("cockpit"),
         "release_evaluator_decision" => bundle.get("evaluator_decision"),
+        "ci_evidence_index" => bundle.get("ci_evidence_index"),
         "storage_support_bundle" => bundle.get("storage_support"),
         _ => None,
     }
@@ -2872,6 +2887,7 @@ fn support_bundle_surface_path_by_id(id: &str) -> Option<&'static str> {
         "release_candidate_handoff" => Some("$.handoff"),
         "release_cockpit" => Some("$.cockpit"),
         "release_evaluator_decision" => Some("$.evaluator_decision"),
+        "ci_evidence_index" => Some("$.ci_evidence_index"),
         "storage_support_bundle" => Some("$.storage_support"),
         _ => None,
     }
@@ -4530,6 +4546,7 @@ mod tests {
             "handoff": minimal_surface(RELEASE_CANDIDATE_HANDOFF_SCHEMA),
             "cockpit": minimal_surface(RELEASE_COCKPIT_SCHEMA),
             "evaluator_decision": minimal_surface(RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA),
+            "ci_evidence_index": minimal_surface("ao2.cp-ci-evidence-index.v1"),
             "storage_support": minimal_surface("ao2.cp-support-bundle.v1"),
             "trust_boundary": trust_boundary(),
         });
@@ -4795,7 +4812,7 @@ mod tests {
                 blocker
                     .as_str()
                     .unwrap()
-                    .contains("release_assembly: duplicate support-bundle surface id")
+                    .contains("ci_evidence_index: duplicate support-bundle surface id")
             }));
     }
 
@@ -4814,7 +4831,7 @@ mod tests {
                 blocker
                     .as_str()
                     .unwrap()
-                    .contains("verification_plan.surface_count: expected 6, found 5")
+                    .contains("verification_plan.surface_count: expected 7, found 5")
             }));
     }
 }

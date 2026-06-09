@@ -6933,10 +6933,11 @@ fn install_heredocs_perform_checksum_before_copy_lane_eeee() {
 
 // Lane FFFF: support-bundle surface-ID constant → JSON-literal parity.
 //
-// `release_publication.rs` declares the canonical 6-surface
+// `release_publication.rs` declares the canonical support-bundle
 // support-bundle ID set as a static const:
 //
-//   const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 6] = [
+//   const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; N] = [
+//       "ci_evidence_index",
 //       "release_assembly",
 //       "release_readiness",
 //       "release_candidate_handoff",
@@ -6945,7 +6946,7 @@ fn install_heredocs_perform_checksum_before_copy_lane_eeee() {
 //       "storage_support_bundle",
 //   ];
 //
-// The same six IDs also appear as `"id": "<literal>"` entries
+// The same IDs also appear as `"id": "<literal>"` entries
 // in the bundle-manifest JSON builder and as `"<id>":` keys
 // in the `integrity.surface_sha256` object. A future rename
 // of e.g. `release_cockpit` → `release_cockpit_v2` in the
