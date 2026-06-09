@@ -930,6 +930,10 @@ pub async fn release_readiness(State(state): State<Arc<AppState>>) -> Result<Res
         .get("three_os_smoke_details")
         .cloned()
         .unwrap_or_else(|| serde_json::json!({}));
+    let install_verification = readiness
+        .get("install_verification")
+        .cloned()
+        .unwrap_or_else(|| install_verification_trust_value(None));
     let gate_rows = gates
         .iter()
         .map(|gate| {
@@ -956,6 +960,20 @@ pub async fn release_readiness(State(state): State<Arc<AppState>>) -> Result<Res
             .join("")
     };
     let smoke_target_rows = three_os_smoke_detail_rows(&smoke_details);
+    let install_verification_status =
+        json_str(&install_verification, "offline_verification_status").unwrap_or("missing");
+    let install_verification_section = format!(
+        "<section><h2>Install Verification Trust</h2><dl><dt>Schema</dt><dd><code>{schema}</code></dd><dt>Status</dt><dd>{status}</dd><dt>Offline verification</dt><dd>{offline_status}</dd><dt>Artifact</dt><dd><code>{path}</code></dd><dt>SHA-256</dt><dd><code>{sha}</code></dd><dt>Trust boundary</dt><dd>read-only observer display; does not approve releases or mutate AO artifacts</dd></dl></section>",
+        schema = escape_html(json_str(&install_verification, "schema_version").unwrap_or("missing")),
+        status = escape_html(json_str(&install_verification, "status").unwrap_or("missing")),
+        offline_status = if install_verification_status == "verified" {
+            "offline verified".to_string()
+        } else {
+            escape_html(install_verification_status)
+        },
+        path = escape_html(json_str(&install_verification, "path").unwrap_or("missing")),
+        sha = escape_html(json_str(&install_verification, "sha256").unwrap_or("missing")),
+    );
     // Lane JJ: render the per-surface content-hash parity table on the
     // readiness HTML so operators landing on /api/v1/release/readiness
     // triage drift visually instead of cross-referencing JSON.
@@ -971,7 +989,7 @@ pub async fn release_readiness(State(state): State<Arc<AppState>>) -> Result<Res
         crate::handlers::phase1_promotion::rejected_smoke_audit_summary(&state).await;
     let rejected_smoke_section = render_rejected_smoke_audit_section(&rejected_smoke_summary);
     let html = format!(
-        "<!doctype html><html><head><meta charset=\"utf-8\"><title>AO2 Release Readiness</title><style>body{{font-family:system-ui,sans-serif;margin:2rem;max-width:92rem}}table{{border-collapse:collapse;width:100%;margin:1rem 0}}th,td{{border:1px solid #ddd;padding:.5rem;text-align:left;vertical-align:top}}code{{font-family:ui-monospace,monospace;overflow-wrap:anywhere}}dl{{display:grid;grid-template-columns:max-content 1fr;gap:.4rem 1rem}}.ok{{color:#096b36;font-weight:700}}.warn{{color:#9a5b00;font-weight:700}}</style></head><body><main><h1>AO2 Release Readiness</h1><p>Read-only release readiness summary for Hermes and factory-v3 evaluator-closer review. This control plane does not approve releases, start providers, or mutate AO artifacts.</p><dl><dt>Status</dt><dd class=\"{status_class}\">{status}</dd><dt>Version</dt><dd>{version}</dd><dt>Tag</dt><dd>{tag}</dd><dt>Owner</dt><dd>factory-v3 evaluator-closer</dd></dl><section><h2>Gate Results</h2><table><thead><tr><th>Gate</th><th>Status</th><th>Observed</th><th>Expected</th></tr></thead><tbody>{gate_rows}</tbody></table></section><section><h2>Three-OS Smoke Details</h2><table><thead><tr><th>Target</th><th>Status</th><th>Duration seconds</th><th>Artifact</th></tr></thead><tbody>{smoke_target_rows}</tbody></table></section>{surface_parity_section}{rejected_smoke_section}<section><h2>Blockers</h2><ul>{blocker_items}</ul></section><p><a href=\"{readiness_json}\">Readiness JSON</a> · <a href=\"{handoff}\">Release Candidate Handoff</a> · <a href=\"{cockpit}\">Release Cockpit</a> · <a href=\"{acceptance}\">Provider Acceptance</a></p></main></body></html>",
+        "<!doctype html><html><head><meta charset=\"utf-8\"><title>AO2 Release Readiness</title><style>body{{font-family:system-ui,sans-serif;margin:2rem;max-width:92rem}}table{{border-collapse:collapse;width:100%;margin:1rem 0}}th,td{{border:1px solid #ddd;padding:.5rem;text-align:left;vertical-align:top}}code{{font-family:ui-monospace,monospace;overflow-wrap:anywhere}}dl{{display:grid;grid-template-columns:max-content 1fr;gap:.4rem 1rem}}.ok{{color:#096b36;font-weight:700}}.warn{{color:#9a5b00;font-weight:700}}</style></head><body><main><h1>AO2 Release Readiness</h1><p>Read-only release readiness summary for Hermes and factory-v3 evaluator-closer review. This control plane does not approve releases, start providers, or mutate AO artifacts.</p><dl><dt>Status</dt><dd class=\"{status_class}\">{status}</dd><dt>Version</dt><dd>{version}</dd><dt>Tag</dt><dd>{tag}</dd><dt>Owner</dt><dd>factory-v3 evaluator-closer</dd></dl><section><h2>Gate Results</h2><table><thead><tr><th>Gate</th><th>Status</th><th>Observed</th><th>Expected</th></tr></thead><tbody>{gate_rows}</tbody></table></section><section><h2>Three-OS Smoke Details</h2><table><thead><tr><th>Target</th><th>Status</th><th>Duration seconds</th><th>Artifact</th></tr></thead><tbody>{smoke_target_rows}</tbody></table></section>{install_verification_section}{surface_parity_section}{rejected_smoke_section}<section><h2>Blockers</h2><ul>{blocker_items}</ul></section><p><a href=\"{readiness_json}\">Readiness JSON</a> · <a href=\"{handoff}\">Release Candidate Handoff</a> · <a href=\"{cockpit}\">Release Cockpit</a> · <a href=\"{acceptance}\">Provider Acceptance</a></p></main></body></html>",
         status_class = if json_str(&readiness, "status") == Some("ready") {
             "ok"
         } else {
@@ -982,6 +1000,7 @@ pub async fn release_readiness(State(state): State<Arc<AppState>>) -> Result<Res
         tag = escape_html(json_str(&release, "release_tag").unwrap_or("unknown")),
         gate_rows = gate_rows,
         smoke_target_rows = smoke_target_rows,
+        install_verification_section = install_verification_section,
         surface_parity_section = surface_parity_section,
         rejected_smoke_section = rejected_smoke_section,
         blocker_items = blocker_items,
@@ -1980,6 +1999,7 @@ async fn release_candidate_handoff_value(state: &AppState) -> Result<serde_json:
 
 async fn release_readiness_value(state: &AppState) -> Result<serde_json::Value, AppError> {
     let handoff = release_candidate_handoff_value(state).await?;
+    let release_publication = release_publication_dashboard_value(state).await?;
     let gates = handoff
         .get("gates")
         .cloned()
@@ -2036,6 +2056,13 @@ async fn release_readiness_value(state: &AppState) -> Result<serde_json::Value, 
         .and_then(serde_json::Value::as_bool)
         .unwrap_or(true);
     let owner = json_str(&operator_handoff, "release_acceptance_owner").unwrap_or("missing");
+    let install_verification = install_verification_trust_value(
+        release_publication
+            .get("artifacts")
+            .and_then(|artifacts| artifacts.get("install_verification")),
+    );
+    let install_verification_observed =
+        install_verification_readiness_observed(&install_verification);
 
     let gate_results = vec![
         release_readiness_gate(
@@ -2110,6 +2137,13 @@ async fn release_readiness_value(state: &AppState) -> Result<serde_json::Value, 
             }),
             "passed",
         ),
+        release_readiness_gate_with_detail(
+            "install_verification",
+            "Install Verification Evidence",
+            &install_verification_observed,
+            "verified/offline_verified/read_only",
+            Some(&install_verification),
+        ),
         release_readiness_gate(
             "trust_boundary",
             "Trust Boundary",
@@ -2165,6 +2199,7 @@ async fn release_readiness_value(state: &AppState) -> Result<serde_json::Value, 
             .get("three_os_smoke_details")
             .cloned()
             .unwrap_or_else(|| serde_json::json!({})),
+        "install_verification": install_verification,
         // Lane XX: surface the rotation budget on the readiness
         // JSON too — readiness is the operator's final pre-decision
         // page, and an external monitor consuming readiness JSON
@@ -3088,6 +3123,69 @@ fn artifact_url<'a>(artifacts: &'a serde_json::Value, id: &str, key: &str) -> &'
         .get(id)
         .and_then(|artifact| json_str(artifact, key))
         .unwrap_or("missing")
+}
+
+fn install_verification_trust_value(artifact: Option<&serde_json::Value>) -> serde_json::Value {
+    let Some(artifact) = artifact else {
+        return serde_json::json!({
+            "schema_version": "missing",
+            "status": "missing",
+            "offline_verification_status": "missing",
+            "path": "missing",
+            "sha256": "missing",
+            "provider_api_keys_required": false,
+            "control_plane_approves_release": false,
+            "mutates_ao_artifacts": false,
+        });
+    };
+
+    serde_json::json!({
+        "schema_version": json_str(artifact, "schema_version").unwrap_or("missing"),
+        "status": json_str(artifact, "status").unwrap_or("missing"),
+        "offline_verification_status": artifact
+            .get("offline_verification")
+            .and_then(|offline| json_str(offline, "status"))
+            .unwrap_or("missing"),
+        "path": json_str(artifact, "path").unwrap_or("missing"),
+        "sha256": json_str(artifact, "sha256").unwrap_or("missing"),
+        "provider_api_keys_required": artifact
+            .get("provider_api_keys_required")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(true),
+        "control_plane_approves_release": artifact
+            .get("control_plane_approves_release")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(true),
+        "mutates_ao_artifacts": artifact
+            .get("mutates_ao_artifacts")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(true),
+    })
+}
+
+fn install_verification_readiness_observed(install: &serde_json::Value) -> String {
+    if json_str(install, "schema_version") == Some("ao2.install-verification-evidence.v1")
+        && json_str(install, "status") == Some("verified")
+        && json_str(install, "offline_verification_status") == Some("verified")
+        && install
+            .get("provider_api_keys_required")
+            .and_then(serde_json::Value::as_bool)
+            == Some(false)
+        && install
+            .get("control_plane_approves_release")
+            .and_then(serde_json::Value::as_bool)
+            == Some(false)
+        && install
+            .get("mutates_ao_artifacts")
+            .and_then(serde_json::Value::as_bool)
+            == Some(false)
+        && json_str(install, "path") != Some("missing")
+        && json_str(install, "sha256") != Some("missing")
+    {
+        "verified/offline_verified/read_only".to_string()
+    } else {
+        json_str(install, "status").unwrap_or("missing").to_string()
+    }
 }
 
 fn release_readiness_gate(
