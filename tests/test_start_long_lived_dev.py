@@ -10,6 +10,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = REPO_ROOT / "scripts" / "start-long-lived-dev.sh"
 SMOKE_SCRIPT = REPO_ROOT / "scripts" / "smoke-long-lived-dev.sh"
 RISKY_PR_GOLDEN_BRIDGE_SMOKE = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.sh"
+RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.py"
+RISKY_PR_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "risky-pr-golden-artifact-manifest.json"
 
 
 def test_ci_runs_on_public_push_and_pull_request():
@@ -149,6 +151,46 @@ def test_risky_pr_golden_bridge_smoke_is_token_safe_and_documented():
     assert "Bearer $TOKEN" not in script
     assert "scripts/smoke-risky-pr-golden-bridge.sh" in readme
     assert "scripts/smoke-risky-pr-golden-bridge.sh" in release_smoke
+
+
+def test_ci_runs_cross_os_risky_pr_golden_bridge_fixture_smoke():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    script = RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY.read_text(encoding="utf-8")
+    fixture = json.loads(RISKY_PR_GOLDEN_FIXTURE.read_text(encoding="utf-8"))
+
+    for needle in [
+        "risky-pr-golden-bridge-smoke:",
+        "Risky PR golden bridge smoke (${{ matrix.name }})",
+        "needs: test",
+        "ubuntu-x86_64",
+        "macos-aarch64",
+        "windows-x86_64",
+        "scripts/smoke-risky-pr-golden-bridge.py",
+        "tests/fixtures/risky-pr-golden-artifact-manifest.json",
+        "target/risky-pr-golden-bridge-smoke/${{ matrix.name }}/summary.json",
+        "ao2-control-plane-risky-pr-golden-bridge-${{ matrix.name }}",
+    ]:
+        assert needle in ci
+
+    for needle in [
+        "ao2.cp-risky-pr-golden-bridge-smoke.v1",
+        "AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST",
+        "ao2.cp-risky-pr-golden-artifact-manifest-observer.v1",
+        "/api/v1/risky-pr/golden/artifact-manifest.json",
+        "/api/v1/risky-pr/golden/artifact-manifest",
+        "read-only-observer",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+        "credential_material_included",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "Authorization",
+    ]:
+        assert needle in script
+
+    assert fixture["schema_version"] == "ao2.risky-pr-golden-artifact-manifest.v1"
+    assert fixture["status"] == "indexed"
+    assert fixture["artifact_count"] == len(fixture["artifacts"])
 
 
 def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
