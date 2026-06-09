@@ -349,7 +349,9 @@ CI evidence index at `/api/v1/ci/evidence-index.json`, or the HTML view at
 ingest smoke, release archive smoke, and backup/restore drill artifact families
 with schema versions and trust-boundary metadata. It is read-only observer
 metadata and does not approve releases, mutate AO2 artifacts, or embed bearer
-material.
+material. The route index also advertises this under `portable_artifacts` as
+`ci_evidence_index` so schedulers and dashboards can discover the HTML and JSON
+surfaces without hard-coding endpoint paths.
 
 ## Endpoints
 
@@ -495,7 +497,7 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `POST` | `/api/v1/control-plane/bundle` | Ingest fleet/control-plane bundle evidence. |
 | `GET` | `/api/v1/control-plane/bundle` | List fleet/control-plane bundle evidence. |
 | `GET` | `/api/v1/control-plane/bundle/:sha` | Fetch original fleet/control-plane bundle by canonical SHA-256. |
-| `GET` | `/api/v1/control-plane/routes.json` | Fetch the token-free route index for Hermes/front-end discovery of read-only observer, portable download, signed evidence/memory, and factory-v3 evaluator-owned surfaces. The index includes a `portable_artifacts` section that groups gap reports and support bundles with JSON, download, checksum, manifest, and verification links so schedulers do not need to infer handoff bundles from the full route list. The index is regression-tested against frontend-relevant static routes to reduce discovery drift without placing credentials in URLs. |
+| `GET` | `/api/v1/control-plane/routes.json` | Fetch the token-free route index for Hermes/front-end discovery of read-only observer, portable download, signed evidence/memory, and factory-v3 evaluator-owned surfaces. The index includes a `portable_artifacts` section that groups the CI evidence index, gap reports, and support bundles with JSON, HTML, download, checksum, manifest, and verification links so schedulers do not need to infer handoff surfaces from the full route list. The index is regression-tested against frontend-relevant static routes to reduce discovery drift without placing credentials in URLs. |
 | `GET` | `/api/v1/ci/evidence-index` | Render an authenticated read-only HTML index of production-readiness CI evidence families, including bridge, ingest, release archive, and backup/restore artifacts. |
 | `GET` | `/api/v1/ci/evidence-index.json` | Fetch the machine-readable `ao2.cp-ci-evidence-index.v1` contract for CI evidence artifact names, schema versions, and read-only trust-boundary metadata. |
 | `POST` | `/api/v1/evidence-pack/signed` | Verify and ingest a signed `ao2.evidence-pack.v1` observer wrapper, storing signature metadata as a sidecar. |

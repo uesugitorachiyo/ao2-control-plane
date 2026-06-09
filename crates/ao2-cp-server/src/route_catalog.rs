@@ -1444,6 +1444,20 @@ pub fn portable_artifact_groups() -> Vec<serde_json::Value> {
             }
         }),
         json!({
+            "id": "ci_evidence_index",
+            "schema_version": "ao2.cp-ci-evidence-index.v1",
+            "description": "Portable CI evidence index for production-readiness smoke, backup/restore, and release archive artifact discovery.",
+            "owner": "ao2-control-plane observer",
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "mutates_ao_artifacts": false,
+            "control_plane_approves_release": false,
+            "credential_material_in_urls": false,
+            "links": {
+                "html": "/api/v1/ci/evidence-index",
+                "json": "/api/v1/ci/evidence-index.json"
+            }
+        }),
+        json!({
             "id": "provider_readiness_support_bundle",
             "schema_version": "ao2.cp-provider-readiness-support-bundle.v1",
             "description": "Portable provider-readiness observer bundle for evaluator handoff.",
