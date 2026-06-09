@@ -36,6 +36,12 @@ check: `control_plane_approves_release=false`, `mutates_ao_artifacts=false`, no
 provider API keys are allowed, and no bearer material is written into URLs,
 HTML, JSON, or status output.
 
+Pull-request CI runs the same trust-boundary check with
+`scripts/smoke-risky-pr-golden-bridge.py` against
+`tests/fixtures/risky-pr-golden-artifact-manifest.json` on Ubuntu, macOS, and
+Windows. Use the CI fixture result to verify cross-OS behavior; use the AO2
+bridge command above when validating a freshly generated AO2 artifact manifest.
+
 ## 1. The two parity verdicts
 
 Operators see two related-but-independent verdicts on every

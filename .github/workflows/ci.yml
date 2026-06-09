@@ -142,6 +142,55 @@ jobs:
         if: runner.os == 'Windows'
         run: cargo test --workspace
 
+  risky-pr-golden-bridge-smoke:
+    name: Risky PR golden bridge smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: macos-aarch64
+            os: macos-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: windows-x86_64
+            os: windows-latest
+            shell: pwsh
+            server_bin: target/release/ao2-cp-server.exe
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+      - name: Run Unix bridge smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: |
+          python3 scripts/smoke-risky-pr-golden-bridge.py \
+            --manifest tests/fixtures/risky-pr-golden-artifact-manifest.json \
+            --server-bin "${{ matrix.server_bin }}" \
+            --out-root "target/risky-pr-golden-bridge-smoke/${{ matrix.name }}"
+      - name: Run Windows bridge smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: |
+          python scripts/smoke-risky-pr-golden-bridge.py `
+            --manifest tests/fixtures/risky-pr-golden-artifact-manifest.json `
+            --server-bin "${{ matrix.server_bin }}" `
+            --out-root "target/risky-pr-golden-bridge-smoke/${{ matrix.name }}"
+      - name: Upload bridge smoke artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-risky-pr-golden-bridge-${{ matrix.name }}
+          path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}/summary.json
+          if-no-files-found: error
+
   ingest-smoke:
     name: Ingest smoke (${{ matrix.name }})
     runs-on: ${{ matrix.os }}

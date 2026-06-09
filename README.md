@@ -334,6 +334,12 @@ writes a token-free `ao2.cp-risky-pr-golden-bridge-smoke.v1` summary under
 `target/`. It is observer-only: it does not approve releases, mutate AO2
 artifacts, persist the manifest, or allow provider API keys.
 
+CI also runs a fixture-backed variant of this smoke across Ubuntu, macOS, and
+Windows via `scripts/smoke-risky-pr-golden-bridge.py` and
+`tests/fixtures/risky-pr-golden-artifact-manifest.json`. That fixture path keeps
+the trust-boundary contract continuously checked on pull requests without
+depending on a sibling AO2 checkout.
+
 ## Endpoints
 
 All `/api/v1/*` endpoints require `Authorization: Bearer $AO2_CP_API_TOKEN`.

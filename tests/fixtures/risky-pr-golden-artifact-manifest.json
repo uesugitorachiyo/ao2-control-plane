@@ -1,0 +1,30 @@
+{
+  "artifact_count": 3,
+  "artifacts": [
+    {
+      "path": "summary.json",
+      "relative_path": "summary.json",
+      "schema_version": "ao2.risky-pr-golden-path.v1",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "size_bytes": 2048
+    },
+    {
+      "path": "release-support-bundle/release-support-bundle.json",
+      "relative_path": "release-support-bundle/release-support-bundle.json",
+      "schema_version": "ao2.cp-release-support-bundle.v1",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "size_bytes": 8192
+    },
+    {
+      "path": "release-support-bundle/SHA256SUMS",
+      "relative_path": "release-support-bundle/SHA256SUMS",
+      "schema_version": null,
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "size_bytes": 128
+    }
+  ],
+  "generated_at": "2026-06-09T00:00:00Z",
+  "run_id": "fixture-risky-pr-golden-bridge-ci",
+  "schema_version": "ao2.risky-pr-golden-artifact-manifest.v1",
+  "status": "indexed"
+}
