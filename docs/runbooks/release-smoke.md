@@ -13,6 +13,29 @@ writes back to AO.
 
 ---
 
+## AO2 risky PR golden bridge smoke
+
+Use `scripts/smoke-risky-pr-golden-bridge.sh` when validating that AO2's Risky
+PR golden CI artifact manifest can be observed by the control plane without
+crossing the release-approval trust boundary. The script starts a local
+`ao2-cp-server`, points `AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST` at
+`target/risky-pr-golden-control-plane-bridge/artifact-manifest.json`, and fetches
+both `/api/v1/risky-pr/golden/artifact-manifest.json` and
+`/api/v1/risky-pr/golden/artifact-manifest` with the bearer token carried only in
+the `Authorization: Bearer` header.
+
+```sh
+(cd ../ao2 && npm run risky-pr:control-plane-bridge -- --control-plane-root ../ao2-control-plane)
+scripts/smoke-risky-pr-golden-bridge.sh
+```
+
+Expected output is a token-free summary path and
+`risky_pr_golden_bridge_smoke=passed`. The summary schema is
+`ao2.cp-risky-pr-golden-bridge-smoke.v1`. This is still a read-only observer
+check: `control_plane_approves_release=false`, `mutates_ao_artifacts=false`, no
+provider API keys are allowed, and no bearer material is written into URLs,
+HTML, JSON, or status output.
+
 ## 1. The two parity verdicts
 
 Operators see two related-but-independent verdicts on every
