@@ -143,6 +143,12 @@ get /api/v1/release/readiness.json > "$AO2_CP_SMOKE_ROOT/release-readiness.json"
 jq -e '.schema_version == "ao2.cp-release-readiness.v1"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
 jq -e '.operator_decision.factory_v3_evaluator_closer_required == true' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
 jq -e '.operator_decision.control_plane_approves_release == false' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.schema_version == "ao2.install-verification-evidence.v1"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.status == "verified"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.offline_verification_status == "verified"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.provider_api_keys_required == false' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.control_plane_approves_release == false' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
+jq -e '.install_verification.mutates_ao_artifacts == false' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
 jq -e '.candidate_correlation.status as $s | $s == "matched" or $s == "mismatched" or $s == "missing"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
 jq -e '.candidate_correlation.blockers | type == "array"' "$AO2_CP_SMOKE_ROOT/release-readiness.json" >/dev/null
 get /api/v1/release/readiness > "$AO2_CP_SMOKE_ROOT/release-readiness.html"
@@ -156,6 +162,10 @@ jq -e '.trust_boundary.mutates_ao_artifacts == false' "$AO2_CP_SMOKE_ROOT/releas
 jq -e '.operator_handoff.release_acceptance_owner == "factory-v3 evaluator-closer"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 jq -e '.release_assembly.schema_version == "ao2.cp-release-assembly.v1"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 jq -e '.release_assembly.control_plane_approves_release == false' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
+jq -e '.install_verification.schema_version == "ao2.install-verification-evidence.v1"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
+jq -e '.install_verification.status == "verified"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
+jq -e '.install_verification.offline_verification_status == "verified"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
+jq -e '.portable_bundle_manifest.included_surfaces[] | select(.id == "install_verification" and .path == "$.install_verification" and .schema_version == "ao2.install-verification-evidence.v1")' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 jq -e '.release_assembly.candidate_correlation_detail.status as $s | $s == "matched" or $s == "mismatched" or $s == "missing"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 jq -e '.release_assembly.candidate_correlation_detail.blockers | type == "array"' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 jq -e --arg expected "$EXPECTED_MANIFEST_SCHEMA" '.portable_bundle_manifest.schema_version == $expected' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
@@ -167,6 +177,7 @@ jq -e '(
   .portable_bundle_manifest.integrity.surface_sha256.release_readiness,
   .portable_bundle_manifest.integrity.surface_sha256.release_candidate_handoff,
   .portable_bundle_manifest.integrity.surface_sha256.release_cockpit,
+  .portable_bundle_manifest.integrity.surface_sha256.install_verification,
   .portable_bundle_manifest.integrity.surface_sha256.storage_support_bundle
 ) | test("^[0-9a-f]{64}$")' "$AO2_CP_SMOKE_ROOT/release-support-bundle.json" >/dev/null
 

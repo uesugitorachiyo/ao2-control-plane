@@ -53,6 +53,18 @@
     "release_doctor": {
       "path": "target/release-download/v0.4.79/release-doctor.json",
       "sha256": "c99d8e85f64cff9964e29869668718c64fb33ae696f9e3658d2f503f47953f77"
+    },
+    "install_verification": {
+      "schema_version": "ao2.install-verification-evidence.v1",
+      "path": "target/release-download/v0.4.79/ao2.install-verification.json",
+      "sha256": "d99d8e85f64cff9964e29869668718c64fb33ae696f9e3658d2f503f47953f77",
+      "status": "verified",
+      "offline_verification": {
+        "status": "verified"
+      },
+      "provider_api_keys_required": false,
+      "control_plane_approves_release": false,
+      "mutates_ao_artifacts": false
     }
   }
 }

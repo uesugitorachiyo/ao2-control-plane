@@ -2263,6 +2263,11 @@ async fn release_support_bundle_value(
     let release_assembly = release_assembly_value(&readiness, &handoff);
     let release_assembly_sha = support_bundle_surface_sha256(&release_assembly)?;
     let readiness_sha = support_bundle_surface_sha256(&readiness)?;
+    let install_verification = readiness
+        .get("install_verification")
+        .cloned()
+        .unwrap_or_else(|| install_verification_trust_value(None));
+    let install_verification_sha = support_bundle_surface_sha256(&install_verification)?;
     let handoff_sha = support_bundle_surface_sha256(&handoff)?;
     let cockpit_sha = support_bundle_surface_sha256(&cockpit)?;
     let evaluator_decision_sha = support_bundle_surface_sha256(&evaluator_decision)?;
@@ -2276,6 +2281,7 @@ async fn release_support_bundle_value(
         "release": release,
         "release_assembly": release_assembly,
         "readiness": readiness,
+        "install_verification": install_verification,
         "handoff": handoff,
         "cockpit": cockpit,
         "evaluator_decision": evaluator_decision,
@@ -2321,6 +2327,12 @@ async fn release_support_bundle_value(
                     "sha256": evaluator_decision_sha
                 },
                 {
+                    "id": "install_verification",
+                    "schema_version": "ao2.install-verification-evidence.v1",
+                    "path": "$.install_verification",
+                    "sha256": install_verification_sha
+                },
+                {
                     "id": "ci_evidence_index",
                     "schema_version": "ao2.cp-ci-evidence-index.v1",
                     "path": "$.ci_evidence_index",
@@ -2344,11 +2356,12 @@ async fn release_support_bundle_value(
                     "release_candidate_handoff": handoff_sha,
                     "release_cockpit": cockpit_sha,
                     "release_evaluator_decision": evaluator_decision_sha,
+                    "install_verification": install_verification_sha,
                     "ci_evidence_index": ci_evidence_index_sha,
                     "storage_support_bundle": storage_support_sha
                 },
                 "verification_plan": {
-                    "surface_count": 7,
+                    "surface_count": SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS.len(),
                     "expected_fail_closed": true,
                     "trust_boundary": "offline digest verification only; no AO2 artifact mutation and no release approval",
                     "cross_platform_commands": {
@@ -2359,6 +2372,7 @@ async fn release_support_bundle_value(
                         "recompute each embedded support-bundle surface sha256 with canonical JSON",
                         "compare every recomputed digest to portable_bundle_manifest.integrity.surface_sha256",
                         "fail closed if any included surface path, schema_version, or sha256 is missing",
+                        "confirm install verification is a standalone offline-verifiable surface before release review",
                         "confirm CI evidence index remains a read-only observer surface before offline release review",
                         "confirm factory-v3 evaluator decision remains an observed dashboard surface and not a control-plane approval",
                         "confirm trust_boundary.role remains read_only_observer before evaluator-closer review"
@@ -2471,8 +2485,9 @@ fn release_support_bundle_filename(bundle: &serde_json::Value) -> String {
     format!("ao2-release-support-bundle-{sanitized_version}.json")
 }
 
-const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 7] = [
+const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 8] = [
     "ci_evidence_index",
+    "install_verification",
     "release_assembly",
     "release_readiness",
     "release_candidate_handoff",
@@ -2909,6 +2924,7 @@ fn support_bundle_surface_by_id<'a>(
         "release_candidate_handoff" => bundle.get("handoff"),
         "release_cockpit" => bundle.get("cockpit"),
         "release_evaluator_decision" => bundle.get("evaluator_decision"),
+        "install_verification" => bundle.get("install_verification"),
         "ci_evidence_index" => bundle.get("ci_evidence_index"),
         "storage_support_bundle" => bundle.get("storage_support"),
         _ => None,
@@ -2922,6 +2938,7 @@ fn support_bundle_surface_path_by_id(id: &str) -> Option<&'static str> {
         "release_candidate_handoff" => Some("$.handoff"),
         "release_cockpit" => Some("$.cockpit"),
         "release_evaluator_decision" => Some("$.evaluator_decision"),
+        "install_verification" => Some("$.install_verification"),
         "ci_evidence_index" => Some("$.ci_evidence_index"),
         "storage_support_bundle" => Some("$.storage_support"),
         _ => None,
@@ -4644,6 +4661,7 @@ mod tests {
             "handoff": minimal_surface(RELEASE_CANDIDATE_HANDOFF_SCHEMA),
             "cockpit": minimal_surface(RELEASE_COCKPIT_SCHEMA),
             "evaluator_decision": minimal_surface(RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA),
+            "install_verification": minimal_surface("ao2.install-verification-evidence.v1"),
             "ci_evidence_index": minimal_surface("ao2.cp-ci-evidence-index.v1"),
             "storage_support": minimal_surface("ao2.cp-support-bundle.v1"),
             "trust_boundary": trust_boundary(),
@@ -4926,10 +4944,10 @@ mod tests {
             .unwrap()
             .iter()
             .any(|blocker| {
-                blocker
-                    .as_str()
-                    .unwrap()
-                    .contains("verification_plan.surface_count: expected 7, found 5")
+                blocker.as_str().unwrap().contains(&format!(
+                    "verification_plan.surface_count: expected {}, found 5",
+                    SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS.len()
+                ))
             }));
     }
 }
