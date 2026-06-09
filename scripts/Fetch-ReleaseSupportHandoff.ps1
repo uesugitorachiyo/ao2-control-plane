@@ -34,6 +34,13 @@ $Phase1Endpoints = [ordered]@{
 
 $Phase1VerifyEndpoint = "/api/v1/phase1/promotion/portable-manifest/verify.json"
 
+$RequiredCiEvidenceFamilyIds = @(
+    "risky-pr-golden-bridge-smoke",
+    "ingest-smoke",
+    "release-archive-smoke",
+    "backup-restore-drill"
+)
+
 $SecretMarkerPatterns = [ordered]@{
     authorization_bearer_header = '(?i)authorization\s*[:=]\s*bearer\s+[^\s"'']+'
     ao2_cp_api_token_assignment = '(?i)AO2_CP_API_TOKEN\s*='
@@ -264,6 +271,136 @@ function Test-HandoffArtifacts {
     return $failures
 }
 
+function Test-SecretMarkersInFile {
+    param([string]$Path)
+    $failures = @()
+    if (!(Test-Path -LiteralPath $Path)) {
+        return $failures
+    }
+    $raw = Get-Content -Raw -LiteralPath $Path -ErrorAction SilentlyContinue
+    foreach ($marker in $SecretMarkerPatterns.GetEnumerator()) {
+        if ($raw -match $marker.Value) {
+            $failures += "$(Split-Path -Leaf $Path): forbidden marker $($marker.Key)"
+        }
+    }
+    return $failures
+}
+
+function Get-CiEvidenceIndexFetchSummary {
+    param([string]$OutPath)
+
+    $bundlePath = Join-Path $OutPath "release-support-bundle.json"
+    if (!(Test-Path -LiteralPath $bundlePath)) {
+        return [pscustomobject][ordered]@{
+            verified = $false
+            status = "missing_bundle"
+            surface_count = 0
+            family_count = 0
+            required_family_count = $RequiredCiEvidenceFamilyIds.Count
+            required_families_present = $false
+            missing_families = $RequiredCiEvidenceFamilyIds
+            token_hygiene_status = "failed"
+            failures = @("release-support-bundle.json not found")
+        }
+    }
+
+    $failures = @()
+    $bundle = Read-JsonFile -Path $bundlePath
+    $surfaces = @()
+    if ($null -ne $bundle.portable_bundle_manifest -and $null -ne $bundle.portable_bundle_manifest.included_surfaces) {
+        $surfaces = @($bundle.portable_bundle_manifest.included_surfaces)
+    }
+    $surfaceCount = $surfaces.Count
+    $hasCiSurface = $false
+    foreach ($surface in $surfaces) {
+        if ($null -ne $surface -and $surface.id -eq "ci_evidence_index") {
+            $hasCiSurface = $true
+            break
+        }
+    }
+    if (!$hasCiSurface) {
+        $failures += "portable_bundle_manifest.included_surfaces missing ci_evidence_index"
+    }
+
+    $ciIndex = $bundle.ci_evidence_index
+    if ($null -eq $ciIndex) {
+        return [pscustomobject][ordered]@{
+            verified = $false
+            status = "missing_ci_evidence_index"
+            surface_count = $surfaceCount
+            family_count = 0
+            required_family_count = $RequiredCiEvidenceFamilyIds.Count
+            required_families_present = $false
+            missing_families = $RequiredCiEvidenceFamilyIds
+            token_hygiene_status = "failed"
+            failures = @("ci_evidence_index missing from release support bundle")
+        }
+    }
+
+    if ($ciIndex.schema_version -ne "ao2.cp-ci-evidence-index.v1") {
+        $failures += "ci_evidence_index schema_version is not ao2.cp-ci-evidence-index.v1"
+    }
+    if ($ciIndex.control_plane_role -ne "read-only-observer") {
+        $failures += "ci_evidence_index control_plane_role is not read-only-observer"
+    }
+    if ($ciIndex.mutates_ao_artifacts -ne $false) {
+        $failures += "ci_evidence_index mutates_ao_artifacts must remain false"
+    }
+    if ($ciIndex.control_plane_approves_release -ne $false) {
+        $failures += "ci_evidence_index control_plane_approves_release must remain false"
+    }
+
+    $families = @()
+    if ($null -ne $ciIndex.evidence_families) {
+        $families = @($ciIndex.evidence_families)
+    }
+    $familyIds = @{}
+    foreach ($family in $families) {
+        if ($null -ne $family -and ![string]::IsNullOrWhiteSpace([string]$family.id)) {
+            $familyIds[[string]$family.id] = $true
+        }
+    }
+    $missingFamilies = @()
+    foreach ($familyId in $RequiredCiEvidenceFamilyIds) {
+        if (!$familyIds.ContainsKey($familyId)) {
+            $missingFamilies += $familyId
+        }
+    }
+    if ($missingFamilies.Count -gt 0) {
+        $failures += "ci_evidence_index missing required families: $($missingFamilies -join ', ')"
+    }
+
+    $auth = $ciIndex.auth
+    $tokenHygieneOk = (
+        $null -ne $auth -and
+        $auth.credential_material_included -eq $false -and
+        $auth.credential_material_in_urls -eq $false -and
+        @(Test-SecretMarkersInFile -Path $bundlePath).Count -eq 0
+    )
+    if (!$tokenHygieneOk) {
+        $failures += "ci_evidence_index token hygiene check failed"
+    }
+
+    $verified = $failures.Count -eq 0
+    return [pscustomobject][ordered]@{
+        verified = $verified
+        status = if ($verified) { "passed" } else { "failed" }
+        schema_version = $ciIndex.schema_version
+        surface_count = $surfaceCount
+        family_count = $families.Count
+        required_family_count = $RequiredCiEvidenceFamilyIds.Count
+        required_families_present = $missingFamilies.Count -eq 0
+        missing_families = $missingFamilies
+        token_hygiene_status = if ($tokenHygieneOk) { "passed" } else { "failed" }
+        auth_credential_material_included = if ($null -ne $auth) { $auth.credential_material_included } else { $null }
+        auth_credential_material_in_urls = if ($null -ne $auth) { $auth.credential_material_in_urls } else { $null }
+        control_plane_role = $ciIndex.control_plane_role
+        mutates_ao_artifacts = $ciIndex.mutates_ao_artifacts
+        control_plane_approves_release = $ciIndex.control_plane_approves_release
+        failures = $failures
+    }
+}
+
 $summary = [pscustomobject][ordered]@{
     schema_version = "ao2.cp-release-support-fetch-summary.v1"
     base_url = $BaseUrl.TrimEnd('/')
@@ -277,6 +414,19 @@ $summary = [pscustomobject][ordered]@{
     status = "failed"
     fetched = @()
     offline_verifier = [pscustomobject][ordered]@{ status = "not_run"; reason = "PowerShell fetcher only captures handoff artifacts; run Verify-ReleaseSupportBundle.ps1 separately for offline bundle verification" }
+    ci_evidence_index_verified = $false
+    ci_evidence_index_surface_count = 0
+    ci_evidence_index_family_count = 0
+    ci_evidence_index_token_hygiene_status = "not_run"
+    ci_evidence_index = [pscustomobject][ordered]@{
+        verified = $false
+        status = "not_run"
+        surface_count = 0
+        family_count = 0
+        required_family_count = $RequiredCiEvidenceFamilyIds.Count
+        required_families_present = $false
+        token_hygiene_status = "not_run"
+    }
     phase1_portable_handoff = [pscustomobject][ordered]@{ status = "not_requested" }
     failures = @()
 }
@@ -285,10 +435,18 @@ try {
     New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
     $authorization = Get-AuthorizationValue -Name $AuthEnv
     $summary.fetched = @(Fetch-EndpointSet -Endpoints $ReleaseEndpoints -Base $BaseUrl -OutPath $OutDir -Authorization $authorization -KeepLatestValue $KeepLatest -TimeoutSeconds $TimeoutSec -DigestHeaders @("x-ao2-cp-support-bundle-sha256", "x-ao2-cp-sha256"))
+    $summary.ci_evidence_index = Get-CiEvidenceIndexFetchSummary -OutPath $OutDir
+    $summary.ci_evidence_index_verified = $summary.ci_evidence_index.verified
+    $summary.ci_evidence_index_surface_count = $summary.ci_evidence_index.surface_count
+    $summary.ci_evidence_index_family_count = $summary.ci_evidence_index.family_count
+    $summary.ci_evidence_index_token_hygiene_status = $summary.ci_evidence_index.token_hygiene_status
     if ($IncludePhase1Portable) {
         $summary.phase1_portable_handoff = Write-Phase1PortableHandoff -Base $BaseUrl -OutPath $OutDir -Authorization $authorization -KeepLatestValue $KeepLatest -TimeoutSeconds $TimeoutSec
     }
     $failures = @(Test-HandoffArtifacts -OutPath $OutDir)
+    if ($summary.ci_evidence_index.status -eq "failed") {
+        $failures += "CI evidence index verification failed"
+    }
     if ($summary.phase1_portable_handoff.status -eq "failed") {
         $failures += "phase1 portable manifest verification failed"
     }
@@ -307,6 +465,7 @@ $printable = [ordered]@{
     out_dir = $OutDir
     fetched_files = @($summary.fetched | ForEach-Object { $_.filename })
     offline_verifier_status = $summary.offline_verifier.status
+    ci_evidence_index_verified = $summary.ci_evidence_index_verified
     phase1_portable_handoff_status = $summary.phase1_portable_handoff.status
     failures = $summary.failures
 }

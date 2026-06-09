@@ -2061,6 +2061,29 @@ fn fetch_release_support_handoff_python_and_powershell_agree_on_fetch_contract()
         );
     }
 
+    // Both fetchers MUST write an explicit CI evidence index summary into
+    // fetch-summary.json so offline handoff directories show that CI evidence
+    // was semantically verified, not merely downloaded.
+    let ci_evidence_summary_fields = [
+        "ci_evidence_index_verified",
+        "ci_evidence_index_surface_count",
+        "ci_evidence_index_family_count",
+        "ci_evidence_index_token_hygiene_status",
+        "ci_evidence_index",
+        "required_family_count",
+        "required_families_present",
+    ];
+    for field in ci_evidence_summary_fields {
+        assert!(
+            py.contains(field),
+            "python fetcher missing CI summary field {field}"
+        );
+        assert!(
+            ps.contains(field),
+            "powershell fetcher missing CI summary field {field}"
+        );
+    }
+
     // Both fetchers MUST also fetch the same phase1 portable promotion bundle
     // artifacts so Hermes/operators get identical phase1 evidence on every OS.
     let shared_phase1_artifacts = [

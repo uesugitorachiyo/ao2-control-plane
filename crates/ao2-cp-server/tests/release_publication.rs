@@ -3016,6 +3016,67 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     assert_eq!(verifier_checksum_json["status"], "passed");
     assert_eq!(verifier_checksum_json["checksum_verified"], true);
 
+    let fetcher = root.join("scripts/fetch_release_support_handoff.py");
+    let fetch_dir = tempdir().unwrap();
+    let fetcher_out_dir = fetch_dir.path().to_path_buf();
+    let fetcher_base = base.clone();
+    let fetcher_pass = tokio::task::spawn_blocking(move || {
+        Command::new("python3")
+            .arg(&fetcher)
+            .arg("--base-url")
+            .arg(&fetcher_base)
+            .arg("--out-dir")
+            .arg(&fetcher_out_dir)
+            .arg("--keep-latest")
+            .arg("7")
+            .env("AO2_CP_AUTH_VALUE", "Bearer secret")
+            .output()
+            .expect("run python release support handoff fetcher")
+    })
+    .await
+    .expect("fetcher subprocess task joins");
+    assert!(
+        fetcher_pass.status.success(),
+        "fetcher should write a passing token-safe handoff summary\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&fetcher_pass.stdout),
+        String::from_utf8_lossy(&fetcher_pass.stderr)
+    );
+    let fetch_summary_path = fetch_dir.path().join("fetch-summary.json");
+    let fetch_summary: serde_json::Value =
+        serde_json::from_slice(&fs::read(&fetch_summary_path).unwrap())
+            .expect("fetch-summary.json is machine-readable JSON");
+    assert_eq!(fetch_summary["status"], "passed");
+    assert_eq!(fetch_summary["ci_evidence_index_verified"], true);
+    assert_eq!(fetch_summary["ci_evidence_index_surface_count"], 7);
+    assert_eq!(fetch_summary["ci_evidence_index_family_count"], 4);
+    assert_eq!(
+        fetch_summary["ci_evidence_index_token_hygiene_status"],
+        "passed"
+    );
+    assert_eq!(
+        fetch_summary["ci_evidence_index"]["required_family_count"],
+        4
+    );
+    assert_eq!(
+        fetch_summary["ci_evidence_index"]["required_families_present"],
+        true
+    );
+    assert_eq!(
+        fetch_summary["ci_evidence_index"]["control_plane_role"],
+        "read-only-observer"
+    );
+    assert_eq!(
+        fetch_summary["ci_evidence_index"]["mutates_ao_artifacts"],
+        false
+    );
+    assert_eq!(
+        fetch_summary["ci_evidence_index"]["control_plane_approves_release"],
+        false
+    );
+    assert!(!serde_json::to_string(&fetch_summary)
+        .unwrap()
+        .contains("secret"));
+
     let mut tampered_ci_bundle = download_body.clone();
     tampered_ci_bundle["ci_evidence_index"]["evidence_families"] = serde_json::json!([]);
     let tampered_ci_sha = sha256_of_canonical(&tampered_ci_bundle["ci_evidence_index"]).unwrap();
