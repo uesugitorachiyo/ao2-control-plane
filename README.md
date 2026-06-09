@@ -484,7 +484,10 @@ pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Checksums target/release-han
 AO2/control-plane release-support contract fixture. AO2 verifies the same
 bundle shape with `ao2 release support-bundle-verify`; ao2-control-plane
 verifies this copy with the offline verifier above so producer and consumer
-schema drift is caught in tests.
+schema drift is caught in tests. CI's `Release support fixture parity with AO2`
+job checks out both public repos, compares the mirrored fixture byte-for-byte,
+and uploads `ao2-control-plane-release-support-fixture-parity` with SHA-256
+evidence.
 
 The helper fetches `/api/v1/release/support-bundle/handoff.json`, the portable bundle, checksums, verifier JSON, and manifest JSON into the output directory. It reads the bearer value from `AO2_CP_AUTH_VALUE`, writes a sanitized `fetch-summary.json`, and records `auth_value_stored=false`; do not paste bearer values into command-line arguments or committed artifacts.
 
