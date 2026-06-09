@@ -13,6 +13,7 @@ RISKY_PR_GOLDEN_BRIDGE_SMOKE = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-br
 RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.py"
 RISKY_PR_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "risky-pr-golden-artifact-manifest.json"
 CI_EVIDENCE_HANDLER = REPO_ROOT / "crates" / "ao2-cp-server" / "src" / "handlers" / "ci_evidence.rs"
+DASHBOARD_SNAPSHOT = REPO_ROOT / "scripts" / "cp_dashboard_snapshot.py"
 
 
 def test_ci_runs_on_public_push_and_pull_request():
@@ -238,6 +239,25 @@ def test_ci_evidence_index_is_documented_and_token_safe():
     assert "ao2.cp-ci-evidence-index.v1" in readme
     assert "/api/v1/ci/evidence-index.json" in release_smoke
     assert "ao2.cp-ci-evidence-index.v1" in release_smoke
+
+
+def test_dashboard_snapshot_includes_ci_evidence_index_surfaces():
+    script = DASHBOARD_SNAPSHOT.read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for needle in [
+        '"name": "CI Evidence Index"',
+        '"endpoint": "/api/v1/ci/evidence-index"',
+        '"filename": "ci-evidence-index.html"',
+        '"name": "CI Evidence Index JSON"',
+        '"endpoint": "/api/v1/ci/evidence-index.json"',
+        '"filename": "ci-evidence-index.json"',
+        "ao2.cp-dashboard-snapshot.v1",
+    ]:
+        assert needle in script
+
+    assert "ci-evidence-index.html" in readme
+    assert "ci-evidence-index.json" in readme
 
 
 def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():

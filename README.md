@@ -383,7 +383,10 @@ $env:AO2_CP_API_TOKEN = Get-Content target\long-lived-control-plane\api-token
 The helper sends `Authorization: Bearer` only as an HTTP header, writes local
 HTML/JSON snapshots plus `manifest.json`, and fails closed if a response body
 contains the bearer value. It is read-only observer tooling; it does not approve
-releases, start providers, or mutate AO artifacts.
+releases, start providers, or mutate AO artifacts. The generated snapshot set
+includes `ci-evidence-index.html` and `ci-evidence-index.json` so operators can
+review the production-readiness CI evidence contract without browsing with a
+bearer token.
 
 | Method | Path | Purpose |
 |---|---|---|

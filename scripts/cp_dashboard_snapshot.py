@@ -52,6 +52,16 @@ DEFAULT_SURFACES = [
         "filename": "routes.json",
     },
     {
+        "name": "CI Evidence Index",
+        "endpoint": "/api/v1/ci/evidence-index",
+        "filename": "ci-evidence-index.html",
+    },
+    {
+        "name": "CI Evidence Index JSON",
+        "endpoint": "/api/v1/ci/evidence-index.json",
+        "filename": "ci-evidence-index.json",
+    },
+    {
         "name": "Status",
         "endpoint": "/api/v1/status",
         "filename": "status.json",
