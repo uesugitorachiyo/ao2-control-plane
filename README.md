@@ -480,14 +480,20 @@ pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Json -Path target/release-ha
 pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Checksums target/release-handoff/SHA256SUMS -Path target/release-handoff/release-support-bundle.json
 ```
 
+`tests/fixtures/release-support-bundle-contract-v1.json` is the mirrored
+AO2/control-plane release-support contract fixture. AO2 verifies the same
+bundle shape with `ao2 release support-bundle-verify`; ao2-control-plane
+verifies this copy with the offline verifier above so producer and consumer
+schema drift is caught in tests.
+
 The helper fetches `/api/v1/release/support-bundle/handoff.json`, the portable bundle, checksums, verifier JSON, and manifest JSON into the output directory. It reads the bearer value from `AO2_CP_AUTH_VALUE`, writes a sanitized `fetch-summary.json`, and records `auth_value_stored=false`; do not paste bearer values into command-line arguments or committed artifacts.
 
-The offline verifier requires exactly the seven required surfaces (CI evidence
-index, assembly, readiness, handoff, cockpit, evaluator decision, and storage
-support), matching manifest and integrity digests, expected JSON paths, and a
-read-only trust boundary. The optional JSON mode is intended for Hermes/scheduler ingestion: it
-preserves the verifier exit code, includes `failures` on rejection, and repeats
-`control_plane_role=read_only_observer` plus
+The offline verifier requires exactly the eight required surfaces (CI evidence
+index, install verification, assembly, readiness, handoff, cockpit, evaluator
+decision, and storage support), matching manifest and integrity digests,
+expected JSON paths, and a read-only trust boundary. The optional JSON mode is
+intended for Hermes/scheduler ingestion: it preserves the verifier exit code,
+includes `failures` on rejection, and repeats `control_plane_role=read_only_observer` plus
 `release_acceptance_owner=factory-v3 evaluator-closer` so automation does not
 mistake the observer check for release approval. When `--checksums` / `-Checksums`
 is provided, the verifier also confirms the canonical bundle digest is present
