@@ -126,6 +126,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
                 "purpose": "Proves AO2 risky PR golden artifact manifests can be observed through the control plane without token leakage or release approval.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "Risky PR golden bridge smoke (ubuntu-x86_64)",
+                        "Risky PR golden bridge smoke (macos-aarch64)",
+                        "Risky PR golden bridge smoke (windows-x86_64)"
+                    ],
+                    &[
+                        "ao2-control-plane-risky-pr-golden-bridge-ubuntu-x86_64",
+                        "ao2-control-plane-risky-pr-golden-bridge-macos-aarch64",
+                        "ao2-control-plane-risky-pr-golden-bridge-windows-x86_64"
+                    ],
+                    "summary.json carries schema/status plus artifact manifest observer digests"
+                ),
                 "trust_boundary": {
                     "read_only": true,
                     "approves_release": false,
@@ -142,6 +155,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
                 "purpose": "Proves signed AO2 evidence can be ingested on each supported operating system.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "Ingest smoke (ubuntu-x86_64)",
+                        "Ingest smoke (macos-aarch64)",
+                        "Ingest smoke (windows-x86_64)"
+                    ],
+                    &[
+                        "ao2-control-plane-ingest-smoke-ubuntu-x86_64",
+                        "ao2-control-plane-ingest-smoke-macos-aarch64",
+                        "ao2-control-plane-ingest-smoke-windows-x86_64"
+                    ],
+                    "summary.json carries schema/status plus ingested evidence digests"
+                ),
                 "trust_boundary": {
                     "read_only": true,
                     "approves_release": false,
@@ -158,6 +184,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 "summary_path": "<target>.json",
                 "operator_action": "download-ci-artifact",
                 "purpose": "Proves packaged release archives install and run on each supported operating system.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "Release archive smoke (ubuntu-x86_64)",
+                        "Release archive smoke (macos-aarch64)",
+                        "Release archive smoke (windows-x86_64)"
+                    ],
+                    &[
+                        "ao2-control-plane-smoke-linux-x86_64",
+                        "ao2-control-plane-smoke-macos-aarch64",
+                        "ao2-control-plane-smoke-windows-x86_64"
+                    ],
+                    "<target>.json smoke summary carries schema/status plus archive digest and installed binary evidence"
+                ),
                 "trust_boundary": {
                     "read_only": true,
                     "approves_release": false,
@@ -174,6 +213,15 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 "summary_path": "dr-restore-report.json",
                 "operator_action": "download-ci-artifact",
                 "purpose": "Proves control-plane storage backup and restore behavior, including negative restore scenarios.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "Backup/restore drill"
+                    ],
+                    &[
+                        "ao2-control-plane-dr-restore"
+                    ],
+                    "dr-restore-report.json summary carries schema/status plus backup and restore evidence digests"
+                ),
                 "trust_boundary": {
                     "read_only": true,
                     "approves_release": false,
@@ -181,6 +229,25 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 }
             }
         ]
+    })
+}
+
+fn github_actions_provenance(
+    job_names: &[&str],
+    artifact_names: &[&str],
+    digest_reference: &str,
+) -> serde_json::Value {
+    json!({
+        "provider": "github-actions",
+        "workflow_file": ".github/workflows/ci.yml",
+        "workflow_name": "CI",
+        "run_id_source": "github_actions_run_id",
+        "run_url_template": "https://github.com/uesugitorachiyo/ao2-control-plane/actions/runs/<run_id>",
+        "artifact_download_url_template": "https://github.com/uesugitorachiyo/ao2-control-plane/actions/runs/<run_id>/artifacts",
+        "job_names": job_names,
+        "artifact_names": artifact_names,
+        "digest_reference": digest_reference,
+        "token_free": true
     })
 }
 

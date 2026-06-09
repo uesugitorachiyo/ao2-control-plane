@@ -485,6 +485,61 @@ def ci_evidence_index_semantic_failures(surface: Any) -> list[str]:
             failures.append(
                 f"ci_evidence_index.evidence_families.{family_id}.artifact_name_pattern: expected ao2-control-plane artifact pattern"
             )
+        provenance = family.get("ci_artifact_provenance")
+        if not isinstance(provenance, dict):
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance: expected object"
+            )
+        else:
+            if provenance.get("provider") != "github-actions":
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.provider: expected github-actions"
+                )
+            if provenance.get("workflow_file") != ".github/workflows/ci.yml":
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.workflow_file: expected .github/workflows/ci.yml"
+                )
+            if provenance.get("workflow_name") != "CI":
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.workflow_name: expected CI"
+                )
+            if provenance.get("run_id_source") != "github_actions_run_id":
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.run_id_source: expected github_actions_run_id"
+                )
+            if provenance.get("token_free") is not True:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.token_free: expected true"
+                )
+            job_names = provenance.get("job_names")
+            if not isinstance(job_names, list) or not job_names:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.job_names: expected non-empty array"
+                )
+            artifact_names = provenance.get("artifact_names")
+            if not isinstance(artifact_names, list) or not artifact_names:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.artifact_names: expected non-empty array"
+                )
+            elif not all(isinstance(name, str) and "ao2-control-plane" in name for name in artifact_names):
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.artifact_names: expected ao2-control-plane artifact names"
+                )
+            run_url_template = provenance.get("run_url_template")
+            if not isinstance(run_url_template, str) or "/actions/runs/<run_id>" not in run_url_template:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.run_url_template: expected GitHub Actions run template"
+                )
+            artifact_url_template = provenance.get("artifact_download_url_template")
+            if not isinstance(artifact_url_template, str) or "/actions/runs/<run_id>/artifacts" not in artifact_url_template:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.artifact_download_url_template: expected GitHub Actions artifact template"
+                )
+            digest_reference = provenance.get("digest_reference")
+            if not isinstance(digest_reference, str) or "summary" not in digest_reference:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.ci_artifact_provenance.digest_reference: expected summary digest reference"
+                )
         trust_boundary = family.get("trust_boundary")
         if not isinstance(trust_boundary, dict):
             failures.append(
