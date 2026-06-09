@@ -47,6 +47,12 @@ $RequiredSurfaceIds = @(
     'storage_support_bundle'
 )
 $EXPECTED_MANIFEST_SCHEMA = 'ao2.cp-release-support-bundle-manifest.v1'
+$RequiredCiEvidenceFamilyIds = @(
+    'risky-pr-golden-bridge-smoke',
+    'ingest-smoke',
+    'release-archive-smoke',
+    'backup-restore-drill'
+)
 # Operator-visible candidate-correlation field MUST be present at the top of
 # every embedded surface that exposes cross-evidence triage to the operator.
 # A downgraded server dropping the field would silently mask release/three_os/
@@ -444,6 +450,95 @@ function Get-ComparisonDiff {
     return @{ report = $report; failures = $diffFailures }
 }
 
+function Get-CiEvidenceIndexSemanticFailures {
+    param($Surface)
+    $semanticFailures = New-Object System.Collections.Generic.List[string]
+    if ($null -eq $Surface -or $Surface -isnot [pscustomobject]) {
+        $semanticFailures.Add("ci_evidence_index expected object")
+        return $semanticFailures
+    }
+    if ([string]$Surface.schema_version -ne 'ao2.cp-ci-evidence-index.v1') {
+        $semanticFailures.Add("ci_evidence_index.schema_version expected ao2.cp-ci-evidence-index.v1")
+    }
+    if ([string]$Surface.control_plane_role -ne 'read-only-observer') {
+        $semanticFailures.Add("ci_evidence_index.control_plane_role expected read-only-observer")
+    }
+    foreach ($fieldName in @('mutates_ao_artifacts', 'mutates_observer_storage', 'control_plane_approves_release')) {
+        if ($Surface.$fieldName -ne $false) {
+            $semanticFailures.Add("ci_evidence_index.$fieldName expected false")
+        }
+    }
+    $auth = $Surface.auth
+    if ($null -eq $auth -or $auth -isnot [pscustomobject]) {
+        $semanticFailures.Add("ci_evidence_index.auth expected object")
+    } else {
+        if ($auth.required -ne $true) {
+            $semanticFailures.Add("ci_evidence_index.auth.required expected true")
+        }
+        if ([string]$auth.scheme -ne 'bearer') {
+            $semanticFailures.Add("ci_evidence_index.auth.scheme expected bearer")
+        }
+        foreach ($fieldName in @('credential_material_included', 'credential_material_in_urls')) {
+            if ($auth.$fieldName -ne $false) {
+                $semanticFailures.Add("ci_evidence_index.auth.$fieldName expected false")
+            }
+        }
+    }
+    $endpoints = $Surface.endpoints
+    if ($null -eq $endpoints -or $endpoints -isnot [pscustomobject]) {
+        $semanticFailures.Add("ci_evidence_index.endpoints expected object")
+    } else {
+        if ([string]$endpoints.html -ne '/api/v1/ci/evidence-index') {
+            $semanticFailures.Add("ci_evidence_index.endpoints.html unexpected path")
+        }
+        if ([string]$endpoints.json -ne '/api/v1/ci/evidence-index.json') {
+            $semanticFailures.Add("ci_evidence_index.endpoints.json unexpected path")
+        }
+    }
+    $families = @()
+    if ($null -eq $Surface.PSObject.Properties['evidence_families']) {
+        $semanticFailures.Add("ci_evidence_index.evidence_families expected array")
+        return $semanticFailures
+    } else {
+        $families = @($Surface.evidence_families)
+    }
+    foreach ($familyId in $RequiredCiEvidenceFamilyIds) {
+        $familyMatches = @($families | Where-Object { ($null -ne $_) -and ([string]$_.id -eq $familyId) })
+        if ($familyMatches.Count -eq 0) {
+            $semanticFailures.Add("ci_evidence_index.evidence_families missing $familyId")
+            continue
+        }
+        $family = $familyMatches[0]
+        if ([string]$family.operator_action -ne 'download-ci-artifact') {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.operator_action expected download-ci-artifact")
+        }
+        $schemaVersions = @()
+        if ($null -ne $family.PSObject.Properties['schema_versions']) {
+            $schemaVersions = @($family.schema_versions)
+        }
+        if ($schemaVersions.Count -eq 0) {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.schema_versions expected non-empty array")
+        }
+        if (([string]$family.artifact_name_pattern) -notlike '*ao2-control-plane*') {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.artifact_name_pattern expected ao2-control-plane artifact pattern")
+        }
+        $trust = $family.trust_boundary
+        if ($null -eq $trust -or $trust -isnot [pscustomobject]) {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.trust_boundary expected object")
+            continue
+        }
+        if ($trust.read_only -ne $true) {
+            $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.trust_boundary.read_only expected true")
+        }
+        foreach ($fieldName in @('approves_release', 'mutates_ao_artifacts')) {
+            if ($trust.$fieldName -ne $false) {
+                $semanticFailures.Add("ci_evidence_index.evidence_families.$familyId.trust_boundary.$fieldName expected false")
+            }
+        }
+    }
+    return $semanticFailures
+}
+
 $rawBundle = Get-Content -Raw -LiteralPath $Path
 $bundle = $rawBundle | ConvertFrom-Json
 $bundleSha256 = Get-Sha256Canonical $bundle
@@ -594,6 +689,14 @@ foreach ($surface in $surfacesForDigestVerification) {
     $declaredSchema = [string]$surface.schema_version
     if (!(($declaredPath -eq $expectedPath) -and ($manifestSha -ne "missing") -and ($integritySha -ne "missing") -and ($manifestSha -eq $integritySha) -and ($manifestSha -eq $recomputedSha) -and ($declaredSchema -eq $embeddedSchema))) {
         $failures.Add("$id path=$declaredPath/$expectedPath manifest=$manifestSha integrity=$integritySha recomputed=$recomputedSha schema=$declaredSchema/$embeddedSchema")
+    }
+    if ($id -eq "ci_evidence_index") {
+        try {
+            $ciEvidenceSemanticFailures = Get-CiEvidenceIndexSemanticFailures -Surface (Get-Surface $bundle $id)
+            foreach ($failure in $ciEvidenceSemanticFailures) { $failures.Add($failure) }
+        } catch {
+            $failures.Add("ci_evidence_index.semantic_validation error $($_.Exception.Message)")
+        }
     }
 }
 

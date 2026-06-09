@@ -3016,6 +3016,52 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     assert_eq!(verifier_checksum_json["status"], "passed");
     assert_eq!(verifier_checksum_json["checksum_verified"], true);
 
+    let mut tampered_ci_bundle = download_body.clone();
+    tampered_ci_bundle["ci_evidence_index"]["evidence_families"] = serde_json::json!([]);
+    let tampered_ci_sha = sha256_of_canonical(&tampered_ci_bundle["ci_evidence_index"]).unwrap();
+    tampered_ci_bundle["portable_bundle_manifest"]["integrity"]["surface_sha256"]
+        ["ci_evidence_index"] = serde_json::json!(tampered_ci_sha);
+    for surface in tampered_ci_bundle["portable_bundle_manifest"]["included_surfaces"]
+        .as_array_mut()
+        .unwrap()
+    {
+        if surface["id"] == "ci_evidence_index" {
+            surface["sha256"] = serde_json::json!(tampered_ci_sha.clone());
+        }
+    }
+    let tampered_ci_bundle_path = verifier_dir
+        .path()
+        .join("release-support-bundle-ci-evidence-semantic-tamper.json");
+    fs::write(
+        &tampered_ci_bundle_path,
+        serde_json::to_string_pretty(&tampered_ci_bundle).unwrap(),
+    )
+    .unwrap();
+    let verifier_ci_semantic_fail = Command::new("python3")
+        .arg(&verifier)
+        .arg("--json")
+        .arg(&tampered_ci_bundle_path)
+        .output()
+        .expect("run python support-bundle verifier against CI evidence semantic tamper");
+    assert!(
+        !verifier_ci_semantic_fail.status.success(),
+        "verifier should reject semantically invalid CI evidence index even when its manifest digest is recomputed\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&verifier_ci_semantic_fail.stdout),
+        String::from_utf8_lossy(&verifier_ci_semantic_fail.stderr)
+    );
+    let verifier_ci_semantic_fail_json: serde_json::Value =
+        serde_json::from_slice(&verifier_ci_semantic_fail.stdout)
+            .expect("CI evidence semantic verifier failure emits machine-readable JSON");
+    assert_eq!(verifier_ci_semantic_fail_json["status"], "failed");
+    assert!(verifier_ci_semantic_fail_json["failures"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|failure| failure
+            .as_str()
+            .unwrap()
+            .contains("ci_evidence_index.evidence_families")));
+
     let mismatched_checksums_path = verifier_dir.path().join("SHA256SUMS.mismatch");
     fs::write(
         &mismatched_checksums_path,

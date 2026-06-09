@@ -49,6 +49,12 @@ EXPECTED_JSON_PATHS = {
 
 REQUIRED_SURFACE_IDS = tuple(EXPECTED_JSON_PATHS.keys())
 EXPECTED_MANIFEST_SCHEMA = "ao2.cp-release-support-bundle-manifest.v1"
+REQUIRED_CI_EVIDENCE_FAMILY_IDS = (
+    "risky-pr-golden-bridge-smoke",
+    "ingest-smoke",
+    "release-archive-smoke",
+    "backup-restore-drill",
+)
 # Operator-visible candidate-correlation field MUST be present at the top of
 # every embedded surface that exposes cross-evidence triage to the operator.
 # A downgraded server dropping the field would silently mask release/three_os/
@@ -415,6 +421,88 @@ def checksum_failures(checksums_path: Path, bundle_filename: str, bundle_sha256:
     return failures
 
 
+def ci_evidence_index_semantic_failures(surface: Any) -> list[str]:
+    failures: list[str] = []
+    if not isinstance(surface, dict):
+        return ["ci_evidence_index: expected object"]
+    if surface.get("schema_version") != "ao2.cp-ci-evidence-index.v1":
+        failures.append(
+            "ci_evidence_index.schema_version: expected ao2.cp-ci-evidence-index.v1"
+        )
+    if surface.get("control_plane_role") != "read-only-observer":
+        failures.append(
+            "ci_evidence_index.control_plane_role: expected read-only-observer"
+        )
+    for field_name in (
+        "mutates_ao_artifacts",
+        "mutates_observer_storage",
+        "control_plane_approves_release",
+    ):
+        if surface.get(field_name) is not False:
+            failures.append(f"ci_evidence_index.{field_name}: expected false")
+    auth = surface.get("auth")
+    if not isinstance(auth, dict):
+        failures.append("ci_evidence_index.auth: expected object")
+    else:
+        if auth.get("required") is not True:
+            failures.append("ci_evidence_index.auth.required: expected true")
+        if auth.get("scheme") != "bearer":
+            failures.append("ci_evidence_index.auth.scheme: expected bearer")
+        for field_name in ("credential_material_included", "credential_material_in_urls"):
+            if auth.get(field_name) is not False:
+                failures.append(f"ci_evidence_index.auth.{field_name}: expected false")
+    endpoints = surface.get("endpoints")
+    if not isinstance(endpoints, dict):
+        failures.append("ci_evidence_index.endpoints: expected object")
+    else:
+        if endpoints.get("html") != "/api/v1/ci/evidence-index":
+            failures.append("ci_evidence_index.endpoints.html: unexpected path")
+        if endpoints.get("json") != "/api/v1/ci/evidence-index.json":
+            failures.append("ci_evidence_index.endpoints.json: unexpected path")
+    families = surface.get("evidence_families")
+    if not isinstance(families, list):
+        failures.append("ci_evidence_index.evidence_families: expected array")
+        return failures
+    family_by_id = {
+        family.get("id"): family for family in families if isinstance(family, dict)
+    }
+    for family_id in REQUIRED_CI_EVIDENCE_FAMILY_IDS:
+        family = family_by_id.get(family_id)
+        if family is None:
+            failures.append(f"ci_evidence_index.evidence_families: missing {family_id}")
+            continue
+        if family.get("operator_action") != "download-ci-artifact":
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.operator_action: expected download-ci-artifact"
+            )
+        schema_versions = family.get("schema_versions")
+        if not isinstance(schema_versions, list) or not schema_versions:
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.schema_versions: expected non-empty array"
+            )
+        artifact_pattern = family.get("artifact_name_pattern")
+        if not isinstance(artifact_pattern, str) or "ao2-control-plane" not in artifact_pattern:
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.artifact_name_pattern: expected ao2-control-plane artifact pattern"
+            )
+        trust_boundary = family.get("trust_boundary")
+        if not isinstance(trust_boundary, dict):
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.trust_boundary: expected object"
+            )
+            continue
+        if trust_boundary.get("read_only") is not True:
+            failures.append(
+                f"ci_evidence_index.evidence_families.{family_id}.trust_boundary.read_only: expected true"
+            )
+        for field_name in ("approves_release", "mutates_ao_artifacts"):
+            if trust_boundary.get(field_name) is not False:
+                failures.append(
+                    f"ci_evidence_index.evidence_families.{family_id}.trust_boundary.{field_name}: expected false"
+                )
+    return failures
+
+
 def main(argv: list[str]) -> int:
     parsed = parse_args(argv)
     if parsed is None:
@@ -509,6 +597,11 @@ def main(argv: list[str]) -> int:
                 f"manifest={manifest_sha} integrity={integrity_sha} recomputed={recomputed_sha} "
                 f"schema={declared_schema!r}/{embedded_schema!r}"
             )
+        if surface_id == "ci_evidence_index":
+            try:
+                failures.extend(ci_evidence_index_semantic_failures(get_surface(bundle, surface_id)))
+            except Exception as exc:  # noqa: BLE001 - keep verifier fail-closed and compact.
+                failures.append(f"ci_evidence_index.semantic_validation: error {exc}")
 
     trust = bundle.get("trust_boundary", {})
     if trust.get("role") != "read_only_observer" or trust.get("mutates_ao_artifacts") is not False:
