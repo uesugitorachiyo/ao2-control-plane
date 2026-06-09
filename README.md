@@ -342,6 +342,15 @@ depending on a sibling AO2 checkout. Each CI job uploads the full smoke
 evidence directory, including `summary.json`, the JSON/HTML observer captures,
 and server stdout/stderr logs for triage.
 
+Operators can inspect the stable CI evidence contract from the authenticated
+CI evidence index at `/api/v1/ci/evidence-index.json`, or the HTML view at
+`/api/v1/ci/evidence-index`. The index schema is
+`ao2.cp-ci-evidence-index.v1`; it lists the Risky PR golden bridge smoke,
+ingest smoke, release archive smoke, and backup/restore drill artifact families
+with schema versions and trust-boundary metadata. It is read-only observer
+metadata and does not approve releases, mutate AO2 artifacts, or embed bearer
+material.
+
 ## Endpoints
 
 All `/api/v1/*` endpoints require `Authorization: Bearer $AO2_CP_API_TOKEN`.
@@ -484,6 +493,8 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `GET` | `/api/v1/control-plane/bundle` | List fleet/control-plane bundle evidence. |
 | `GET` | `/api/v1/control-plane/bundle/:sha` | Fetch original fleet/control-plane bundle by canonical SHA-256. |
 | `GET` | `/api/v1/control-plane/routes.json` | Fetch the token-free route index for Hermes/front-end discovery of read-only observer, portable download, signed evidence/memory, and factory-v3 evaluator-owned surfaces. The index includes a `portable_artifacts` section that groups gap reports and support bundles with JSON, download, checksum, manifest, and verification links so schedulers do not need to infer handoff bundles from the full route list. The index is regression-tested against frontend-relevant static routes to reduce discovery drift without placing credentials in URLs. |
+| `GET` | `/api/v1/ci/evidence-index` | Render an authenticated read-only HTML index of production-readiness CI evidence families, including bridge, ingest, release archive, and backup/restore artifacts. |
+| `GET` | `/api/v1/ci/evidence-index.json` | Fetch the machine-readable `ao2.cp-ci-evidence-index.v1` contract for CI evidence artifact names, schema versions, and read-only trust-boundary metadata. |
 | `POST` | `/api/v1/evidence-pack/signed` | Verify and ingest a signed `ao2.evidence-pack.v1` observer wrapper, storing signature metadata as a sidecar. |
 | `GET` | `/api/v1/evidence-pack` | List ingested AO2 evidence packs. |
 | `GET` | `/api/v1/evidence-pack/dashboard` | Render an authenticated read-only dashboard for signed AO2 evidence packs. |

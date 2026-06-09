@@ -12,6 +12,7 @@ SMOKE_SCRIPT = REPO_ROOT / "scripts" / "smoke-long-lived-dev.sh"
 RISKY_PR_GOLDEN_BRIDGE_SMOKE = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.sh"
 RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.py"
 RISKY_PR_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "risky-pr-golden-artifact-manifest.json"
+CI_EVIDENCE_HANDLER = REPO_ROOT / "crates" / "ao2-cp-server" / "src" / "handlers" / "ci_evidence.rs"
 
 
 def test_ci_runs_on_public_push_and_pull_request():
@@ -208,6 +209,35 @@ def test_risky_pr_golden_bridge_ci_artifact_uploads_complete_evidence_directory(
         '"artifact-manifest.html"',
     ]:
         assert needle in script
+
+
+def test_ci_evidence_index_is_documented_and_token_safe():
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
+    handler = CI_EVIDENCE_HANDLER.read_text(encoding="utf-8")
+
+    for needle in [
+        "/api/v1/ci/evidence-index",
+        "/api/v1/ci/evidence-index.json",
+        "ao2.cp-ci-evidence-index.v1",
+        "risky-pr-golden-bridge-smoke",
+        "ingest-smoke",
+        "release-archive-smoke",
+        "backup-restore-drill",
+        "read-only-observer",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+        "credential_material_included",
+        "credential_material_in_urls",
+    ]:
+        assert needle in handler
+
+    assert "Bearer secret" not in handler
+    assert "/api/v1/ci/evidence-index" in readme
+    assert "/api/v1/ci/evidence-index.json" in readme
+    assert "ao2.cp-ci-evidence-index.v1" in readme
+    assert "/api/v1/ci/evidence-index.json" in release_smoke
+    assert "ao2.cp-ci-evidence-index.v1" in release_smoke
 
 
 def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():

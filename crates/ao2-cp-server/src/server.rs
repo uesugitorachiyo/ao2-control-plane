@@ -202,6 +202,14 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             get(handlers::control_plane::route_index),
         )
         .route(
+            "/ci/evidence-index",
+            get(handlers::ci_evidence::ci_evidence_index),
+        )
+        .route(
+            "/ci/evidence-index.json",
+            get(handlers::ci_evidence::ci_evidence_index_json),
+        )
+        .route(
             "/evidence-pack",
             get(handlers::evidence_pack::list_evidence_packs),
         )
