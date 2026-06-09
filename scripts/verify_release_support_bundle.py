@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 SURFACE_PATHS = {
+    "ci_evidence_index": ["ci_evidence_index"],
     "release_assembly": ["release_assembly"],
     "release_readiness": ["readiness"],
     "release_candidate_handoff": ["handoff"],
@@ -37,6 +38,7 @@ SURFACE_PATHS = {
 }
 
 EXPECTED_JSON_PATHS = {
+    "ci_evidence_index": "$.ci_evidence_index",
     "release_assembly": "$.release_assembly",
     "release_readiness": "$.readiness",
     "release_candidate_handoff": "$.handoff",

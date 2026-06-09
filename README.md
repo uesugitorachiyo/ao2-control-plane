@@ -482,10 +482,10 @@ pwsh -File scripts/Verify-ReleaseSupportBundle.ps1 -Checksums target/release-han
 
 The helper fetches `/api/v1/release/support-bundle/handoff.json`, the portable bundle, checksums, verifier JSON, and manifest JSON into the output directory. It reads the bearer value from `AO2_CP_AUTH_VALUE`, writes a sanitized `fetch-summary.json`, and records `auth_value_stored=false`; do not paste bearer values into command-line arguments or committed artifacts.
 
-The offline verifier requires exactly the six required surfaces (assembly,
-readiness, handoff, cockpit, evaluator decision, and storage support), matching
-manifest and integrity digests, expected JSON paths, and a read-only trust
-boundary. The optional JSON mode is intended for Hermes/scheduler ingestion: it
+The offline verifier requires exactly the seven required surfaces (CI evidence
+index, assembly, readiness, handoff, cockpit, evaluator decision, and storage
+support), matching manifest and integrity digests, expected JSON paths, and a
+read-only trust boundary. The optional JSON mode is intended for Hermes/scheduler ingestion: it
 preserves the verifier exit code, includes `failures` on rejection, and repeats
 `control_plane_role=read_only_observer` plus
 `release_acceptance_owner=factory-v3 evaluator-closer` so automation does not

@@ -96,7 +96,7 @@ pub async fn ci_evidence_index() -> Response {
         .into_response()
 }
 
-fn ci_evidence_index_value() -> serde_json::Value {
+pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
     json!({
         "schema_version": CI_EVIDENCE_INDEX_SCHEMA,
         "status": "indexed",

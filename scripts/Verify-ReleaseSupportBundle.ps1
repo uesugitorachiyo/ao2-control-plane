@@ -18,6 +18,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $SurfacePaths = @{
+    ci_evidence_index = @("ci_evidence_index")
     release_assembly = @("release_assembly")
     release_readiness = @("readiness")
     release_candidate_handoff = @("handoff")
@@ -27,6 +28,7 @@ $SurfacePaths = @{
 }
 
 $ExpectedJsonPaths = @{
+    ci_evidence_index = '$.ci_evidence_index'
     release_assembly = '$.release_assembly'
     release_readiness = '$.readiness'
     release_candidate_handoff = '$.handoff'
@@ -36,6 +38,7 @@ $ExpectedJsonPaths = @{
 }
 
 $RequiredSurfaceIds = @(
+    'ci_evidence_index',
     'release_assembly',
     'release_readiness',
     'release_candidate_handoff',
