@@ -53,6 +53,13 @@ PHASE1_PORTABLE_ENDPOINTS = {
 
 PHASE1_PORTABLE_VERIFY_ENDPOINT = "/api/v1/phase1/promotion/portable-manifest/verify.json"
 
+REQUIRED_CI_EVIDENCE_FAMILY_IDS = (
+    "risky-pr-golden-bridge-smoke",
+    "ingest-smoke",
+    "release-archive-smoke",
+    "backup-restore-drill",
+)
+
 
 def canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -211,6 +218,94 @@ def run_offline_verifier(out_dir: Path, verifier: Path | None) -> dict[str, Any]
     }
 
 
+def ci_evidence_index_summary(out_dir: Path, offline_verifier: dict[str, Any]) -> dict[str, Any]:
+    bundle_path = out_dir / "release-support-bundle.json"
+    if not bundle_path.exists():
+        return {
+            "verified": False,
+            "status": "missing_bundle",
+            "surface_count": 0,
+            "family_count": 0,
+            "required_family_count": len(REQUIRED_CI_EVIDENCE_FAMILY_IDS),
+            "required_families_present": False,
+            "token_hygiene_status": "failed",
+            "failures": ["release-support-bundle.json not found"],
+        }
+    failures: list[str] = []
+    bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    manifest = bundle.get("portable_bundle_manifest", {})
+    surfaces = manifest.get("included_surfaces", [])
+    surface_count = len(surfaces) if isinstance(surfaces, list) else 0
+    if not any(isinstance(surface, dict) and surface.get("id") == "ci_evidence_index" for surface in surfaces):
+        failures.append("portable_bundle_manifest.included_surfaces missing ci_evidence_index")
+    ci_index = bundle.get("ci_evidence_index")
+    if not isinstance(ci_index, dict):
+        return {
+            "verified": False,
+            "status": "missing_ci_evidence_index",
+            "surface_count": surface_count,
+            "family_count": 0,
+            "required_family_count": len(REQUIRED_CI_EVIDENCE_FAMILY_IDS),
+            "required_families_present": False,
+            "token_hygiene_status": "failed",
+            "offline_verifier_status": offline_verifier.get("status"),
+            "failures": ["ci_evidence_index missing from release support bundle"],
+        }
+
+    schema_version = ci_index.get("schema_version")
+    if schema_version != "ao2.cp-ci-evidence-index.v1":
+        failures.append("ci_evidence_index schema_version is not ao2.cp-ci-evidence-index.v1")
+    control_plane_role = ci_index.get("control_plane_role")
+    if control_plane_role != "read-only-observer":
+        failures.append("ci_evidence_index control_plane_role is not read-only-observer")
+    if ci_index.get("mutates_ao_artifacts") is not False:
+        failures.append("ci_evidence_index mutates_ao_artifacts must remain false")
+    if ci_index.get("control_plane_approves_release") is not False:
+        failures.append("ci_evidence_index control_plane_approves_release must remain false")
+
+    families = ci_index.get("evidence_families", [])
+    if not isinstance(families, list):
+        families = []
+        failures.append("ci_evidence_index.evidence_families is not an array")
+    family_ids = {family.get("id") for family in families if isinstance(family, dict)}
+    missing_families = [
+        family_id for family_id in REQUIRED_CI_EVIDENCE_FAMILY_IDS if family_id not in family_ids
+    ]
+    if missing_families:
+        failures.append(f"ci_evidence_index missing required families: {', '.join(missing_families)}")
+
+    auth = ci_index.get("auth", {})
+    token_hygiene_ok = (
+        isinstance(auth, dict)
+        and auth.get("credential_material_included") is False
+        and auth.get("credential_material_in_urls") is False
+        and not secret_marker_failures(bundle_path)
+    )
+    if not token_hygiene_ok:
+        failures.append("ci_evidence_index token hygiene check failed")
+
+    offline_status = offline_verifier.get("status")
+    ci_verified = not failures
+    return {
+        "verified": ci_verified,
+        "status": "passed" if ci_verified else "failed",
+        "schema_version": schema_version,
+        "surface_count": surface_count,
+        "family_count": len(families),
+        "required_family_count": len(REQUIRED_CI_EVIDENCE_FAMILY_IDS),
+        "required_families_present": not missing_families,
+        "missing_families": missing_families,
+        "token_hygiene_status": "passed" if token_hygiene_ok else "failed",
+        "auth_credential_material_included": auth.get("credential_material_included") if isinstance(auth, dict) else None,
+        "auth_credential_material_in_urls": auth.get("credential_material_in_urls") if isinstance(auth, dict) else None,
+        "control_plane_role": control_plane_role,
+        "mutates_ao_artifacts": ci_index.get("mutates_ao_artifacts"),
+        "control_plane_approves_release": ci_index.get("control_plane_approves_release"),
+        "offline_verifier_status": offline_status,
+        "failures": failures,
+    }
+
+
 def validate_handoff(out_dir: Path) -> list[str]:
     failures: list[str] = []
     handoff_path = out_dir / "release-support-verifier-handoff.json"
@@ -268,12 +363,30 @@ def main(argv: list[str]) -> int:
         "status": "failed",
         "fetched": [],
         "offline_verifier": {"status": "not_run"},
+        "ci_evidence_index_verified": False,
+        "ci_evidence_index_surface_count": 0,
+        "ci_evidence_index_family_count": 0,
+        "ci_evidence_index_token_hygiene_status": "not_run",
+        "ci_evidence_index": {
+            "verified": False,
+            "status": "not_run",
+            "surface_count": 0,
+            "family_count": 0,
+            "required_family_count": len(REQUIRED_CI_EVIDENCE_FAMILY_IDS),
+            "required_families_present": False,
+            "token_hygiene_status": "not_run",
+        },
         "phase1_portable_handoff": {"status": "not_requested"},
         "failures": [],
     }
     try:
         summary["fetched"] = write_fetches(args.base_url, args.out_dir, authorization, args.keep_latest, args.timeout)
         summary["offline_verifier"] = run_offline_verifier(args.out_dir, args.verifier)
+        summary["ci_evidence_index"] = ci_evidence_index_summary(args.out_dir, summary["offline_verifier"])
+        summary["ci_evidence_index_verified"] = summary["ci_evidence_index"]["verified"]
+        summary["ci_evidence_index_surface_count"] = summary["ci_evidence_index"]["surface_count"]
+        summary["ci_evidence_index_family_count"] = summary["ci_evidence_index"]["family_count"]
+        summary["ci_evidence_index_token_hygiene_status"] = summary["ci_evidence_index"]["token_hygiene_status"]
         if args.include_phase1_portable:
             summary["phase1_portable_handoff"] = write_phase1_portable_handoff(
                 args.base_url,
@@ -285,6 +398,8 @@ def main(argv: list[str]) -> int:
         failures = validate_handoff(args.out_dir)
         if summary["offline_verifier"].get("status") == "failed":
             failures.append("offline verifier failed")
+        if summary["ci_evidence_index"].get("status") == "failed":
+            failures.append("CI evidence index verification failed")
         if summary["phase1_portable_handoff"].get("status") == "failed":
             failures.append("phase1 portable manifest verification failed")
         summary["failures"] = failures
@@ -300,6 +415,7 @@ def main(argv: list[str]) -> int:
         "out_dir": str(args.out_dir),
         "fetched_files": [item["filename"] for item in summary.get("fetched", [])],
         "offline_verifier_status": summary.get("offline_verifier", {}).get("status"),
+        "ci_evidence_index_verified": summary.get("ci_evidence_index_verified"),
         "phase1_portable_handoff_status": summary.get("phase1_portable_handoff", {}).get("status"),
         "failures": summary.get("failures", []),
     }
