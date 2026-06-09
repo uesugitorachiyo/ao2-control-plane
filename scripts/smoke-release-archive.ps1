@@ -163,6 +163,12 @@ try {
     if ($ReleaseReadiness.schema_version -ne "ao2.cp-release-readiness.v1") { throw "unexpected release readiness schema: $($ReleaseReadiness.schema_version)" }
     if ($ReleaseReadiness.operator_decision.factory_v3_evaluator_closer_required -ne $true) { throw "release readiness must require evaluator-closer" }
     if ($ReleaseReadiness.operator_decision.control_plane_approves_release -ne $false) { throw "control plane must not approve release" }
+    if ($ReleaseReadiness.install_verification.schema_version -ne "ao2.install-verification-evidence.v1") { throw "release readiness missing install verification schema" }
+    if ($ReleaseReadiness.install_verification.status -ne "verified") { throw "release readiness install verification must be verified" }
+    if ($ReleaseReadiness.install_verification.offline_verification_status -ne "verified") { throw "release readiness install offline verification must be verified" }
+    if ($ReleaseReadiness.install_verification.provider_api_keys_required -ne $false) { throw "release readiness install verification must not require provider API keys" }
+    if ($ReleaseReadiness.install_verification.control_plane_approves_release -ne $false) { throw "release readiness install verification must not approve release" }
+    if ($ReleaseReadiness.install_verification.mutates_ao_artifacts -ne $false) { throw "release readiness install verification must not mutate AO artifacts" }
     $ReadinessCorrelationStatus = [string]$ReleaseReadiness.candidate_correlation.status
     if (-not @("matched","mismatched","missing") -contains $ReadinessCorrelationStatus) { throw "release readiness candidate_correlation.status unexpected: $ReadinessCorrelationStatus" }
     if ($null -eq $ReleaseReadiness.candidate_correlation.blockers) { throw "release readiness candidate_correlation missing blockers" }
@@ -182,14 +188,18 @@ try {
     if ($ReleaseSupportBundle.operator_handoff.release_acceptance_owner -ne "factory-v3 evaluator-closer") { throw "release support bundle must defer acceptance to evaluator-closer" }
     if ($ReleaseSupportBundle.release_assembly.schema_version -ne "ao2.cp-release-assembly.v1") { throw "release support bundle missing release assembly schema" }
     if ($ReleaseSupportBundle.release_assembly.control_plane_approves_release -ne $false) { throw "release support bundle assembly must not approve release" }
+    if ($ReleaseSupportBundle.install_verification.schema_version -ne "ao2.install-verification-evidence.v1") { throw "release support bundle missing install verification schema" }
+    if ($ReleaseSupportBundle.install_verification.status -ne "verified") { throw "release support bundle install verification must be verified" }
+    if ($ReleaseSupportBundle.install_verification.offline_verification_status -ne "verified") { throw "release support bundle install offline verification must be verified" }
     $AssemblyCorrelationStatus = [string]$ReleaseSupportBundle.release_assembly.candidate_correlation_detail.status
     if (-not @("matched","mismatched","missing") -contains $AssemblyCorrelationStatus) { throw "release assembly candidate_correlation_detail.status unexpected: $AssemblyCorrelationStatus" }
     if ($null -eq $ReleaseSupportBundle.release_assembly.candidate_correlation_detail.blockers) { throw "release assembly candidate_correlation_detail missing blockers" }
     if ($ReleaseSupportBundle.portable_bundle_manifest.schema_version -ne $EXPECTED_MANIFEST_SCHEMA) { throw "release support bundle portable_bundle_manifest.schema_version expected $EXPECTED_MANIFEST_SCHEMA, got $($ReleaseSupportBundle.portable_bundle_manifest.schema_version)" }
     if (-not ($ReleaseSupportBundle.portable_bundle_manifest.included_surfaces | Where-Object { $_.id -eq "release_readiness" })) { throw "release support bundle missing readiness surface" }
+    if (-not ($ReleaseSupportBundle.portable_bundle_manifest.included_surfaces | Where-Object { $_.id -eq "install_verification" -and $_.path -eq '$.install_verification' -and $_.schema_version -eq "ao2.install-verification-evidence.v1" })) { throw "release support bundle missing install verification surface" }
     if ($ReleaseSupportBundle.portable_bundle_manifest.integrity.algorithm -ne "sha256-ao2-cp-canonical-json-v1") { throw "release support bundle missing canonical digest algorithm" }
     if ($ReleaseSupportBundle.portable_bundle_manifest.integrity.scope -ne "embedded_support_bundle_surfaces") { throw "release support bundle integrity scope mismatch" }
-    foreach ($SurfaceName in @("release_assembly", "release_readiness", "release_candidate_handoff", "release_cockpit", "storage_support_bundle")) {
+    foreach ($SurfaceName in @("release_assembly", "release_readiness", "release_candidate_handoff", "release_cockpit", "install_verification", "storage_support_bundle")) {
         $Digest = $ReleaseSupportBundle.portable_bundle_manifest.integrity.surface_sha256.$SurfaceName
         if ($Digest -notmatch '^[0-9a-f]{64}$') { throw "release support bundle digest for $SurfaceName is not sha256 hex" }
     }
