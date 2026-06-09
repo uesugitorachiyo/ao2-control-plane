@@ -9,6 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = REPO_ROOT / "scripts" / "start-long-lived-dev.sh"
 SMOKE_SCRIPT = REPO_ROOT / "scripts" / "smoke-long-lived-dev.sh"
+RISKY_PR_GOLDEN_BRIDGE_SMOKE = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.sh"
 
 
 def test_ci_runs_on_public_push_and_pull_request():
@@ -117,6 +118,37 @@ def test_long_lived_dev_smoke_script_is_token_safe_and_checks_once_bootstrap(tmp
     assert payload["trust_boundary"]["provider_api_keys_allowed"] is False
     assert payload["trust_boundary"]["token_printed"] is False
     assert {check["status"] for check in payload["checks"]} == {"passed"}
+
+
+def test_risky_pr_golden_bridge_smoke_is_token_safe_and_documented():
+    script = RISKY_PR_GOLDEN_BRIDGE_SMOKE.read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
+
+    assert RISKY_PR_GOLDEN_BRIDGE_SMOKE.is_file()
+    assert RISKY_PR_GOLDEN_BRIDGE_SMOKE.stat().st_mode & stat.S_IXUSR
+
+    for needle in [
+        "ao2.cp-risky-pr-golden-bridge-smoke.v1",
+        "AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST",
+        "target/risky-pr-golden-control-plane-bridge/artifact-manifest.json",
+        "/api/v1/risky-pr/golden/artifact-manifest.json",
+        "/api/v1/risky-pr/golden/artifact-manifest",
+        "ao2.cp-risky-pr-golden-artifact-manifest-observer.v1",
+        "read-only-observer",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+        "credential_material_included",
+        "env -u OPENAI_API_KEY -u ANTHROPIC_API_KEY",
+        "Authorization: Bearer",
+        "token not in",
+    ]:
+        assert needle in script
+
+    assert "AO2_CP_API_TOKEN=" not in script
+    assert "Bearer $TOKEN" not in script
+    assert "scripts/smoke-risky-pr-golden-bridge.sh" in readme
+    assert "scripts/smoke-risky-pr-golden-bridge.sh" in release_smoke
 
 
 def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():

@@ -318,6 +318,22 @@ is downloaded locally. `/api/v1/risky-pr/golden/artifact-manifest.json` wraps th
 HTML operator view. These routes never store the manifest, expose bearer
 material, approve releases, or mutate AO2 artifacts.
 
+For an end-to-end local bridge smoke, first generate the AO2-side bridge
+manifest into this repository, then run the control-plane observer smoke:
+
+```bash
+(cd ../ao2 && npm run risky-pr:control-plane-bridge -- --control-plane-root ../ao2-control-plane)
+scripts/smoke-risky-pr-golden-bridge.sh
+```
+
+The smoke starts a local `ao2-cp-server` with
+`AO2_CP_RISKY_PR_GOLDEN_ARTIFACT_MANIFEST` pointing at
+`target/risky-pr-golden-control-plane-bridge/artifact-manifest.json`, fetches the
+JSON and HTML observer endpoints with `Authorization: Bearer` headers only, and
+writes a token-free `ao2.cp-risky-pr-golden-bridge-smoke.v1` summary under
+`target/`. It is observer-only: it does not approve releases, mutate AO2
+artifacts, persist the manifest, or allow provider API keys.
+
 ## Endpoints
 
 All `/api/v1/*` endpoints require `Authorization: Bearer $AO2_CP_API_TOKEN`.
