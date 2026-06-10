@@ -55,6 +55,7 @@ PHASE1_PORTABLE_VERIFY_ENDPOINT = "/api/v1/phase1/promotion/portable-manifest/ve
 
 REQUIRED_CI_EVIDENCE_FAMILY_IDS = (
     "risky-pr-golden-bridge-smoke",
+    "release-train-bridge-smoke",
     "ingest-smoke",
     "release-archive-smoke",
     "backup-restore-drill",

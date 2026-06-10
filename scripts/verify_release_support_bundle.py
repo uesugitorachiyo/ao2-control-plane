@@ -55,6 +55,7 @@ REQUIRED_SURFACE_IDS = tuple(EXPECTED_JSON_PATHS.keys())
 EXPECTED_MANIFEST_SCHEMA = "ao2.cp-release-support-bundle-manifest.v1"
 REQUIRED_CI_EVIDENCE_FAMILY_IDS = (
     "risky-pr-golden-bridge-smoke",
+    "release-train-bridge-smoke",
     "ingest-smoke",
     "release-archive-smoke",
     "backup-restore-drill",

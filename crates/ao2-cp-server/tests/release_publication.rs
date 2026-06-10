@@ -3318,14 +3318,14 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     assert_eq!(fetch_summary["status"], "passed");
     assert_eq!(fetch_summary["ci_evidence_index_verified"], true);
     assert_eq!(fetch_summary["ci_evidence_index_surface_count"], 9);
-    assert_eq!(fetch_summary["ci_evidence_index_family_count"], 4);
+    assert_eq!(fetch_summary["ci_evidence_index_family_count"], 5);
     assert_eq!(
         fetch_summary["ci_evidence_index_token_hygiene_status"],
         "passed"
     );
     assert_eq!(
         fetch_summary["ci_evidence_index"]["required_family_count"],
-        4
+        5
     );
     assert_eq!(
         fetch_summary["ci_evidence_index"]["required_families_present"],

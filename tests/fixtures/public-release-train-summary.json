@@ -1,0 +1,55 @@
+{
+  "artifact_root": "/tmp/ao2-release-train-fixture/latest",
+  "checks": [
+    {
+      "exit_code": 0,
+      "name": "release_evidence_closure",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "release_readiness_static",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "release_readiness_regression_gate",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "retention_preflight",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "artifact_consumer",
+      "status": "passed"
+    },
+    {
+      "exit_code": 0,
+      "name": "post_merge_canary",
+      "status": "passed"
+    }
+  ],
+  "component_summaries": {
+    "release_readiness_static": "target/public-release-train-drill/latest/release-readiness-static/summary.json"
+  },
+  "generated_at": "2026-06-10T00:00:00Z",
+  "publish_guards": {
+    "refuses_publish_side_effects_by_default": true,
+    "tag_push_publish_deploy": "not executed by this drill"
+  },
+  "release_readiness_artifact_consumer_contract": {
+    "check_detail": "downloads ao2-release-readiness and validates schema/status/core cross-OS checks",
+    "release_readiness_status": "passed",
+    "required_check": "ci_release_readiness_artifact_consumer_job",
+    "status": "passed"
+  },
+  "schema_version": "ao2.public-release-train-drill.v1",
+  "status": "passed",
+  "trust_boundary": {
+    "local_only": true,
+    "stores_credentials": false
+  }
+}

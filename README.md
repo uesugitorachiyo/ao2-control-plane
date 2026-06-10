@@ -352,16 +352,28 @@ depending on a sibling AO2 checkout. Each CI job uploads the full smoke
 evidence directory, including `summary.json`, the JSON/HTML observer captures,
 and server stdout/stderr logs for triage.
 
+CI also runs a fixture-backed release-train bridge smoke across Ubuntu, macOS,
+and Windows via `scripts/smoke-release-train-bridge.py` and
+`tests/fixtures/public-release-train-summary.json`. The smoke starts a local
+server with `AO2_CP_RELEASE_TRAIN_SUMMARY`, fetches
+`/api/v1/release/train.json` and `/api/v1/release/train`, verifies
+`ao2.cp-release-train-readback.v1` over the AO2
+`ao2.public-release-train-drill.v1` summary, and uploads the full token-free
+evidence directory. It checks that local absolute paths are redacted and that
+the control plane remains a read-only observer with no release approval or
+artifact mutation authority.
+
 Operators can inspect the stable CI evidence contract from the authenticated
 CI evidence index at `/api/v1/ci/evidence-index.json`, or the HTML view at
 `/api/v1/ci/evidence-index`. The index schema is
 `ao2.cp-ci-evidence-index.v1`; it lists the Risky PR golden bridge smoke,
-ingest smoke, release archive smoke, and backup/restore drill artifact families
-with schema versions and trust-boundary metadata. It is read-only observer
-metadata and does not approve releases, mutate AO2 artifacts, or embed bearer
-material. The route index also advertises this under `portable_artifacts` as
-`ci_evidence_index` so schedulers and dashboards can discover the HTML and JSON
-surfaces without hard-coding endpoint paths.
+release-train bridge smoke, ingest smoke, release archive smoke, and
+backup/restore drill artifact families with schema versions and trust-boundary
+metadata. It is read-only observer metadata and does not approve releases,
+mutate AO2 artifacts, or embed bearer material. The route index also advertises
+this under `portable_artifacts` as `ci_evidence_index` so schedulers and
+dashboards can discover the HTML and JSON surfaces without hard-coding endpoint
+paths.
 
 ## Endpoints
 
