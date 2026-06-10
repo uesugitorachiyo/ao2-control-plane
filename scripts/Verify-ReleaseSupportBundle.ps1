@@ -25,6 +25,7 @@ $SurfacePaths = @{
     release_cockpit = @("cockpit")
     release_evaluator_decision = @("evaluator_decision")
     install_verification = @("install_verification")
+    hosted_release_smoke = @("hosted_release_smoke")
     storage_support_bundle = @("storage_support")
 }
 
@@ -36,6 +37,7 @@ $ExpectedJsonPaths = @{
     release_cockpit = '$.cockpit'
     release_evaluator_decision = '$.evaluator_decision'
     install_verification = '$.install_verification'
+    hosted_release_smoke = '$.hosted_release_smoke'
     storage_support_bundle = '$.storage_support'
 }
 
@@ -47,6 +49,7 @@ $RequiredSurfaceIds = @(
     'release_cockpit',
     'release_evaluator_decision',
     'install_verification',
+    'hosted_release_smoke',
     'storage_support_bundle'
 )
 $EXPECTED_MANIFEST_SCHEMA = 'ao2.cp-release-support-bundle-manifest.v1'
@@ -587,6 +590,36 @@ function Get-CiEvidenceIndexSemanticFailures {
     return $semanticFailures
 }
 
+function Get-HostedReleaseSmokeSemanticFailures {
+    param($Surface)
+    $semanticFailures = New-Object System.Collections.Generic.List[string]
+    if ($null -eq $Surface -or $Surface -isnot [pscustomobject]) {
+        $semanticFailures.Add("hosted_release_smoke expected object")
+        return $semanticFailures
+    }
+    if ([string]$Surface.schema_version -ne 'ao2.release-archive-hosted-smoke.v1') {
+        $semanticFailures.Add("hosted_release_smoke.schema_version expected ao2.release-archive-hosted-smoke.v1")
+    }
+    if ([string]$Surface.status -ne 'passed') {
+        $semanticFailures.Add("hosted_release_smoke.status expected passed")
+    }
+    if ([string]$Surface.install_verification_schema -ne 'ao2.install-verification-evidence.v1') {
+        $semanticFailures.Add("hosted_release_smoke.install_verification_schema expected ao2.install-verification-evidence.v1")
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$Surface.install_verification_evidence)) {
+        $semanticFailures.Add("hosted_release_smoke.install_verification_evidence expected non-empty string")
+    }
+    foreach ($fieldName in @('provider_api_keys_required', 'control_plane_approves_release', 'mutates_ao_artifacts')) {
+        if ($Surface.$fieldName -ne $false) {
+            $semanticFailures.Add("hosted_release_smoke.$fieldName expected false")
+        }
+    }
+    if ([string]$Surface.release_acceptance_owner -ne 'factory-v3 evaluator-closer') {
+        $semanticFailures.Add("hosted_release_smoke.release_acceptance_owner expected factory-v3 evaluator-closer")
+    }
+    return $semanticFailures
+}
+
 $rawBundle = Get-Content -Raw -LiteralPath $Path
 $bundle = $rawBundle | ConvertFrom-Json
 $bundleSha256 = Get-Sha256Canonical $bundle
@@ -744,6 +777,14 @@ foreach ($surface in $surfacesForDigestVerification) {
             foreach ($failure in $ciEvidenceSemanticFailures) { $failures.Add($failure) }
         } catch {
             $failures.Add("ci_evidence_index.semantic_validation error $($_.Exception.Message)")
+        }
+    }
+    if ($id -eq "hosted_release_smoke") {
+        try {
+            $hostedReleaseSmokeSemanticFailures = Get-HostedReleaseSmokeSemanticFailures -Surface (Get-Surface $bundle $id)
+            foreach ($failure in $hostedReleaseSmokeSemanticFailures) { $failures.Add($failure) }
+        } catch {
+            $failures.Add("hosted_release_smoke.semantic_validation error $($_.Exception.Message)")
         }
     }
 }

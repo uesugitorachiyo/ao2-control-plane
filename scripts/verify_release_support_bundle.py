@@ -35,6 +35,7 @@ SURFACE_PATHS = {
     "release_cockpit": ["cockpit"],
     "release_evaluator_decision": ["evaluator_decision"],
     "install_verification": ["install_verification"],
+    "hosted_release_smoke": ["hosted_release_smoke"],
     "storage_support_bundle": ["storage_support"],
 }
 
@@ -46,6 +47,7 @@ EXPECTED_JSON_PATHS = {
     "release_cockpit": "$.cockpit",
     "release_evaluator_decision": "$.evaluator_decision",
     "install_verification": "$.install_verification",
+    "hosted_release_smoke": "$.hosted_release_smoke",
     "storage_support_bundle": "$.storage_support",
 }
 
@@ -560,6 +562,40 @@ def ci_evidence_index_semantic_failures(surface: Any) -> list[str]:
     return failures
 
 
+def hosted_release_smoke_semantic_failures(surface: Any) -> list[str]:
+    failures: list[str] = []
+    if not isinstance(surface, dict):
+        return ["hosted_release_smoke: expected object"]
+    if surface.get("schema_version") != "ao2.release-archive-hosted-smoke.v1":
+        failures.append(
+            "hosted_release_smoke.schema_version: expected ao2.release-archive-hosted-smoke.v1"
+        )
+    if surface.get("status") != "passed":
+        failures.append("hosted_release_smoke.status: expected passed")
+    if surface.get("install_verification_schema") != "ao2.install-verification-evidence.v1":
+        failures.append(
+            "hosted_release_smoke.install_verification_schema: expected ao2.install-verification-evidence.v1"
+        )
+    if not isinstance(surface.get("install_verification_evidence"), str) or not surface.get(
+        "install_verification_evidence"
+    ):
+        failures.append(
+            "hosted_release_smoke.install_verification_evidence: expected non-empty string"
+        )
+    for field_name in (
+        "provider_api_keys_required",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+    ):
+        if surface.get(field_name) is not False:
+            failures.append(f"hosted_release_smoke.{field_name}: expected false")
+    if surface.get("release_acceptance_owner") != "factory-v3 evaluator-closer":
+        failures.append(
+            "hosted_release_smoke.release_acceptance_owner: expected factory-v3 evaluator-closer"
+        )
+    return failures
+
+
 def main(argv: list[str]) -> int:
     parsed = parse_args(argv)
     if parsed is None:
@@ -659,6 +695,11 @@ def main(argv: list[str]) -> int:
                 failures.extend(ci_evidence_index_semantic_failures(get_surface(bundle, surface_id)))
             except Exception as exc:  # noqa: BLE001 - keep verifier fail-closed and compact.
                 failures.append(f"ci_evidence_index.semantic_validation: error {exc}")
+        if surface_id == "hosted_release_smoke":
+            try:
+                failures.extend(hosted_release_smoke_semantic_failures(get_surface(bundle, surface_id)))
+            except Exception as exc:  # noqa: BLE001 - keep verifier fail-closed and compact.
+                failures.append(f"hosted_release_smoke.semantic_validation: error {exc}")
 
     trust = bundle.get("trust_boundary", {})
     if trust.get("role") != "read_only_observer" or trust.get("mutates_ao_artifacts") is not False:

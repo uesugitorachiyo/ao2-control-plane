@@ -1075,6 +1075,8 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
         "release_candidate_handoff",
         "release_cockpit",
         "release_evaluator_decision",
+        "install_verification",
+        "hosted_release_smoke",
         "storage_support_bundle",
     ];
     for id in required_surface_ids {
@@ -1093,6 +1095,8 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
         ("release_candidate_handoff", "$.handoff"),
         ("release_cockpit", "$.cockpit"),
         ("release_evaluator_decision", "$.evaluator_decision"),
+        ("install_verification", "$.install_verification"),
+        ("hosted_release_smoke", "$.hosted_release_smoke"),
         ("storage_support_bundle", "$.storage_support"),
     ];
     for (_, path) in expected_paths {
@@ -7080,6 +7084,24 @@ fn support_bundle_surface_ids_bind_to_json_literal_emission_lane_ffff() {
             surrounding.contains(&needle),
             "Lane FFFF: SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS contains `{id:?}` but the literal `\"{id}\":` JSON-key anchor is missing from release_publication.rs (expected in the integrity.surface_sha256 map or equivalent per-surface hash dictionary)"
         );
+    }
+}
+
+#[test]
+fn offline_release_support_verifiers_require_hosted_release_smoke_surface() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let py = fs::read_to_string(root.join("scripts/verify_release_support_bundle.py"))
+        .expect("python support-bundle verifier exists");
+    let ps = fs::read_to_string(root.join("scripts/Verify-ReleaseSupportBundle.ps1"))
+        .expect("PowerShell support-bundle verifier exists");
+    let fixture =
+        fs::read_to_string(root.join("tests/fixtures/release-support-bundle-contract-v1.json"))
+            .expect("shared release-support fixture exists");
+
+    for source in [&py, &ps, &fixture] {
+        assert!(source.contains("hosted_release_smoke"));
+        assert!(source.contains("ao2.release-archive-hosted-smoke.v1"));
+        assert!(source.contains("$.hosted_release_smoke"));
     }
 }
 
