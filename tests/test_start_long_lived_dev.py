@@ -72,6 +72,30 @@ def test_readme_links_current_prerelease_and_release_archive_artifacts():
         assert needle in readme
 
 
+def test_release_download_verify_checks_public_prerelease_checksums():
+    script = REPO_ROOT / "scripts" / "release-download-verify.sh"
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert script.is_file()
+    assert script.stat().st_mode & stat.S_IXUSR
+    text = script.read_text(encoding="utf-8")
+
+    for needle in [
+        "AO2_CP_RELEASE_REPO",
+        "uesugitorachiyo/ao2-control-plane",
+        "AO2_CP_RELEASE_TAG",
+        "v0.1.12",
+        "gh release download",
+        "SHA256SUMS",
+        "shasum -a 256 -c SHA256SUMS",
+        "control_plane_release_checksum_verify=passed",
+        "control_plane_release_download_verify=passed",
+    ]:
+        assert needle in text
+
+    assert "scripts/release-download-verify.sh" in readme
+
+
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "forbidden-openai"
