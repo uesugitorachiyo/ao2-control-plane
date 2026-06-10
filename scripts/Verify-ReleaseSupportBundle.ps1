@@ -55,6 +55,7 @@ $RequiredSurfaceIds = @(
 $EXPECTED_MANIFEST_SCHEMA = 'ao2.cp-release-support-bundle-manifest.v1'
 $RequiredCiEvidenceFamilyIds = @(
     'risky-pr-golden-bridge-smoke',
+    'release-train-bridge-smoke',
     'ingest-smoke',
     'release-archive-smoke',
     'backup-restore-drill'

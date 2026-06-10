@@ -36,6 +36,7 @@ $Phase1VerifyEndpoint = "/api/v1/phase1/promotion/portable-manifest/verify.json"
 
 $RequiredCiEvidenceFamilyIds = @(
     "risky-pr-golden-bridge-smoke",
+    "release-train-bridge-smoke",
     "ingest-smoke",
     "release-archive-smoke",
     "backup-restore-drill"
