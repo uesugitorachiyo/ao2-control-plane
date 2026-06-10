@@ -131,6 +131,13 @@ gh release download v0.1.12 --repo uesugitorachiyo/ao2-control-plane \
 (cd dist-release && grep 'ao2-control-plane-0.1.12-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
+Or run the repository verifier, which downloads all published prerelease assets
+and verifies every file listed in `SHA256SUMS`:
+
+```bash
+scripts/release-download-verify.sh
+```
+
 The CI workflow also produces release-ready archive artifacts for all supported
 targets on every pull request and `main` push. Open
 <https://github.com/uesugitorachiyo/ao2-control-plane/actions> and download:
