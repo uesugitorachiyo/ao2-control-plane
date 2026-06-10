@@ -383,3 +383,12 @@ jobs:
         with:
           name: ao2-control-plane-smoke-${{ matrix.target_label }}
           path: target/release-smoke/${{ matrix.target_label }}.json
+      - name: Upload release archive artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-archive-${{ matrix.target_label }}
+          path: |
+            ${{ matrix.archive }}
+            dist/SHA256SUMS
+            target/release-smoke/${{ matrix.target_label }}.json
+          if-no-files-found: error
