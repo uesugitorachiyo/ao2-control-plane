@@ -37,6 +37,24 @@ def test_ci_uses_node24_runtime_action_majors():
     assert "actions/upload-artifact@v4" not in ci
 
 
+def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+
+    for target_label in ["linux-x86_64", "macos-aarch64", "windows-x86_64"]:
+        assert f"target_label: {target_label}" in ci
+        assert f"dist/ao2-control-plane-0.1.12-{target_label}.tar.gz" in ci
+
+    for needle in [
+        "Upload release archive artifact",
+        "name: ao2-control-plane-release-archive-${{ matrix.target_label }}",
+        "${{ matrix.archive }}",
+        "dist/SHA256SUMS",
+        "target/release-smoke/${{ matrix.target_label }}.json",
+        "if-no-files-found: error",
+    ]:
+        assert needle in ci
+
+
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "forbidden-openai"
