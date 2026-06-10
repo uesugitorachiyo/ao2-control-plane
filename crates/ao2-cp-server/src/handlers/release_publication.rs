@@ -2268,6 +2268,8 @@ async fn release_support_bundle_value(
         .cloned()
         .unwrap_or_else(|| install_verification_trust_value(None));
     let install_verification_sha = support_bundle_surface_sha256(&install_verification)?;
+    let hosted_release_smoke = hosted_release_smoke_value(&install_verification);
+    let hosted_release_smoke_sha = support_bundle_surface_sha256(&hosted_release_smoke)?;
     let handoff_sha = support_bundle_surface_sha256(&handoff)?;
     let cockpit_sha = support_bundle_surface_sha256(&cockpit)?;
     let evaluator_decision_sha = support_bundle_surface_sha256(&evaluator_decision)?;
@@ -2287,6 +2289,7 @@ async fn release_support_bundle_value(
         "evaluator_decision": evaluator_decision,
         "ci_evidence_index": ci_evidence_index,
         "storage_support": storage_support,
+        "hosted_release_smoke": hosted_release_smoke,
         "portable_bundle_manifest": {
             "schema_version": RELEASE_SUPPORT_BUNDLE_MANIFEST_SCHEMA,
             "format": "single authenticated JSON document",
@@ -2333,6 +2336,12 @@ async fn release_support_bundle_value(
                     "sha256": install_verification_sha
                 },
                 {
+                    "id": "hosted_release_smoke",
+                    "schema_version": "ao2.release-archive-hosted-smoke.v1",
+                    "path": "$.hosted_release_smoke",
+                    "sha256": hosted_release_smoke_sha
+                },
+                {
                     "id": "ci_evidence_index",
                     "schema_version": "ao2.cp-ci-evidence-index.v1",
                     "path": "$.ci_evidence_index",
@@ -2357,6 +2366,7 @@ async fn release_support_bundle_value(
                     "release_cockpit": cockpit_sha,
                     "release_evaluator_decision": evaluator_decision_sha,
                     "install_verification": install_verification_sha,
+                    "hosted_release_smoke": hosted_release_smoke_sha,
                     "ci_evidence_index": ci_evidence_index_sha,
                     "storage_support_bundle": storage_support_sha
                 },
@@ -2373,6 +2383,7 @@ async fn release_support_bundle_value(
                         "compare every recomputed digest to portable_bundle_manifest.integrity.surface_sha256",
                         "fail closed if any included surface path, schema_version, or sha256 is missing",
                         "confirm install verification is a standalone offline-verifiable surface before release review",
+                        "confirm hosted release smoke passed and references install verification before release review",
                         "confirm CI evidence index remains a read-only observer surface before offline release review",
                         "confirm factory-v3 evaluator decision remains an observed dashboard surface and not a control-plane approval",
                         "confirm trust_boundary.role remains read_only_observer before evaluator-closer review"
@@ -2485,8 +2496,9 @@ fn release_support_bundle_filename(bundle: &serde_json::Value) -> String {
     format!("ao2-release-support-bundle-{sanitized_version}.json")
 }
 
-const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 8] = [
+const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS: [&str; 9] = [
     "ci_evidence_index",
+    "hosted_release_smoke",
     "install_verification",
     "release_assembly",
     "release_readiness",
@@ -2821,6 +2833,11 @@ fn release_support_bundle_verification_value(
             ));
             "failed"
         };
+        if id == "hosted_release_smoke" {
+            if let Some(embedded) = embedded {
+                blockers.extend(hosted_release_smoke_blockers(embedded));
+            }
+        }
         checks.push(serde_json::json!({
             "id": id,
             "path": path,
@@ -2924,6 +2941,7 @@ fn support_bundle_surface_by_id<'a>(
         "release_candidate_handoff" => bundle.get("handoff"),
         "release_cockpit" => bundle.get("cockpit"),
         "release_evaluator_decision" => bundle.get("evaluator_decision"),
+        "hosted_release_smoke" => bundle.get("hosted_release_smoke"),
         "install_verification" => bundle.get("install_verification"),
         "ci_evidence_index" => bundle.get("ci_evidence_index"),
         "storage_support_bundle" => bundle.get("storage_support"),
@@ -2938,11 +2956,58 @@ fn support_bundle_surface_path_by_id(id: &str) -> Option<&'static str> {
         "release_candidate_handoff" => Some("$.handoff"),
         "release_cockpit" => Some("$.cockpit"),
         "release_evaluator_decision" => Some("$.evaluator_decision"),
+        "hosted_release_smoke" => Some("$.hosted_release_smoke"),
         "install_verification" => Some("$.install_verification"),
         "ci_evidence_index" => Some("$.ci_evidence_index"),
         "storage_support_bundle" => Some("$.storage_support"),
         _ => None,
     }
+}
+
+fn hosted_release_smoke_blockers(surface: &serde_json::Value) -> Vec<String> {
+    let mut blockers = Vec::new();
+    if json_str(surface, "schema_version") != Some("ao2.release-archive-hosted-smoke.v1") {
+        blockers.push(
+            "hosted_release_smoke.schema_version: expected ao2.release-archive-hosted-smoke.v1"
+                .to_string(),
+        );
+    }
+    if json_str(surface, "status") != Some("passed") {
+        blockers.push("hosted_release_smoke.status: expected passed".to_string());
+    }
+    if json_str(surface, "install_verification_schema")
+        != Some("ao2.install-verification-evidence.v1")
+    {
+        blockers.push(
+            "hosted_release_smoke.install_verification_schema: expected ao2.install-verification-evidence.v1"
+                .to_string(),
+        );
+    }
+    if json_str(surface, "install_verification_evidence")
+        .filter(|value| !value.is_empty())
+        .is_none()
+    {
+        blockers.push(
+            "hosted_release_smoke.install_verification_evidence: expected non-empty string"
+                .to_string(),
+        );
+    }
+    for field_name in [
+        "provider_api_keys_required",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+    ] {
+        if surface.get(field_name).and_then(serde_json::Value::as_bool) != Some(false) {
+            blockers.push(format!("hosted_release_smoke.{field_name}: expected false"));
+        }
+    }
+    if json_str(surface, "release_acceptance_owner") != Some("factory-v3 evaluator-closer") {
+        blockers.push(
+            "hosted_release_smoke.release_acceptance_owner: expected factory-v3 evaluator-closer"
+                .to_string(),
+        );
+    }
+    blockers
 }
 
 fn support_bundle_surface_sha256<T: Serialize>(surface: &T) -> Result<String, AppError> {
@@ -3177,6 +3242,43 @@ fn install_verification_trust_value(artifact: Option<&serde_json::Value>) -> ser
             .get("mutates_ao_artifacts")
             .and_then(serde_json::Value::as_bool)
             .unwrap_or(true),
+    })
+}
+
+fn hosted_release_smoke_value(install_verification: &serde_json::Value) -> serde_json::Value {
+    let install_schema = json_str(install_verification, "schema_version").unwrap_or("missing");
+    let install_status = json_str(install_verification, "status").unwrap_or("missing");
+    let offline_status =
+        json_str(install_verification, "offline_verification_status").unwrap_or("missing");
+    let provider_api_keys_required = install_verification
+        .get("provider_api_keys_required")
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(true);
+    let control_plane_approves_release = install_verification
+        .get("control_plane_approves_release")
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(true);
+    let mutates_ao_artifacts = install_verification
+        .get("mutates_ao_artifacts")
+        .and_then(serde_json::Value::as_bool)
+        .unwrap_or(true);
+    let passed = install_schema == "ao2.install-verification-evidence.v1"
+        && install_status == "verified"
+        && offline_status == "verified"
+        && !provider_api_keys_required
+        && !control_plane_approves_release
+        && !mutates_ao_artifacts;
+
+    serde_json::json!({
+        "schema_version": "ao2.release-archive-hosted-smoke.v1",
+        "status": if passed { "passed" } else { "failed" },
+        "target": "release-archive-hosted-smoke",
+        "install_verification_schema": install_schema,
+        "install_verification_evidence": json_str(install_verification, "path").unwrap_or("missing"),
+        "provider_api_keys_required": provider_api_keys_required,
+        "control_plane_approves_release": control_plane_approves_release,
+        "mutates_ao_artifacts": mutates_ao_artifacts,
+        "release_acceptance_owner": "factory-v3 evaluator-closer",
     })
 }
 
@@ -4661,7 +4763,27 @@ mod tests {
             "handoff": minimal_surface(RELEASE_CANDIDATE_HANDOFF_SCHEMA),
             "cockpit": minimal_surface(RELEASE_COCKPIT_SCHEMA),
             "evaluator_decision": minimal_surface(RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA),
-            "install_verification": minimal_surface("ao2.install-verification-evidence.v1"),
+            "install_verification": {
+                "schema_version": "ao2.install-verification-evidence.v1",
+                "status": "verified",
+                "offline_verification_status": "verified",
+                "path": "target/release-archive-hosted-smoke/install-verification.json",
+                "sha256": "abc123",
+                "provider_api_keys_required": false,
+                "control_plane_approves_release": false,
+                "mutates_ao_artifacts": false,
+            },
+            "hosted_release_smoke": {
+                "schema_version": "ao2.release-archive-hosted-smoke.v1",
+                "status": "passed",
+                "target": "release-archive-hosted-smoke",
+                "install_verification_schema": "ao2.install-verification-evidence.v1",
+                "install_verification_evidence": "target/release-archive-hosted-smoke/install-verification.json",
+                "provider_api_keys_required": false,
+                "control_plane_approves_release": false,
+                "mutates_ao_artifacts": false,
+                "release_acceptance_owner": "factory-v3 evaluator-closer",
+            },
             "ci_evidence_index": minimal_surface("ao2.cp-ci-evidence-index.v1"),
             "storage_support": minimal_surface("ao2.cp-support-bundle.v1"),
             "trust_boundary": trust_boundary(),
