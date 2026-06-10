@@ -1,5 +1,7 @@
 # ao2-control-plane
 
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12)
+
 Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
 
 This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
@@ -112,6 +114,30 @@ from the archive, starts the installed server, posts provider-pilot acceptance
 fixtures, and verifies the acceptance dashboard source-class counts. CI runs
 format, clippy, tests, packaging, and installed release smokes across Ubuntu,
 macOS, and Windows.
+
+## Install From Public Prerelease
+
+The current public prerelease is
+[`v0.1.12`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12).
+It publishes the macOS archive plus token-free release support and bridge smoke
+evidence. Download and verify it with:
+
+```bash
+mkdir -p dist-release
+gh release download v0.1.12 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.12-macos-aarch64.tar.gz \
+  --pattern SHA256SUMS \
+  --dir dist-release
+(cd dist-release && grep 'ao2-control-plane-0.1.12-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+```
+
+The CI workflow also produces release-ready archive artifacts for all supported
+targets on every pull request and `main` push. Open
+<https://github.com/uesugitorachiyo/ao2-control-plane/actions> and download:
+
+- `ao2-control-plane-release-archive-linux-x86_64`
+- `ao2-control-plane-release-archive-macos-aarch64`
+- `ao2-control-plane-release-archive-windows-x86_64`
 
 ## Running tests
 
