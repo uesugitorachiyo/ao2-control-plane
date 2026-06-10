@@ -55,6 +55,23 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
         assert needle in ci
 
 
+def test_readme_links_current_prerelease_and_release_archive_artifacts():
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for needle in [
+        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12",
+        "img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane",
+        "gh release download v0.1.12 --repo uesugitorachiyo/ao2-control-plane",
+        "ao2-control-plane-0.1.12-macos-aarch64.tar.gz",
+        "https://github.com/uesugitorachiyo/ao2-control-plane/actions",
+        "ao2-control-plane-release-archive-linux-x86_64",
+        "ao2-control-plane-release-archive-macos-aarch64",
+        "ao2-control-plane-release-archive-windows-x86_64",
+        "SHA256SUMS",
+    ]:
+        assert needle in readme
+
+
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "forbidden-openai"
