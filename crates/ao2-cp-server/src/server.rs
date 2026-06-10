@@ -566,6 +566,14 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             get(handlers::release_publication::release_candidate_handoff_json),
         )
         .route(
+            "/release/train",
+            get(handlers::release_train::release_train_readback),
+        )
+        .route(
+            "/release/train.json",
+            get(handlers::release_train::release_train_readback_json),
+        )
+        .route(
             "/release/readiness",
             get(handlers::release_publication::release_readiness),
         )
