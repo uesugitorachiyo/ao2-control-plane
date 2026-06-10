@@ -318,6 +318,16 @@ is downloaded locally. `/api/v1/risky-pr/golden/artifact-manifest.json` wraps th
 HTML operator view. These routes never store the manifest, expose bearer
 material, approve releases, or mutate AO2 artifacts.
 
+AO2 public release-train drill summaries can be observed the same way by
+setting `AO2_CP_RELEASE_TRAIN_SUMMARY` to AO2's generated
+`target/public-release-train-drill/latest/summary.json`. The
+`/api/v1/release/train.json` route wraps the
+`ao2.public-release-train-drill.v1` summary in
+`ao2.cp-release-train-readback.v1` observer metadata, and
+`/api/v1/release/train` renders a read-only operator dashboard. Both surfaces
+redact local absolute paths and do not publish, approve, persist, or mutate AO2
+release evidence.
+
 For an end-to-end local bridge smoke, first generate the AO2-side bridge
 manifest into this repository, then run the control-plane observer smoke:
 
@@ -546,6 +556,8 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `GET` | `/api/v1/release/cockpit.json` | Fetch the release cockpit as JSON for Hermes/front-end integrations, including detailed latest Codex/Claude provider acceptance summaries and raw evidence links. |
 | `GET` | `/api/v1/release/handoff` | Render an authenticated read-only Phase 1 release-candidate handoff panel for operators and Hermes front ends. |
 | `GET` | `/api/v1/release/handoff.json` | Fetch a read-only Phase 1 release-candidate handoff package for Hermes/factory-v3, correlating cockpit, signed decision, live provider acceptance, and three-OS evidence without approving or mutating AO artifacts. |
+| `GET` | `/api/v1/release/train` | Render an authenticated read-only AO2 public release-train drill readback configured by `AO2_CP_RELEASE_TRAIN_SUMMARY`, with local paths redacted and no release approval authority. |
+| `GET` | `/api/v1/release/train.json` | Fetch the machine-readable `ao2.cp-release-train-readback.v1` wrapper around AO2's `ao2.public-release-train-drill.v1` summary without storing, publishing, or mutating AO2 evidence. |
 | `GET` | `/api/v1/release/readiness` | Render an authenticated read-only release-readiness verdict that summarizes handoff gates and explicitly defers acceptance to factory-v3 evaluator-closer. |
 | `GET` | `/api/v1/release/readiness.json` | Fetch the machine-readable release-readiness verdict for Hermes/factory-v3 checklists without approving or mutating AO artifacts. |
 | `GET` | `/api/v1/release/support-bundle.json` | Fetch the portable read-only release support bundle, including embedded same-candidate `release_assembly` and evaluator-decision dashboard surfaces for offline factory-v3 evaluator-closer review. |
