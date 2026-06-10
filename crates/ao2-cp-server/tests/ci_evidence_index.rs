@@ -56,7 +56,7 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
     assert_eq!(body["auth"]["credential_material_in_urls"], false);
 
     let evidence = body["evidence_families"].as_array().unwrap();
-    assert_eq!(evidence.len(), 4);
+    assert_eq!(evidence.len(), 5);
     let ids = evidence
         .iter()
         .map(|item| item["id"].as_str().unwrap())
@@ -65,6 +65,7 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
         ids,
         vec![
             "risky-pr-golden-bridge-smoke",
+            "release-train-bridge-smoke",
             "ingest-smoke",
             "release-archive-smoke",
             "backup-restore-drill",
@@ -124,6 +125,7 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
     assert!(html.contains("AO2 CI Evidence Index"));
     assert!(html.contains("ao2.cp-ci-evidence-index.v1"));
     assert!(html.contains("Risky PR golden bridge smoke"));
+    assert!(html.contains("Release train bridge smoke"));
     assert!(html.contains("Release archive smoke"));
     assert!(html.contains("Backup/restore drill"));
     assert!(!html.contains("Bearer secret"));

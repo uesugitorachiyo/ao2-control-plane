@@ -46,10 +46,31 @@ JSON/HTML observer responses, and server stdout/stderr logs.
 
 The authenticated CI evidence index at `/api/v1/ci/evidence-index.json`
 summarizes the stable production-readiness artifact families under
-`ao2.cp-ci-evidence-index.v1`: Risky PR golden bridge smoke, ingest smoke,
-release archive smoke, and backup/restore drill. Use it as the operator-facing
-map from CI job names to artifact names and schema versions before downloading
-individual GitHub Actions artifacts.
+`ao2.cp-ci-evidence-index.v1`: Risky PR golden bridge smoke, release-train
+bridge smoke, ingest smoke, release archive smoke, and backup/restore drill. Use
+it as the operator-facing map from CI job names to artifact names and schema
+versions before downloading individual GitHub Actions artifacts.
+
+## AO2 release train bridge smoke
+
+Use the release train bridge smoke to verify that AO2's public
+`ao2.public-release-train-drill.v1` summary can be read back through the
+control plane as `ao2.cp-release-train-readback.v1`. Pull-request CI runs the
+fixture-backed `scripts/smoke-release-train-bridge.py` path on Ubuntu, macOS,
+and Windows using `tests/fixtures/public-release-train-summary.json`.
+
+The smoke starts a local `ao2-cp-server`, sets
+`AO2_CP_RELEASE_TRAIN_SUMMARY`, and fetches both
+`/api/v1/release/train.json` and `/api/v1/release/train` with the bearer token
+carried only in the `Authorization: Bearer` header. The evidence directory
+contains `summary.json`, `release-train-readback.json`,
+`release-train-readback.html`, and server stdout/stderr logs. Expected output
+is `release_train_bridge_smoke=passed`.
+
+This check is read-only: `control_plane_approves_release=false`,
+`mutates_ao_artifacts=false`, `mutates_observer_storage=false`, no provider API
+keys are allowed, bearer material is not printed, and local absolute paths from
+the source summary are redacted before JSON/HTML readback.
 
 ## 1. The two parity verdicts
 

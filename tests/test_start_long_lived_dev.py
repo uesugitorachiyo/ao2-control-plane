@@ -12,6 +12,8 @@ SMOKE_SCRIPT = REPO_ROOT / "scripts" / "smoke-long-lived-dev.sh"
 RISKY_PR_GOLDEN_BRIDGE_SMOKE = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.sh"
 RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-risky-pr-golden-bridge.py"
 RISKY_PR_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "risky-pr-golden-artifact-manifest.json"
+RELEASE_TRAIN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-release-train-bridge.py"
+RELEASE_TRAIN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "public-release-train-summary.json"
 CI_EVIDENCE_HANDLER = REPO_ROOT / "crates" / "ao2-cp-server" / "src" / "handlers" / "ci_evidence.rs"
 DASHBOARD_SNAPSHOT = REPO_ROOT / "scripts" / "cp_dashboard_snapshot.py"
 
@@ -212,6 +214,66 @@ def test_risky_pr_golden_bridge_ci_artifact_uploads_complete_evidence_directory(
         assert needle in script
 
 
+def test_ci_runs_cross_os_release_train_bridge_fixture_smoke():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    script = RELEASE_TRAIN_BRIDGE_SMOKE_PY.read_text(encoding="utf-8")
+    fixture = json.loads(RELEASE_TRAIN_FIXTURE.read_text(encoding="utf-8"))
+
+    for needle in [
+        "release-train-bridge-smoke:",
+        "Release train bridge smoke (${{ matrix.name }})",
+        "needs: test",
+        "ubuntu-x86_64",
+        "macos-aarch64",
+        "windows-x86_64",
+        "scripts/smoke-release-train-bridge.py",
+        "tests/fixtures/public-release-train-summary.json",
+        "target/release-train-bridge-smoke/${{ matrix.name }}",
+        "ao2-control-plane-release-train-bridge-${{ matrix.name }}",
+    ]:
+        assert needle in ci
+
+    for needle in [
+        "ao2.cp-release-train-bridge-smoke.v1",
+        "AO2_CP_RELEASE_TRAIN_SUMMARY",
+        "ao2.cp-release-train-readback.v1",
+        "ao2.public-release-train-drill.v1",
+        "/api/v1/release/train.json",
+        "/api/v1/release/train",
+        "read-only-observer",
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+        "credential_material_included",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "Authorization",
+        "token not in",
+    ]:
+        assert needle in script
+
+    assert fixture["schema_version"] == "ao2.public-release-train-drill.v1"
+    assert fixture["status"] == "passed"
+    assert fixture["release_readiness_artifact_consumer_contract"]["status"] == "passed"
+    assert fixture["publish_guards"]["refuses_publish_side_effects_by_default"] is True
+
+
+def test_release_train_bridge_ci_artifact_uploads_complete_evidence_directory():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    script = RELEASE_TRAIN_BRIDGE_SMOKE_PY.read_text(encoding="utf-8")
+
+    assert "path: target/release-train-bridge-smoke/${{ matrix.name }}" in ci
+    assert "path: target/release-train-bridge-smoke/${{ matrix.name }}/summary.json" not in ci
+
+    for needle in [
+        '"server_logs"',
+        '"stdout"',
+        '"stderr"',
+        '"release-train-readback.json"',
+        '"release-train-readback.html"',
+    ]:
+        assert needle in script
+
+
 def test_ci_evidence_index_is_documented_and_token_safe():
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
@@ -222,6 +284,7 @@ def test_ci_evidence_index_is_documented_and_token_safe():
         "/api/v1/ci/evidence-index.json",
         "ao2.cp-ci-evidence-index.v1",
         "risky-pr-golden-bridge-smoke",
+        "release-train-bridge-smoke",
         "ingest-smoke",
         "release-archive-smoke",
         "backup-restore-drill",

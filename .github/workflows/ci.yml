@@ -245,6 +245,55 @@ jobs:
           path: target/risky-pr-golden-bridge-smoke/${{ matrix.name }}
           if-no-files-found: error
 
+  release-train-bridge-smoke:
+    name: Release train bridge smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: macos-aarch64
+            os: macos-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: windows-x86_64
+            os: windows-latest
+            shell: pwsh
+            server_bin: target/release/ao2-cp-server.exe
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+      - name: Run Unix release train bridge smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: |
+          python3 scripts/smoke-release-train-bridge.py \
+            --summary tests/fixtures/public-release-train-summary.json \
+            --server-bin "${{ matrix.server_bin }}" \
+            --out-root "target/release-train-bridge-smoke/${{ matrix.name }}"
+      - name: Run Windows release train bridge smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: |
+          python scripts/smoke-release-train-bridge.py `
+            --summary tests/fixtures/public-release-train-summary.json `
+            --server-bin "${{ matrix.server_bin }}" `
+            --out-root "target/release-train-bridge-smoke/${{ matrix.name }}"
+      - name: Upload release train bridge smoke artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-train-bridge-${{ matrix.name }}
+          path: target/release-train-bridge-smoke/${{ matrix.name }}
+          if-no-files-found: error
+
   ingest-smoke:
     name: Ingest smoke (${{ matrix.name }})
     runs-on: ${{ matrix.os }}

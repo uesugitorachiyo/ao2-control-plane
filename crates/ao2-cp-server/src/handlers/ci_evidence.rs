@@ -146,6 +146,37 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                 }
             },
             {
+                "id": "release-train-bridge-smoke",
+                "display_name": "Release train bridge smoke",
+                "artifact_name_pattern": "ao2-control-plane-release-train-bridge-<target>",
+                "schema_versions": [
+                    "ao2.cp-release-train-bridge-smoke.v1",
+                    "ao2.cp-release-train-readback.v1",
+                    "ao2.public-release-train-drill.v1"
+                ],
+                "summary_path": "summary.json",
+                "operator_action": "download-ci-artifact",
+                "purpose": "Proves AO2 public release-train drill summaries can be observed through the control plane without token leakage, local path leakage, storage mutation, or release approval.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "Release train bridge smoke (ubuntu-x86_64)",
+                        "Release train bridge smoke (macos-aarch64)",
+                        "Release train bridge smoke (windows-x86_64)"
+                    ],
+                    &[
+                        "ao2-control-plane-release-train-bridge-ubuntu-x86_64",
+                        "ao2-control-plane-release-train-bridge-macos-aarch64",
+                        "ao2-control-plane-release-train-bridge-windows-x86_64"
+                    ],
+                    "summary.json carries schema/status plus release-train readback observer captures"
+                ),
+                "trust_boundary": {
+                    "read_only": true,
+                    "approves_release": false,
+                    "mutates_ao_artifacts": false
+                }
+            },
+            {
                 "id": "ingest-smoke",
                 "display_name": "Ingest smoke",
                 "artifact_name_pattern": "ao2-control-plane-ingest-smoke-<target>",
