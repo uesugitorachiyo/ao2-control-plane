@@ -148,6 +148,27 @@ jobs:
           path: ao2-control-plane/target/release-support-fixture-parity
           if-no-files-found: error
 
+  release-publication-closure:
+    name: Release publication closure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Verify published release downloads
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p target/release-publication-closure
+          AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/release-publication-closure/summary.json \
+            scripts/release-download-verify.sh
+          test -f target/release-publication-closure/summary.json
+      - name: Upload release publication closure artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-publication-closure
+          path: target/release-publication-closure
+          if-no-files-found: error
+
   dr-restore-drill:
     name: Backup/restore drill
     runs-on: ubuntu-latest

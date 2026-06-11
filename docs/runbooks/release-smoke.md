@@ -51,6 +51,31 @@ bridge smoke, ingest smoke, release archive smoke, and backup/restore drill. Use
 it as the operator-facing map from CI job names to artifact names and schema
 versions before downloading individual GitHub Actions artifacts.
 
+## Control-plane release publication closure
+
+Use `scripts/release-download-verify.sh` to verify the public
+`ao2-control-plane` prerelease without mutating GitHub releases or AO2
+artifacts. The script downloads the configured release tag, verifies every asset
+listed in `SHA256SUMS`, and can emit a token-free closure summary:
+
+```sh
+AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/release-publication-closure/summary.json \
+  scripts/release-download-verify.sh
+```
+
+Expected output includes `control_plane_release_publication_closure=passed`. The
+summary schema is `ao2.cp-release-publication-closure.v1`; it lists downloaded
+asset names, sizes, SHA-256 digests, the checksum manifest path, and a
+trust-boundary block showing `control_plane_approves_release=false`,
+`mutates_ao_artifacts=false`, `mutates_github_releases=false`, and
+`credential_material_included=false`.
+
+Pull-request CI runs the same check in the `Release publication closure` job and
+uploads the `ao2-control-plane-release-publication-closure` artifact. Use that
+hosted artifact as the control-plane counterpart to AO2's release-publication
+closure evidence when checking whether both repositories have public,
+downloadable, checksum-valid release assets.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public

@@ -96,6 +96,88 @@ def test_release_download_verify_checks_public_prerelease_checksums():
     assert "scripts/release-download-verify.sh" in readme
 
 
+def test_release_download_verify_can_emit_token_free_publication_closure_summary(tmp_path):
+    release_dir = tmp_path / "release-download"
+    release_dir.mkdir()
+    artifact = release_dir / "ao2-control-plane-0.1.12-linux-x86_64.tar.gz"
+    artifact.write_text("fake archive bytes\n", encoding="utf-8")
+    digest = subprocess.check_output(
+        ["shasum", "-a", "256", artifact.name],
+        cwd=release_dir,
+        text=True,
+    ).strip()
+    (release_dir / "SHA256SUMS").write_text(f"{digest}\n", encoding="utf-8")
+    summary = tmp_path / "summary.json"
+
+    env = os.environ.copy()
+    env["AO2_CP_RELEASE_DOWNLOAD_OFFLINE"] = "1"
+    env["AO2_CP_RELEASE_DOWNLOAD_DIR"] = str(release_dir)
+    env["AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON"] = str(summary)
+
+    result = subprocess.run(
+        ["bash", "scripts/release-download-verify.sh"],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "control_plane_release_publication_closure=passed" in result.stdout
+
+    payload = json.loads(summary.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "ao2.cp-release-publication-closure.v1"
+    assert payload["status"] == "passed"
+    assert payload["release_repo"] == "uesugitorachiyo/ao2-control-plane"
+    assert payload["release_tag"] == "v0.1.12"
+    assert payload["download_dir"] == str(release_dir)
+    assert payload["checksum_manifest"] == str(release_dir / "SHA256SUMS")
+    assert payload["checksum_verified"] is True
+    assert {asset["name"] for asset in payload["assets"]} == {
+        "SHA256SUMS",
+        "ao2-control-plane-0.1.12-linux-x86_64.tar.gz",
+    }
+    for asset in payload["assets"]:
+        assert re.fullmatch(r"[0-9a-f]{64}", asset["sha256"])
+        assert asset["size_bytes"] > 0
+    assert payload["trust_boundary"] == {
+        "control_plane_approves_release": False,
+        "mutates_ao_artifacts": False,
+        "mutates_github_releases": False,
+        "credential_material_included": False,
+    }
+
+
+def test_ci_uploads_release_publication_closure_artifact_and_docs():
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
+
+    for needle in [
+        "release-publication-closure:",
+        "Release publication closure",
+        "scripts/release-download-verify.sh",
+        "GH_TOKEN: ${{ github.token }}",
+        "AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/release-publication-closure/summary.json",
+        "target/release-publication-closure/summary.json",
+        "Upload release publication closure artifact",
+        "ao2-control-plane-release-publication-closure",
+        "if-no-files-found: error",
+    ]:
+        assert needle in ci
+
+    for needle in [
+        "ao2-control-plane-release-publication-closure",
+        "ao2.cp-release-publication-closure.v1",
+        "scripts/release-download-verify.sh",
+        "control_plane_release_publication_closure=passed",
+    ]:
+        assert needle in readme
+        assert needle in release_smoke
+
+
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "forbidden-openai"
