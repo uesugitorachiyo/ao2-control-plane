@@ -1,0 +1,132 @@
+{
+  "artifact_root": "/private/ao2/target/operator-release-evidence-bundle/latest/downloaded-artifacts",
+  "checks": [
+    {
+      "artifact": "ao2-dual-repo-release-publication-closure-index",
+      "component": "ao2",
+      "kind": "dual-repo-index",
+      "path": "/Users/local/ao2/closure",
+      "platform": "ci",
+      "schema_version": "ao2.dual-repo-release-publication-closure-index.v1",
+      "status": "passed",
+      "summary_status": "passed"
+    },
+    {
+      "artifact": "post-stable-release-smoke-Linux",
+      "component": "ao2",
+      "install_status": "installed",
+      "kind": "ao2-post-stable",
+      "platform": "linux",
+      "signature_verified": true,
+      "status": "passed"
+    },
+    {
+      "artifact": "post-stable-release-smoke-macOS",
+      "component": "ao2",
+      "install_status": "installed",
+      "kind": "ao2-post-stable",
+      "platform": "macos",
+      "signature_verified": true,
+      "status": "passed"
+    },
+    {
+      "artifact": "post-stable-release-smoke-Windows",
+      "component": "ao2",
+      "install_status": "installed",
+      "kind": "ao2-post-stable",
+      "platform": "windows",
+      "signature_verified": true,
+      "status": "passed"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-ubuntu",
+      "checksum_verified": true,
+      "component": "ao2-control-plane",
+      "credential_material_included": false,
+      "kind": "control-plane-post-release",
+      "mutates_github_releases": false,
+      "platform": "ubuntu",
+      "schema_version": "ao2.cp-release-publication-closure.v1",
+      "status": "passed"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-macos",
+      "checksum_verified": true,
+      "component": "ao2-control-plane",
+      "credential_material_included": false,
+      "kind": "control-plane-post-release",
+      "mutates_github_releases": false,
+      "platform": "macos",
+      "schema_version": "ao2.cp-release-publication-closure.v1",
+      "status": "passed"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-windows",
+      "checksum_verified": true,
+      "component": "ao2-control-plane",
+      "credential_material_included": false,
+      "kind": "control-plane-post-release",
+      "mutates_github_releases": false,
+      "platform": "windows",
+      "schema_version": "ao2.cp-release-publication-closure.v1",
+      "status": "passed"
+    }
+  ],
+  "download_log": "/private/ao2/target/operator-release-evidence-bundle/latest/download.log",
+  "download_status": "passed",
+  "fixture_dir": null,
+  "generated_at_utc": "2026-06-11T00:00:00Z",
+  "operator_release_evidence_ready": true,
+  "required_artifacts": [
+    {
+      "artifact": "ao2-dual-repo-release-publication-closure-index",
+      "component": "ao2",
+      "kind": "dual-repo-index",
+      "platform": "ci"
+    },
+    {
+      "artifact": "post-stable-release-smoke-Linux",
+      "component": "ao2",
+      "kind": "ao2-post-stable",
+      "platform": "linux"
+    },
+    {
+      "artifact": "post-stable-release-smoke-macOS",
+      "component": "ao2",
+      "kind": "ao2-post-stable",
+      "platform": "macos"
+    },
+    {
+      "artifact": "post-stable-release-smoke-Windows",
+      "component": "ao2",
+      "kind": "ao2-post-stable",
+      "platform": "windows"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-ubuntu",
+      "component": "ao2-control-plane",
+      "kind": "control-plane-post-release",
+      "platform": "ubuntu"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-macos",
+      "component": "ao2-control-plane",
+      "kind": "control-plane-post-release",
+      "platform": "macos"
+    },
+    {
+      "artifact": "ao2-control-plane-post-release-verification-windows",
+      "component": "ao2-control-plane",
+      "kind": "control-plane-post-release",
+      "platform": "windows"
+    }
+  ],
+  "schema_version": "ao2.operator-release-evidence-bundle.v1",
+  "status": "passed",
+  "trust_boundary": {
+    "downloads_github_actions_artifacts": true,
+    "mutates_releases": false,
+    "queries_github_actions": true,
+    "stores_credentials": false
+  }
+}
