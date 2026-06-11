@@ -35,7 +35,15 @@ fi
 
 if [ -n "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON" ]; then
   mkdir -p "$(dirname "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON")"
-  python3 - "$AO2_CP_RELEASE_REPO" "$AO2_CP_RELEASE_TAG" "$AO2_CP_RELEASE_DOWNLOAD_DIR" "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON" <<'PY'
+  if command -v python3 >/dev/null 2>&1; then
+    python_bin="python3"
+  elif command -v python >/dev/null 2>&1; then
+    python_bin="python"
+  else
+    echo "missing Python interpreter: python3 or python required" >&2
+    exit 1
+  fi
+  "$python_bin" - "$AO2_CP_RELEASE_REPO" "$AO2_CP_RELEASE_TAG" "$AO2_CP_RELEASE_DOWNLOAD_DIR" "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON" <<'PY'
 import hashlib
 import json
 import sys
