@@ -1,0 +1,86 @@
+name: Post Release Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "29 12 * * 2"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-release-verification-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane
+  AO2_CP_RELEASE_TAG: v0.1.12
+
+jobs:
+  post-release-verification:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu
+            label: Ubuntu post release verification
+            os: ubuntu-latest
+          - name: macos
+            label: macOS post release verification
+            os: macos-latest
+          - name: windows
+            label: Windows post release verification
+            os: windows-latest
+
+    steps:
+      - name: Checkout release verifier
+        uses: actions/checkout@v6.0.3
+
+      - name: Verify public release downloads
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/post-release-verification/${{ matrix.name }}/summary.json \
+            scripts/release-download-verify.sh
+          test -f "target/post-release-verification/${{ matrix.name }}/summary.json"
+
+      - name: Validate post release verification summary
+        shell: bash
+        run: |
+          if command -v python3 >/dev/null 2>&1; then
+            python_bin="python3"
+          elif command -v python >/dev/null 2>&1; then
+            python_bin="python"
+          else
+            echo "missing Python interpreter: python3 or python required" >&2
+            exit 1
+          fi
+          "$python_bin" - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary_path = Path("target/post-release-verification/${{ matrix.name }}/summary.json")
+          summary = json.loads(summary_path.read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-release-publication-closure.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
+          assert summary["release_tag"] == "v0.1.12", summary
+          assert summary["checksum_verified"] is True, summary
+          assert summary["assets"], summary
+          trust_boundary = summary["trust_boundary"]
+          assert trust_boundary["control_plane_approves_release"] is False, summary
+          assert trust_boundary["mutates_ao_artifacts"] is False, summary
+          assert trust_boundary["mutates_github_releases"] is False, summary
+          assert trust_boundary["credential_material_included"] is False, summary
+          PY
+
+      - name: Upload post release verification evidence
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-post-release-verification-${{ matrix.name }}
+          path: target/post-release-verification/${{ matrix.name }}
+          if-no-files-found: error

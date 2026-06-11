@@ -76,6 +76,18 @@ hosted artifact as the control-plane counterpart to AO2's release-publication
 closure evidence when checking whether both repositories have public,
 downloadable, checksum-valid release assets.
 
+`Post Release Verification` in
+`.github/workflows/post-release-verification.yml` can be dispatched manually and
+also runs weekly. It runs the same read-only release verifier on Ubuntu, macOS,
+and Windows, then uploads per-OS evidence artifacts:
+`ao2-control-plane-post-release-verification-ubuntu`,
+`ao2-control-plane-post-release-verification-macos`, and
+`ao2-control-plane-post-release-verification-windows`. Each artifact includes an
+`ao2.cp-release-publication-closure.v1` `summary.json` with
+`checksum_verified=true` and trust-boundary values showing the verifier does not
+approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
+credential material.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public

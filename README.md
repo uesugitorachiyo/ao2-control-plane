@@ -147,6 +147,17 @@ downloadable and checksum-valid. This is read-only release evidence: it does
 not approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
 credential material.
 
+`Post Release Verification` in
+`.github/workflows/post-release-verification.yml` can also be dispatched
+manually and runs weekly on Ubuntu, macOS, and Windows. It re-runs the same
+read-only verifier against the public release and uploads
+`ao2-control-plane-post-release-verification-ubuntu`,
+`ao2-control-plane-post-release-verification-macos`, and
+`ao2-control-plane-post-release-verification-windows` evidence artifacts. Each
+artifact contains an `ao2.cp-release-publication-closure.v1` summary proving
+the published release remains downloadable and checksum-valid without mutating
+GitHub releases or AO2 artifacts.
+
 The CI workflow also produces release-ready archive artifacts for all supported
 targets on every pull request and `main` push. Open
 <https://github.com/uesugitorachiyo/ao2-control-plane/actions> and download:

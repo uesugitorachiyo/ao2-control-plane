@@ -88,6 +88,8 @@ def test_release_download_verify_checks_public_prerelease_checksums():
         "gh release download",
         "SHA256SUMS",
         "shasum -a 256 -c SHA256SUMS",
+        'command -v python3',
+        'command -v python',
         "control_plane_release_checksum_verify=passed",
         "control_plane_release_download_verify=passed",
     ]:
@@ -173,6 +175,58 @@ def test_ci_uploads_release_publication_closure_artifact_and_docs():
         "ao2.cp-release-publication-closure.v1",
         "scripts/release-download-verify.sh",
         "control_plane_release_publication_closure=passed",
+    ]:
+        assert needle in readme
+        assert needle in release_smoke
+
+
+def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispatch():
+    workflow = (
+        REPO_ROOT / ".github/workflows/post-release-verification.yml"
+    ).read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(
+        encoding="utf-8"
+    )
+
+    for needle in [
+        "workflow_dispatch:",
+        "schedule:",
+        'cron: "29 12 * * 2"',
+        "contents: read",
+        "cancel-in-progress: false",
+        "AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane",
+        "AO2_CP_RELEASE_TAG: v0.1.12",
+        "os: ubuntu-latest",
+        "os: macos-latest",
+        "os: windows-latest",
+        "scripts/release-download-verify.sh",
+        "AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/post-release-verification/${{ matrix.name }}/summary.json",
+        "ao2-control-plane-post-release-verification-${{ matrix.name }}",
+        "ao2.cp-release-publication-closure.v1",
+        "checksum_verified",
+        "mutates_github_releases",
+        "credential_material_included",
+    ]:
+        assert needle in workflow
+
+    for forbidden in [
+        "gh release upload",
+        "gh release edit",
+        "git push origin",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+    ]:
+        assert forbidden not in workflow
+
+    for needle in [
+        "Post Release Verification",
+        ".github/workflows/post-release-verification.yml",
+        "ao2-control-plane-post-release-verification-ubuntu",
+        "ao2-control-plane-post-release-verification-macos",
+        "ao2-control-plane-post-release-verification-windows",
+        "read-only",
+        "ao2.cp-release-publication-closure.v1",
     ]:
         assert needle in readme
         assert needle in release_smoke
