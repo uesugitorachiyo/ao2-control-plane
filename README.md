@@ -138,6 +138,15 @@ and verifies every file listed in `SHA256SUMS`:
 scripts/release-download-verify.sh
 ```
 
+CI also runs the same verifier as the `Release publication closure` job and
+uploads `ao2-control-plane-release-publication-closure`. Its
+`summary.json` uses schema `ao2.cp-release-publication-closure.v1`, records the
+downloaded release assets and checksums, and prints
+`control_plane_release_publication_closure=passed` when the published assets are
+downloadable and checksum-valid. This is read-only release evidence: it does
+not approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
+credential material.
+
 The CI workflow also produces release-ready archive artifacts for all supported
 targets on every pull request and `main` push. Open
 <https://github.com/uesugitorachiyo/ao2-control-plane/actions> and download:
