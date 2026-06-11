@@ -1115,6 +1115,24 @@ pub const ROUTES: &[RouteMetadata] = &[
     },
     RouteMetadata {
         method: "GET",
+        path: "/api/v1/release/operator-evidence",
+        category: "release-readiness",
+        owner: "ao2-control-plane observer",
+        download: false,
+        portable: true,
+        mutates_observer_storage: false,
+    },
+    RouteMetadata {
+        method: "GET",
+        path: "/api/v1/release/operator-evidence.json",
+        category: "release-readiness",
+        owner: "ao2-control-plane observer",
+        download: false,
+        portable: true,
+        mutates_observer_storage: false,
+    },
+    RouteMetadata {
+        method: "GET",
         path: "/api/v1/release/readiness",
         category: "release-readiness",
         owner: "ao2-control-plane observer",
@@ -1518,6 +1536,20 @@ pub fn portable_artifact_groups() -> Vec<serde_json::Value> {
             "links": {
                 "html": "/api/v1/ci/evidence-index",
                 "json": "/api/v1/ci/evidence-index.json"
+            }
+        }),
+        json!({
+            "id": "operator_release_evidence",
+            "schema_version": "ao2.cp-operator-release-evidence-readback.v1",
+            "description": "Read-only operator dashboard/readback for AO2 operator release evidence bundle summaries.",
+            "owner": "ao2-control-plane observer",
+            "release_acceptance_owner": "factory-v3 evaluator-closer",
+            "mutates_ao_artifacts": false,
+            "control_plane_approves_release": false,
+            "credential_material_in_urls": false,
+            "links": {
+                "html": "/api/v1/release/operator-evidence",
+                "json": "/api/v1/release/operator-evidence.json"
             }
         }),
         json!({

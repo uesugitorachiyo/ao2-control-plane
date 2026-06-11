@@ -591,6 +591,14 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             get(handlers::release_train::release_train_readback_json),
         )
         .route(
+            "/release/operator-evidence",
+            get(handlers::operator_release_evidence::operator_release_evidence_readback),
+        )
+        .route(
+            "/release/operator-evidence.json",
+            get(handlers::operator_release_evidence::operator_release_evidence_readback_json),
+        )
+        .route(
             "/release/readiness",
             get(handlers::release_publication::release_readiness),
         )

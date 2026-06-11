@@ -10,6 +10,7 @@ pub mod hermes_watchdog;
 pub mod landing;
 pub mod memory;
 pub mod operator_packet;
+pub mod operator_release_evidence;
 pub mod phase1_promotion;
 pub mod provider_readiness;
 pub mod provider_registry;
