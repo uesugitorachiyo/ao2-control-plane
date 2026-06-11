@@ -169,6 +169,14 @@ jobs:
           path: target/release-publication-closure
           if-no-files-found: error
 
+  operator-release-evidence-bridge-contract:
+    name: Operator release evidence bridge contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Verify operator release evidence bridge contract
+        run: scripts/operator-release-evidence-bridge-contract.sh
+
   dr-restore-drill:
     name: Backup/restore drill
     runs-on: ubuntu-latest
@@ -313,6 +321,55 @@ jobs:
         with:
           name: ao2-control-plane-release-train-bridge-${{ matrix.name }}
           path: target/release-train-bridge-smoke/${{ matrix.name }}
+          if-no-files-found: error
+
+  operator-release-evidence-bridge-smoke:
+    name: Operator release evidence bridge smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: macos-aarch64
+            os: macos-latest
+            shell: bash
+            server_bin: target/release/ao2-cp-server
+          - name: windows-x86_64
+            os: windows-latest
+            shell: pwsh
+            server_bin: target/release/ao2-cp-server.exe
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+      - name: Run Unix operator release evidence bridge smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: |
+          python3 scripts/smoke-operator-release-evidence-bridge.py \
+            --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json \
+            --server-bin "${{ matrix.server_bin }}" \
+            --out-root "target/operator-release-evidence-bridge-smoke/${{ matrix.name }}"
+      - name: Run Windows operator release evidence bridge smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: |
+          python scripts/smoke-operator-release-evidence-bridge.py `
+            --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json `
+            --server-bin "${{ matrix.server_bin }}" `
+            --out-root "target/operator-release-evidence-bridge-smoke/${{ matrix.name }}"
+      - name: Upload operator release evidence bridge smoke artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-operator-release-evidence-bridge-smoke-${{ matrix.name }}
+          path: target/operator-release-evidence-bridge-smoke/${{ matrix.name }}
           if-no-files-found: error
 
   ingest-smoke:

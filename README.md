@@ -392,6 +392,31 @@ evidence set as an authenticated dashboard. Both surfaces redact local absolute
 paths and remain read-only: they do not approve releases, store credentials,
 publish tags, or mutate AO2 artifacts.
 
+Operator release evidence bridge smoke proves the hosted AO2 artifact can be
+consumed by this control plane. CI runs the fixture-backed smoke across Ubuntu,
+macOS, and Windows:
+
+```bash
+cargo build --release -p ao2-cp-server
+python3 scripts/smoke-operator-release-evidence-bridge.py \
+  --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json
+```
+
+For live operator verification, first run or wait for AO2's `Operator Release
+Evidence Audit` workflow, then download the latest successful
+`ao2-operator-release-evidence-bundle` artifact and exercise the readback
+routes in one command:
+
+```bash
+cargo build --release -p ao2-cp-server
+python3 scripts/smoke-operator-release-evidence-bridge.py \
+  --download-latest-ao2-artifact
+```
+
+Both modes emit `ao2.cp-operator-release-evidence-bridge-smoke.v1` under
+`target/operator-release-evidence-bridge-smoke/`, including token-free JSON and
+HTML captures plus server logs.
+
 For an end-to-end local bridge smoke, first generate the AO2-side bridge
 manifest into this repository, then run the control-plane observer smoke:
 
