@@ -15638,6 +15638,7 @@ fn route_catalog_category_field_enum_shape_lane_aaaaaaa() {
     // entry using it.
     let allowed_categories: &[&str] = &[
         "acceptance-observer",
+        "ai-task-board-observer",
         "audit",
         "hermes-watchdog-observer",
         "memory-export-observer",
@@ -16764,6 +16765,7 @@ fn route_catalog_category_coverage_parity_lane_kkkkkkk() {
     // uses it WILL fail this test on purpose.
     let allowed_categories: &[&str] = &[
         "acceptance-observer",
+        "ai-task-board-observer",
         "audit",
         "hermes-watchdog-observer",
         "memory-export-observer",

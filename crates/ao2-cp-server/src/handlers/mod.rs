@@ -1,4 +1,5 @@
 pub mod acceptance;
+pub mod ai_task_board;
 pub mod audit_log;
 pub mod caching;
 pub mod ci_evidence;

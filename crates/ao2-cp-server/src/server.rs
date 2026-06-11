@@ -210,6 +210,23 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             get(handlers::ci_evidence::ci_evidence_index_json),
         )
         .route(
+            "/ai/task-board",
+            post(handlers::ai_task_board::post_ai_task_board),
+        )
+        .route(
+            "/ai/task-board/latest",
+            get(handlers::ai_task_board::latest_ai_task_board),
+        )
+        .route(
+            "/ai/task-board/dashboard.json",
+            get(handlers::ai_task_board::ai_task_board_dashboard_json),
+        )
+        .route(
+            "/ai/task-board/:sha",
+            get(handlers::ai_task_board::get_ai_task_board)
+                .head(handlers::ai_task_board::head_ai_task_board),
+        )
+        .route(
             "/evidence-pack",
             get(handlers::evidence_pack::list_evidence_packs),
         )
