@@ -183,6 +183,19 @@ targets on every pull request and `main` push. Open
 - `ao2-control-plane-release-archive-macos-aarch64`
 - `ao2-control-plane-release-archive-windows-x86_64`
 
+`Release Promotion` in `.github/workflows/release-promotion.yml` is the
+governed path for preparing the next control-plane release. It is manual and
+uses `dry_run=true` by default for `v0.1.13`, building and smoking release
+archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
+the `ao2-control-plane-release-promotion-plan-<tag>` artifact. That artifact
+contains `ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and
+generated release notes with the source commit and archive hashes. The plan
+records that AO2 release acceptance remains owned by the factory-v3 evaluator
+closer and that the control plane does not approve AO2 runs, mutate AO
+artifacts, or include credential material. Publishing a GitHub release requires
+dispatching the workflow with `dry_run=false`; the normal path only prepares
+evidence.
+
 ## Running tests
 
 The public CI workflow runs on pull requests and pushes to `main`, and can also

@@ -1,0 +1,125 @@
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW = REPO_ROOT / ".github" / "workflows" / "release-promotion.yml"
+
+
+def workflow_text():
+    assert WORKFLOW.is_file(), "missing release-promotion workflow"
+    return WORKFLOW.read_text(encoding="utf-8")
+
+
+def test_release_promotion_workflow_is_manual_dry_run_by_default():
+    workflow = workflow_text()
+
+    for needle in [
+        "name: Release Promotion",
+        "workflow_dispatch:",
+        "version:",
+        "default: 0.1.13",
+        "tag:",
+        "default: v0.1.13",
+        "dry_run:",
+        "default: true",
+        "permissions:",
+        "contents: write",
+        "cancel-in-progress: false",
+        "ao2-control-plane-release-promotion-${{ inputs.tag }}",
+    ]:
+        assert needle in workflow
+
+
+def test_release_promotion_builds_and_smokes_three_target_archives():
+    workflow = workflow_text()
+
+    for target_label, runner, binary in [
+        ("linux-x86_64", "ubuntu-latest", "target/release/ao2-cp-server"),
+        ("macos-aarch64", "macos-latest", "target/release/ao2-cp-server"),
+        ("windows-x86_64", "windows-latest", "target/release/ao2-cp-server.exe"),
+    ]:
+        assert f"os: {runner}" in workflow
+        assert f"target_label: {target_label}" in workflow
+        assert f"binary: {binary}" in workflow
+        assert f"ao2-control-plane-${{{{ inputs.version }}}}-{target_label}.tar.gz" in workflow
+
+    for needle in [
+        "cargo build --release -p ao2-cp-server",
+        "--version \"${{ inputs.version }}\"",
+        "--target-label \"${{ matrix.target_label }}\"",
+        "scripts/smoke-release-archive.sh",
+        "./scripts/smoke-release-archive.ps1",
+        "ao2-control-plane-release-candidate-${{ inputs.tag }}-${{ matrix.target_label }}",
+        "dist/SHA256SUMS",
+        "target/release-smoke/${{ matrix.target_label }}.json",
+        "if-no-files-found: error",
+    ]:
+        assert needle in workflow
+
+
+def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
+    workflow = workflow_text()
+
+    for needle in [
+        "assemble-release-promotion-plan:",
+        "ao2.cp-release-promotion-plan.v1",
+        "target/release-promotion/${{ inputs.tag }}/summary.json",
+        "target/release-promotion/${{ inputs.tag }}/SHA256SUMS",
+        '"status": "prepared"',
+        '"source_commit": os.environ["GITHUB_SHA"]',
+        '"source_ref": os.environ["GITHUB_REF_NAME"]',
+        '"control_plane_approves_release": False',
+        '"mutates_ao_artifacts": False',
+        '"credential_material_included": False',
+        '"release_acceptance_owner": "factory-v3 evaluator-closer"',
+        '"github_release_mutation_requested": dry_run is False',
+        "ao2-control-plane-release-promotion-plan-${{ inputs.tag }}",
+    ]:
+        assert needle in workflow
+
+    for forbidden in [
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "provider_api_key",
+        "mutates_ao_artifacts\": True",
+        "control_plane_approves_release\": True",
+    ]:
+        assert forbidden not in workflow
+
+
+def test_release_promotion_publish_step_is_explicitly_guarded():
+    workflow = workflow_text()
+
+    for needle in [
+        "if: ${{ inputs.dry_run == 'false' }}",
+        "GH_TOKEN: ${{ github.token }}",
+        "gh release create \"${{ inputs.tag }}\"",
+        "--target \"$GITHUB_SHA\"",
+        "gh release upload \"${{ inputs.tag }}\"",
+        "target/release-promotion/${{ inputs.tag }}/release-notes.md",
+    ]:
+        assert needle in workflow
+
+
+def test_release_promotion_is_documented_and_guarded_in_ci():
+    workflow = workflow_text()
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for needle in [
+        "tests/test_release_promotion_workflow.py",
+        "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest",
+    ]:
+        assert needle in ci
+
+    for needle in [
+        "Release Promotion",
+        ".github/workflows/release-promotion.yml",
+        "ao2-control-plane-release-promotion-plan",
+        "ao2.cp-release-promotion-plan.v1",
+        "dry_run",
+        "v0.1.13",
+        "Linux x86_64, macOS aarch64, and Windows x86_64",
+    ]:
+        assert needle in readme
+        assert needle in workflow or needle in ci or needle in readme
