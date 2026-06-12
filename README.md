@@ -115,9 +115,9 @@ fixtures, and verifies the acceptance dashboard source-class counts. CI runs
 format, clippy, tests, packaging, and installed release smokes across Ubuntu,
 macOS, and Windows.
 
-## Install From Public Prerelease
+## Install From Public Release
 
-The current public prerelease is
+The current public release is
 [`v0.1.12`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12).
 It publishes the macOS archive plus token-free release support and bridge smoke
 evidence. Download and verify it with:
@@ -157,6 +157,22 @@ read-only verifier against the public release and uploads
 artifact contains an `ao2.cp-release-publication-closure.v1` summary proving
 the published release remains downloadable and checksum-valid without mutating
 GitHub releases or AO2 artifacts.
+
+CI also runs `Release asset parity audit`, which uploads
+`ao2-control-plane-release-asset-parity-audit`. Its `summary.json` uses schema
+`ao2.cp-release-asset-parity-audit.v1` and compares the public release assets,
+`SHA256SUMS`, and local release notes against the stable three-target archive
+contract: Linux x86_64, macOS aarch64, and Windows x86_64. The default audit is
+advisory and prints `control_plane_release_asset_parity=attention` when a stable
+release is downloadable but incomplete; set `AO2_CP_RELEASE_ASSET_PARITY_STRICT=1`
+when the release publication workflow is ready to make missing platform archives
+fail the gate. The audit is read-only: it does not approve AO2 runs, mutate AO
+artifacts, mutate GitHub releases, or include credential material.
+
+```bash
+scripts/release-asset-parity-audit.sh
+AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
+```
 
 The CI workflow also produces release-ready archive artifacts for all supported
 targets on every pull request and `main` push. Open

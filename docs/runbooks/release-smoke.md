@@ -88,6 +88,32 @@ and Windows, then uploads per-OS evidence artifacts:
 approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
 credential material.
 
+## Control-plane release asset parity audit
+
+Use `scripts/release-asset-parity-audit.sh` to verify that the public
+`ao2-control-plane` stable release assets, `SHA256SUMS`, and local release notes
+agree on the expected release surface. The expected platform archives are Linux
+x86_64, macOS aarch64, and Windows x86_64, plus the release-support and
+release-train evidence JSON assets published beside the archive files.
+
+```sh
+scripts/release-asset-parity-audit.sh
+AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
+```
+
+Expected output is `control_plane_release_asset_parity=passed` for a complete
+stable release, or `control_plane_release_asset_parity=attention` when the
+release is checksum-valid but missing platform archives or release-note parity.
+The summary schema is `ao2.cp-release-asset-parity-audit.v1`; it lists published
+assets, checksum entries, release-note archive names, missing assets, and the
+read-only trust boundary. Default CI keeps this audit advisory so a known
+partial public release remains visible without blocking unrelated PRs. Use
+`AO2_CP_RELEASE_ASSET_PARITY_STRICT=1` in the release-publication path once the
+Linux and Windows archives are attached to the stable release.
+
+Pull-request CI runs the audit in the `Release asset parity audit` job and
+uploads `ao2-control-plane-release-asset-parity-audit` for operator review.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public

@@ -524,7 +524,8 @@ def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
     runbook = (REPO_ROOT / "docs/runbooks/long-lived-dev.md").read_text(encoding="utf-8")
 
     assert "Python guard tests" in ci
-    assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py -q" in ci
+    assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest" in ci
+    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py -q" in ci
     assert "AO2_CP_LONG_LIVED_SMOKE_LIVE" in script
     assert "live_restart_readiness" in script
     assert "/readyz" in script
