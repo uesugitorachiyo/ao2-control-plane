@@ -64,7 +64,9 @@ AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/release-publication-closure/summary.j
 ```
 
 Expected output includes `control_plane_release_publication_closure=passed`. The
-summary schema is `ao2.cp-release-publication-closure.v1`; it lists downloaded
+summary schema is `ao2.cp-release-publication-closure.v1`; it is emitted only
+after checksum verification passes and at least one
+`ao2-control-plane-*.tar.gz` release archive is present. It lists downloaded
 asset names, sizes, SHA-256 digests, the checksum manifest path, and a
 trust-boundary block showing `control_plane_approves_release=false`,
 `mutates_ao_artifacts=false`, `mutates_github_releases=false`, and

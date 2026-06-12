@@ -33,6 +33,12 @@ else
   exit 1
 fi
 
+if ! find "$AO2_CP_RELEASE_DOWNLOAD_DIR" -maxdepth 1 -type f \
+  -name 'ao2-control-plane-*.tar.gz' | grep -q .; then
+  echo "missing release archive asset: ao2-control-plane-*.tar.gz" >&2
+  exit 1
+fi
+
 if [ -n "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON" ]; then
   mkdir -p "$(dirname "$AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON")"
   if command -v python3 >/dev/null 2>&1; then

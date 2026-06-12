@@ -88,6 +88,8 @@ def test_release_download_verify_checks_public_prerelease_checksums():
         "v0.1.13",
         "gh release download",
         "SHA256SUMS",
+        "ao2-control-plane-*.tar.gz",
+        "missing release archive asset",
         "shasum -a 256 -c SHA256SUMS",
         'command -v python3',
         'command -v python',
@@ -151,6 +153,39 @@ def test_release_download_verify_can_emit_token_free_publication_closure_summary
         "mutates_github_releases": False,
         "credential_material_included": False,
     }
+
+
+def test_release_download_verify_rejects_checksum_valid_release_without_archive(tmp_path):
+    release_dir = tmp_path / "release-download"
+    release_dir.mkdir()
+    notes = release_dir / "release-notes.txt"
+    notes.write_text("not a release archive\n", encoding="utf-8")
+    digest = subprocess.check_output(
+        ["shasum", "-a", "256", notes.name],
+        cwd=release_dir,
+        text=True,
+    ).strip()
+    (release_dir / "SHA256SUMS").write_text(f"{digest}\n", encoding="utf-8")
+    summary = tmp_path / "summary.json"
+
+    env = os.environ.copy()
+    env["AO2_CP_RELEASE_DOWNLOAD_OFFLINE"] = "1"
+    env["AO2_CP_RELEASE_DOWNLOAD_DIR"] = str(release_dir)
+    env["AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON"] = str(summary)
+
+    result = subprocess.run(
+        ["bash", "scripts/release-download-verify.sh"],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "missing release archive asset" in result.stderr
+    assert not summary.exists()
 
 
 def test_ci_uploads_release_publication_closure_artifact_and_docs():
