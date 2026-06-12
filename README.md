@@ -175,6 +175,25 @@ scripts/release-asset-parity-audit.sh
 AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 ```
 
+CI also runs `Public release pair verification`, which uploads
+`ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
+schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
+AO2 stable release (`v0.4.80`) and control-plane release (`v0.1.13`) as one
+public release pair. The verifier reads GitHub release metadata and
+`SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
+x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
+summary evidence, and prints `control_plane_public_release_pair_verification=passed`
+when the pair is complete. It is read-only: it does not download large archives,
+approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
+credential material.
+
+```bash
+scripts/public_release_pair_verify.py \
+  --summary-json target/public-release-pair-verification/summary.json
+```
+
+The script and CI wiring are guarded by `tests/test_public_release_pair_verify.py`.
+
 Release notes are generated from `SHA256SUMS` with
 `scripts/generate_release_notes_from_checksums.py`, so archive hashes flow from
 the published checksum manifest instead of a handwritten table:

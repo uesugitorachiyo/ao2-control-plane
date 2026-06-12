@@ -127,6 +127,35 @@ stable release.
 Pull-request CI runs the audit in the `Release asset parity audit` job and
 uploads `ao2-control-plane-release-asset-parity-audit` for operator review.
 
+## AO2/control-plane public release pair verification
+
+Use `scripts/public_release_pair_verify.py` to verify that the public AO2 stable
+release and public control-plane release still form a complete production
+release pair. The verifier reads GitHub release metadata and `SHA256SUMS`
+manifests only; it does not download large archives, upload assets, edit
+releases, approve AO2 runs, or mutate AO artifacts.
+
+```sh
+scripts/public_release_pair_verify.py \
+  --summary-json target/public-release-pair-verification/summary.json
+```
+
+Expected output includes
+`control_plane_public_release_pair_verification=passed`. The summary schema is
+`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.80`,
+control-plane `v0.1.13`, their common Linux x86_64, macOS aarch64, and Windows
+x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
+promotion summary evidence, and a read-only trust boundary. Use
+`--strict` in release-promotion or stable-channel gates when missing public
+assets should fail immediately instead of producing an advisory `attention`
+summary.
+
+Pull-request CI runs the same check in the `Public release pair verification`
+job and uploads `ao2-control-plane-public-release-pair-verification`. Use that
+artifact when reviewing whether AO2 and the control plane are releasable
+together, not just individually. The script and CI wiring are guarded by
+`tests/test_public_release_pair_verify.py`.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public
