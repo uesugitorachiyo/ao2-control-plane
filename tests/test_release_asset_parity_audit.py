@@ -45,16 +45,48 @@ def write_checksums(path, asset_names):
     )
 
 
-def run_audit(tmp_path, release_assets, checksum_assets, strict=False):
+def checksum_map(asset_names):
+    return {name: f"{idx:064x}" for idx, name in enumerate(asset_names, start=1)}
+
+
+def write_release_notes(path, note_checksums):
+    platform_names = [
+        "ao2-control-plane-0.1.12-macos-aarch64.tar.gz",
+        "ao2-control-plane-0.1.12-linux-x86_64.tar.gz",
+        "ao2-control-plane-0.1.12-windows-x86_64.tar.gz",
+    ]
+    rows = [
+        "# ao2-control-plane v0.1.12 release notes",
+        "",
+        "| OS | File | SHA-256 |",
+        "|---|---|---|",
+    ]
+    labels = {
+        "ao2-control-plane-0.1.12-macos-aarch64.tar.gz": "macOS aarch64",
+        "ao2-control-plane-0.1.12-linux-x86_64.tar.gz": "Linux x86_64",
+        "ao2-control-plane-0.1.12-windows-x86_64.tar.gz": "Windows x86_64",
+    }
+    for name in platform_names:
+        if name in note_checksums:
+            rows.append(f"| {labels[name]} | `{name}` | `{note_checksums[name]}` |")
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+def run_audit(tmp_path, release_assets, checksum_assets, strict=False, note_checksums=None):
     release_view = tmp_path / "release-view.json"
     checksums = tmp_path / "SHA256SUMS"
+    release_notes = tmp_path / "release-notes.md"
     summary = tmp_path / "summary.json"
     write_release_view(release_view, release_assets)
     write_checksums(checksums, checksum_assets)
+    if note_checksums is None:
+        note_checksums = checksum_map(checksum_assets)
+    write_release_notes(release_notes, note_checksums)
 
     env = os.environ.copy()
     env["AO2_CP_RELEASE_ASSET_PARITY_RELEASE_VIEW_JSON"] = str(release_view)
     env["AO2_CP_RELEASE_ASSET_PARITY_CHECKSUMS"] = str(checksums)
+    env["AO2_CP_RELEASE_ASSET_PARITY_RELEASE_NOTES"] = str(release_notes)
     env["AO2_CP_RELEASE_ASSET_PARITY_SUMMARY_JSON"] = str(summary)
     if strict:
         env["AO2_CP_RELEASE_ASSET_PARITY_STRICT"] = "1"
@@ -139,6 +171,7 @@ def test_release_asset_parity_audit_passes_complete_three_os_stable_release(tmp_
         "ao2-control-plane-0.1.12-macos-aarch64.tar.gz",
         "ao2-control-plane-0.1.12-windows-x86_64.tar.gz",
     ]
+    assert summary["release_notes_checksum_drift"] == []
     assert summary["missing_platform_archives"] == []
     assert summary["missing_checksum_entries"] == []
     assert summary["release_notes_archive_drift"] == []
@@ -193,3 +226,27 @@ def test_release_asset_parity_audit_strict_mode_fails_on_missing_platform_assets
     assert "control_plane_release_asset_parity=attention" in result.stdout
     assert summary["status"] == "attention"
     assert summary["strict"] is True
+
+
+def test_release_asset_parity_audit_reports_release_notes_checksum_drift(tmp_path):
+    assets = expected_release_assets()
+    note_checksums = checksum_map(assets)
+    note_checksums["ao2-control-plane-0.1.12-macos-aarch64.tar.gz"] = "f" * 64
+
+    result, summary = run_audit(tmp_path, assets, assets, note_checksums=note_checksums)
+
+    assert result.returncode == 0, result.stderr
+    assert "control_plane_release_asset_parity=attention" in result.stdout
+    assert summary["status"] == "attention"
+    assert summary["release_notes_checksum_drift"] == [
+        {
+            "asset": "ao2-control-plane-0.1.12-macos-aarch64.tar.gz",
+            "checksum_manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000003",
+            "release_notes_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        }
+    ]
+    assert summary["gaps"][-1] == {
+        "gap_kind": "release_notes_checksum_drift",
+        "severity": "release_attention",
+        "assets": ["ao2-control-plane-0.1.12-macos-aarch64.tar.gz"],
+    }

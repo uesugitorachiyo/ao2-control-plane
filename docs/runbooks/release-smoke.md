@@ -105,11 +105,12 @@ Expected output is `control_plane_release_asset_parity=passed` for a complete
 stable release, or `control_plane_release_asset_parity=attention` when the
 release is checksum-valid but missing platform archives or release-note parity.
 The summary schema is `ao2.cp-release-asset-parity-audit.v1`; it lists published
-assets, checksum entries, release-note archive names, missing assets, and the
-read-only trust boundary. Default CI keeps this audit advisory so a known
-partial public release remains visible without blocking unrelated PRs. Use
-`AO2_CP_RELEASE_ASSET_PARITY_STRICT=1` in the release-publication path once the
-Linux and Windows archives are attached to the stable release.
+assets, checksum entries, release-note archive names and hashes, missing assets,
+release-note checksum drift, and the read-only trust boundary. Default CI keeps
+this audit advisory so a known partial public release remains visible without
+blocking unrelated PRs. Use `AO2_CP_RELEASE_ASSET_PARITY_STRICT=1` in the
+release-publication path once the Linux and Windows archives are attached to the
+stable release.
 
 Pull-request CI runs the audit in the `Release asset parity audit` job and
 uploads `ao2-control-plane-release-asset-parity-audit` for operator review.

@@ -163,11 +163,12 @@ CI also runs `Release asset parity audit`, which uploads
 `ao2.cp-release-asset-parity-audit.v1` and compares the public release assets,
 `SHA256SUMS`, and local release notes against the stable three-target archive
 contract: Linux x86_64, macOS aarch64, and Windows x86_64. The default audit is
-advisory and prints `control_plane_release_asset_parity=attention` when a stable
-release is downloadable but incomplete; set `AO2_CP_RELEASE_ASSET_PARITY_STRICT=1`
-when the release publication workflow is ready to make missing platform archives
-fail the gate. The audit is read-only: it does not approve AO2 runs, mutate AO
-artifacts, mutate GitHub releases, or include credential material.
+advisory and prints `control_plane_release_asset_parity=attention` when a
+stable release is downloadable but incomplete, or when release-note archive
+hashes drift from `SHA256SUMS`; set `AO2_CP_RELEASE_ASSET_PARITY_STRICT=1` when
+the release publication workflow is ready to make those gaps fail the gate. The
+audit is read-only: it does not approve AO2 runs, mutate AO artifacts, mutate
+GitHub releases, or include credential material.
 
 ```bash
 scripts/release-asset-parity-audit.sh
