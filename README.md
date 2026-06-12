@@ -175,6 +175,18 @@ scripts/release-asset-parity-audit.sh
 AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 ```
 
+Release notes are generated from `SHA256SUMS` with
+`scripts/generate_release_notes_from_checksums.py`, so archive hashes flow from
+the published checksum manifest instead of a handwritten table:
+
+```bash
+python3 scripts/generate_release_notes_from_checksums.py \
+  --version 0.1.13 \
+  --tag v0.1.13 \
+  --checksums dist-release/SHA256SUMS \
+  --output docs/releases/v0.1.13-notes.md
+```
+
 The CI workflow also produces release-ready archive artifacts for all supported
 targets on every pull request and `main` push. Open
 <https://github.com/uesugitorachiyo/ao2-control-plane/actions> and download:
@@ -189,12 +201,12 @@ uses `dry_run=true` by default for `v0.1.13`, building and smoking release
 archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
 the `ao2-control-plane-release-promotion-plan-<tag>` artifact. That artifact
 contains `ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and
-generated release notes with the source commit and archive hashes. The plan
-records that AO2 release acceptance remains owned by the factory-v3 evaluator
-closer and that the control plane does not approve AO2 runs, mutate AO
-artifacts, or include credential material. Publishing a GitHub release requires
-dispatching the workflow with `dry_run=false`; the normal path only prepares
-evidence.
+release notes generated from `SHA256SUMS` with the source commit and archive
+hashes. The plan records that AO2 release acceptance remains owned by the
+factory-v3 evaluator closer and that the control plane does not approve AO2
+runs, mutate AO artifacts, or include credential material. Publishing a GitHub
+release requires dispatching the workflow with `dry_run=false`; the normal path
+only prepares evidence.
 
 ## Running tests
 

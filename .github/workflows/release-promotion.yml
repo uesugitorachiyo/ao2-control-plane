@@ -133,6 +133,8 @@ jobs:
           import hashlib
           import json
           import os
+          import subprocess
+          import sys
           from datetime import datetime, timezone
           from pathlib import Path
 
@@ -196,26 +198,24 @@ jobs:
           checksum_manifest = root / "SHA256SUMS"
           checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
           release_notes = root / "release-notes.md"
-          release_notes.write_text(
-              "\n".join(
-                  [
-                      f"# ao2-control-plane {tag}",
-                      "",
-                      f"Source commit: `{os.environ['GITHUB_SHA']}`",
-                      "",
-                      "| Target | Asset | SHA-256 |",
-                      "|---|---|---|",
-                      *[
-                          f"| {asset['target_label']} | `{asset['name']}` | `{asset['sha256']}` |"
-                          for asset in archive_assets
-                      ],
-                      "",
-                      "This promotion was assembled by the control-plane release workflow.",
-                      "The control plane remains a read-only observer for AO2 release acceptance.",
-                  ]
-              )
-              + "\n",
-              encoding="utf-8",
+          subprocess.run(
+              [
+                  sys.executable,
+                  "scripts/generate_release_notes_from_checksums.py",
+                  "--version",
+                  version,
+                  "--tag",
+                  tag,
+                  "--checksums",
+                  str(checksum_manifest),
+                  "--output",
+                  str(release_notes),
+                  "--release-workflow",
+                  "Release Promotion",
+                  "--source-commit",
+                  os.environ["GITHUB_SHA"],
+              ],
+              check=True,
           )
 
           summary = {

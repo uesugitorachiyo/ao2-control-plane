@@ -101,6 +101,18 @@ scripts/release-asset-parity-audit.sh
 AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 ```
 
+Release notes are generated from `SHA256SUMS`; generate or repair the local
+release-notes hash table from the checksum manifest instead of editing archive
+hashes by hand:
+
+```sh
+python3 scripts/generate_release_notes_from_checksums.py \
+  --version 0.1.13 \
+  --tag v0.1.13 \
+  --checksums dist-release/SHA256SUMS \
+  --output docs/releases/v0.1.13-notes.md
+```
+
 Expected output is `control_plane_release_asset_parity=passed` for a complete
 stable release, or `control_plane_release_asset_parity=attention` when the
 release is checksum-valid but missing platform archives or release-note parity.
