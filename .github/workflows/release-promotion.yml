@@ -1,0 +1,264 @@
+name: Release Promotion
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: ao2-control-plane package version to promote.
+        required: true
+        default: 0.1.13
+      tag:
+        description: GitHub release tag to prepare or publish.
+        required: true
+        default: v0.1.13
+      dry_run:
+        description: Prepare release evidence only; set false to publish.
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ao2-control-plane-release-promotion-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build-release-archives:
+    name: Build release archive (${{ matrix.target_label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+            target_label: linux-x86_64
+            binary: target/release/ao2-cp-server
+            archive: dist/ao2-control-plane-${{ inputs.version }}-linux-x86_64.tar.gz
+            shell: bash
+          - name: macos-aarch64
+            os: macos-latest
+            target_label: macos-aarch64
+            binary: target/release/ao2-cp-server
+            archive: dist/ao2-control-plane-${{ inputs.version }}-macos-aarch64.tar.gz
+            shell: bash
+          - name: windows-x86_64
+            os: windows-latest
+            target_label: windows-x86_64
+            binary: target/release/ao2-cp-server.exe
+            archive: dist/ao2-control-plane-${{ inputs.version }}-windows-x86_64.tar.gz
+            shell: pwsh
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+      - name: Package archive
+        shell: bash
+        run: |
+          rm -rf dist
+          scripts/package-local.sh \
+            --out-dir dist \
+            --version "${{ inputs.version }}" \
+            --binary "${{ matrix.binary }}" \
+            --target-label "${{ matrix.target_label }}"
+      - name: Run Unix archive smoke
+        if: matrix.shell == 'bash'
+        shell: bash
+        run: |
+          AO2_CP_ARCHIVE="${{ matrix.archive }}" \
+            AO2_CP_SMOKE_JSON="target/release-smoke/${{ matrix.target_label }}.json" \
+            scripts/smoke-release-archive.sh
+      - name: Run Windows archive smoke
+        if: matrix.shell == 'pwsh'
+        shell: pwsh
+        run: |
+          $env:AO2_CP_ARCHIVE = "${{ matrix.archive }}"
+          $env:AO2_CP_SMOKE_JSON = "target/release-smoke/${{ matrix.target_label }}.json"
+          ./scripts/smoke-release-archive.ps1
+      - name: Upload release candidate artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-candidate-${{ inputs.tag }}-${{ matrix.target_label }}
+          path: |
+            ${{ matrix.archive }}
+            dist/SHA256SUMS
+            target/release-smoke/${{ matrix.target_label }}.json
+          if-no-files-found: error
+
+  assemble-release-promotion-plan:
+    name: Assemble release promotion plan
+    runs-on: ubuntu-latest
+    needs: build-release-archives
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Download release candidate artifacts
+        uses: actions/download-artifact@v7.0.1
+        with:
+          pattern: ao2-control-plane-release-candidate-${{ inputs.tag }}-*
+          path: target/release-promotion/${{ inputs.tag }}/downloaded
+      - name: Assemble promotion evidence
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          version = "${{ inputs.version }}"
+          tag = "${{ inputs.tag }}"
+          dry_run = "${{ inputs.dry_run }}" != "false"
+          root = Path("target/release-promotion") / tag
+          downloaded = root / "downloaded"
+          root.mkdir(parents=True, exist_ok=True)
+          expected_targets = ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
+          archive_assets = []
+          checksum_lines = []
+          gaps = []
+
+          for target_label in expected_targets:
+              name = f"ao2-control-plane-{version}-{target_label}.tar.gz"
+              matches = list(downloaded.glob(f"**/{name}"))
+              if len(matches) != 1:
+                  gaps.append(
+                      {
+                          "gap_kind": "missing_or_ambiguous_archive",
+                          "target_label": target_label,
+                          "asset": name,
+                          "matches": [str(path) for path in matches],
+                      }
+                  )
+                  continue
+              path = matches[0]
+              data = path.read_bytes()
+              sha256 = hashlib.sha256(data).hexdigest()
+              relative = path.relative_to(root)
+              archive_assets.append(
+                  {
+                      "name": name,
+                      "path": str(relative),
+                      "sha256": sha256,
+                      "size_bytes": len(data),
+                      "target_label": target_label,
+                  }
+              )
+              checksum_lines.append(f"{sha256}  {name}\n")
+
+          if gaps:
+              (root / "summary.json").write_text(
+                  json.dumps(
+                      {
+                          "schema_version": "ao2.cp-release-promotion-plan.v1",
+                          "status": "blocked",
+                          "version": version,
+                          "tag": tag,
+                          "gaps": gaps,
+                      },
+                      indent=2,
+                      sort_keys=True,
+                  )
+                  + "\n",
+                  encoding="utf-8",
+              )
+              raise SystemExit("release promotion plan blocked by archive gaps")
+
+          checksum_manifest = root / "SHA256SUMS"
+          checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
+          release_notes = root / "release-notes.md"
+          release_notes.write_text(
+              "\n".join(
+                  [
+                      f"# ao2-control-plane {tag}",
+                      "",
+                      f"Source commit: `{os.environ['GITHUB_SHA']}`",
+                      "",
+                      "| Target | Asset | SHA-256 |",
+                      "|---|---|---|",
+                      *[
+                          f"| {asset['target_label']} | `{asset['name']}` | `{asset['sha256']}` |"
+                          for asset in archive_assets
+                      ],
+                      "",
+                      "This promotion was assembled by the control-plane release workflow.",
+                      "The control plane remains a read-only observer for AO2 release acceptance.",
+                  ]
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+
+          summary = {
+              "schema_version": "ao2.cp-release-promotion-plan.v1",
+              "status": "prepared",
+              "version": version,
+              "tag": tag,
+              "dry_run": dry_run,
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "source_commit": os.environ["GITHUB_SHA"],
+              "source_ref": os.environ["GITHUB_REF_NAME"],
+              "archive_assets": archive_assets,
+              "checksum_manifest": str(checksum_manifest),
+              "release_notes": str(release_notes),
+              "trust_boundary": {
+                  "control_plane_approves_release": False,
+                  "mutates_ao_artifacts": False,
+                  "mutates_github_releases": dry_run is False,
+                  "github_release_mutation_requested": dry_run is False,
+                  "credential_material_included": False,
+                  "release_acceptance_owner": "factory-v3 evaluator-closer",
+              },
+          }
+          (root / "summary.json").write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+      - name: Upload release promotion plan
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-promotion-plan-${{ inputs.tag }}
+          path: |
+            target/release-promotion/${{ inputs.tag }}/summary.json
+            target/release-promotion/${{ inputs.tag }}/SHA256SUMS
+            target/release-promotion/${{ inputs.tag }}/release-notes.md
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs: assemble-release-promotion-plan
+    if: ${{ inputs.dry_run == 'false' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Download release candidate artifacts
+        uses: actions/download-artifact@v7.0.1
+        with:
+          pattern: ao2-control-plane-release-candidate-${{ inputs.tag }}-*
+          path: target/release-promotion/${{ inputs.tag }}/downloaded
+      - name: Download release promotion plan
+        uses: actions/download-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-release-promotion-plan-${{ inputs.tag }}
+          path: target/release-promotion/${{ inputs.tag }}
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          root="target/release-promotion/${{ inputs.tag }}"
+          gh release create "${{ inputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "ao2-control-plane ${{ inputs.tag }}" \
+            --notes-file "$root/release-notes.md" \
+            --target "$GITHUB_SHA"
+          gh release upload "${{ inputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            "$root"/downloaded/*/dist/ao2-control-plane-${{ inputs.version }}-*.tar.gz \
+            "$root/SHA256SUMS" \
+            "$root/summary.json" \
+            --clobber

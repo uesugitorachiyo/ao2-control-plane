@@ -67,7 +67,7 @@ jobs:
         run: |
           mkdir -p target/ci-artifacts/python-guards
           set +e
-          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py -q \
+          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py -q \
             2>&1 | tee target/ci-artifacts/python-guards/pytest.log
           status="${PIPESTATUS[0]}"
           set -e
@@ -81,7 +81,7 @@ jobs:
           payload = {
               "schema_version": "ao2.cp-python-guard-ci-artifacts.v1",
               "status": "passed" if status == 0 else "failed",
-              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py -q",
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py -q",
               "log": str(out / "pytest.log"),
           }
           (out / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
