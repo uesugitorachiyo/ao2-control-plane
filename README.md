@@ -182,10 +182,12 @@ AO2 stable release (`v0.4.80`) and control-plane release (`v0.1.13`) as one
 public release pair. The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
-summary evidence, and prints `control_plane_public_release_pair_verification=passed`
-when the pair is complete. It is read-only: it does not download large archives,
-approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
-credential material.
+summary evidence, and checksum coverage for the published control-plane
+evidence summary. It prints
+`control_plane_public_release_pair_verification=passed` when the pair is
+complete. It is read-only: it does not download large archives, approve AO2
+runs, mutate AO artifacts, mutate GitHub releases, or include credential
+material.
 
 ```bash
 scripts/public_release_pair_verify.py \
@@ -221,7 +223,9 @@ archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
 the `ao2-control-plane-release-promotion-plan-<tag>` artifact. That artifact
 contains `ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and
 release notes generated from `SHA256SUMS` with the source commit and archive
-hashes. The plan records that AO2 release acceptance remains owned by the
+hashes. `SHA256SUMS` covers the platform archives and the published
+`summary.json` evidence asset so post-release verification can prove the release
+metadata did not drift. The plan records that AO2 release acceptance remains owned by the
 factory-v3 evaluator closer and that the control plane does not approve AO2
 runs, mutate AO artifacts, or include credential material. Publishing a GitHub
 release requires dispatching the workflow with `dry_run=false`; the normal path

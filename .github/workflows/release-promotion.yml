@@ -196,8 +196,44 @@ jobs:
               raise SystemExit("release promotion plan blocked by archive gaps")
 
           checksum_manifest = root / "SHA256SUMS"
-          checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
           release_notes = root / "release-notes.md"
+          evidence_assets = [
+              {
+                  "name": "summary.json",
+                  "path": "summary.json",
+                  "asset_kind": "release_promotion_summary",
+                  "checksum_manifest_entry": True,
+              }
+          ]
+
+          summary = {
+              "schema_version": "ao2.cp-release-promotion-plan.v1",
+              "status": "prepared",
+              "version": version,
+              "tag": tag,
+              "dry_run": dry_run,
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "source_commit": os.environ["GITHUB_SHA"],
+              "source_ref": os.environ["GITHUB_REF_NAME"],
+              "archive_assets": archive_assets,
+              "evidence_assets": evidence_assets,
+              "checksum_manifest": str(checksum_manifest),
+              "release_notes": str(release_notes),
+              "trust_boundary": {
+                  "control_plane_approves_release": False,
+                  "mutates_ao_artifacts": False,
+                  "mutates_github_releases": dry_run is False,
+                  "github_release_mutation_requested": dry_run is False,
+                  "credential_material_included": False,
+                  "release_acceptance_owner": "factory-v3 evaluator-closer",
+              },
+          }
+          summary_path = root / "summary.json"
+          summary_bytes = (json.dumps(summary, indent=2, sort_keys=True) + "\n").encode("utf-8")
+          summary_path.write_bytes(summary_bytes)
+          summary_sha256 = hashlib.sha256(summary_bytes).hexdigest()
+          checksum_lines.append(f"{summary_sha256}  summary.json\n")
+          checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
           subprocess.run(
               [
                   sys.executable,
@@ -216,32 +252,6 @@ jobs:
                   os.environ["GITHUB_SHA"],
               ],
               check=True,
-          )
-
-          summary = {
-              "schema_version": "ao2.cp-release-promotion-plan.v1",
-              "status": "prepared",
-              "version": version,
-              "tag": tag,
-              "dry_run": dry_run,
-              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-              "source_commit": os.environ["GITHUB_SHA"],
-              "source_ref": os.environ["GITHUB_REF_NAME"],
-              "archive_assets": archive_assets,
-              "checksum_manifest": str(checksum_manifest),
-              "release_notes": str(release_notes),
-              "trust_boundary": {
-                  "control_plane_approves_release": False,
-                  "mutates_ao_artifacts": False,
-                  "mutates_github_releases": dry_run is False,
-                  "github_release_mutation_requested": dry_run is False,
-                  "credential_material_included": False,
-                  "release_acceptance_owner": "factory-v3 evaluator-closer",
-              },
-          }
-          (root / "summary.json").write_text(
-              json.dumps(summary, indent=2, sort_keys=True) + "\n",
-              encoding="utf-8",
           )
           PY
       - name: Upload release promotion plan
