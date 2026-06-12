@@ -24,10 +24,13 @@ def test_release_promotion_workflow_is_manual_dry_run_by_default():
         "default: true",
         "permissions:",
         "contents: write",
+        "actions/download-artifact@v8.0.1",
         "cancel-in-progress: false",
         "ao2-control-plane-release-promotion-${{ inputs.tag }}",
     ]:
         assert needle in workflow
+
+    assert "actions/download-artifact@v7.0.1" not in workflow
 
 
 def test_release_promotion_builds_and_smokes_three_target_archives():

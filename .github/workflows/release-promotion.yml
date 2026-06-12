@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.3
       - name: Download release candidate artifacts
-        uses: actions/download-artifact@v7.0.1
+        uses: actions/download-artifact@v8.0.1
         with:
           pattern: ao2-control-plane-release-candidate-${{ inputs.tag }}-*
           path: target/release-promotion/${{ inputs.tag }}/downloaded
@@ -236,12 +236,12 @@ jobs:
       contents: write
     steps:
       - name: Download release candidate artifacts
-        uses: actions/download-artifact@v7.0.1
+        uses: actions/download-artifact@v8.0.1
         with:
           pattern: ao2-control-plane-release-candidate-${{ inputs.tag }}-*
           path: target/release-promotion/${{ inputs.tag }}/downloaded
       - name: Download release promotion plan
-        uses: actions/download-artifact@v7.0.1
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ao2-control-plane-release-promotion-plan-${{ inputs.tag }}
           path: target/release-promotion/${{ inputs.tag }}
