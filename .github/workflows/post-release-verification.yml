@@ -84,3 +84,53 @@ jobs:
           name: ao2-control-plane-post-release-verification-${{ matrix.name }}
           path: target/post-release-verification/${{ matrix.name }}
           if-no-files-found: error
+
+  public-release-pair-verification:
+    name: AO2/control-plane public release pair verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release verifier
+        uses: actions/checkout@v6.0.3
+
+      - name: Verify public release pair
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p target/post-release-pair-verification
+          scripts/public_release_pair_verify.py \
+            --summary-json target/post-release-pair-verification/summary.json \
+            --strict \
+            | tee target/post-release-pair-verification/verify.log
+          grep -q 'control_plane_public_release_pair_verification=passed' target/post-release-pair-verification/verify.log
+          test -f target/post-release-pair-verification/summary.json
+
+      - name: Validate public release pair summary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("target/post-release-pair-verification/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["strict"] is True, summary
+          assert summary["ao2"]["release_repo"] == "uesugitorachiyo/ao2", summary
+          assert summary["control_plane"]["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
+          assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"], summary
+          trust_boundary = summary["trust_boundary"]
+          assert trust_boundary["control_plane_approves_release"] is False, summary
+          assert trust_boundary["downloads_archives"] is False, summary
+          assert trust_boundary["mutates_ao_artifacts"] is False, summary
+          assert trust_boundary["mutates_github_releases"] is False, summary
+          assert trust_boundary["credential_material_included"] is False, summary
+          PY
+
+      - name: Upload public release pair verification evidence
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-post-release-pair-verification
+          path: target/post-release-pair-verification
+          if-no-files-found: error
