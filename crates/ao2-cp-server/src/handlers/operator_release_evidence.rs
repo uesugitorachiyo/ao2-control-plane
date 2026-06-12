@@ -30,7 +30,7 @@ pub async fn operator_release_evidence_readback() -> Result<Response, AppError> 
         .cloned()
         .unwrap_or_default();
     let rows = if checks.is_empty() {
-        "<tr><td colspan=\"5\">No operator release evidence checks listed.</td></tr>".to_string()
+        "<tr><td colspan=\"6\">No operator release evidence checks listed.</td></tr>".to_string()
     } else {
         checks
             .iter()
@@ -40,13 +40,15 @@ pub async fn operator_release_evidence_readback() -> Result<Response, AppError> 
                 let artifact = json_str(check, "artifact").unwrap_or("missing");
                 let kind = json_str(check, "kind").unwrap_or("missing");
                 let status = json_str(check, "status").unwrap_or("missing");
+                let detail = check_detail_summary(check);
                 format!(
-                    "<tr><td>{}</td><td>{}</td><td><code>{}</code></td><td><code>{}</code></td><td>{}</td></tr>",
+                    "<tr><td>{}</td><td>{}</td><td><code>{}</code></td><td><code>{}</code></td><td>{}</td><td><code>{}</code></td></tr>",
                     escape_html(component),
                     escape_html(platform),
                     escape_html(artifact),
                     escape_html(kind),
-                    escape_html(status)
+                    escape_html(status),
+                    escape_html(&detail)
                 )
             })
             .collect::<Vec<_>>()
@@ -90,7 +92,7 @@ pub async fn operator_release_evidence_readback() -> Result<Response, AppError> 
   <section>
     <h2>Checks</h2>
     <table>
-      <thead><tr><th>Component</th><th>Platform</th><th>Artifact</th><th>Kind</th><th>Status</th></tr></thead>
+      <thead><tr><th>Component</th><th>Platform</th><th>Artifact</th><th>Kind</th><th>Status</th><th>Details</th></tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </section>
@@ -205,6 +207,29 @@ fn json_scalar(value: &serde_json::Value) -> String {
         serde_json::Value::Null => "null".to_string(),
         _ => value.to_string(),
     }
+}
+
+fn check_detail_summary(check: &serde_json::Value) -> String {
+    [
+        "schema_version",
+        "task_board_readback_schema",
+        "task_board_dashboard_schema",
+        "signature_verified",
+        "checksum_verified",
+        "auth_value_stored",
+        "credential_material_in_urls",
+        "credential_material_included",
+        "mutates_github_releases",
+        "control_plane_approves_release",
+    ]
+    .iter()
+    .filter_map(|key| {
+        check
+            .get(key)
+            .map(|value| format!("{key}={}", json_scalar(value)))
+    })
+    .collect::<Vec<_>>()
+    .join("; ")
 }
 
 fn escape_html(value: &str) -> String {

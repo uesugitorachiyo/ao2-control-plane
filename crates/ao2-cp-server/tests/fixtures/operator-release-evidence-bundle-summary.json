@@ -39,6 +39,21 @@
       "status": "passed"
     },
     {
+      "artifact": "ao2-dual-public-release-smoke",
+      "auth_value_stored": false,
+      "component": "ao2",
+      "control_plane_approves_release": false,
+      "credential_material_in_urls": false,
+      "credential_material_included": false,
+      "kind": "ao2-dual-public-release-smoke",
+      "mutates_github_releases": false,
+      "platform": "public-release-pair",
+      "schema_version": "ao2.dual-public-release-smoke.v1",
+      "status": "passed",
+      "task_board_dashboard_schema": "ao2.cp-ai-task-board-dashboard.v1",
+      "task_board_readback_schema": "ao2.cp-ai-task-board-readback.v1"
+    },
+    {
       "artifact": "ao2-control-plane-post-release-verification-ubuntu",
       "checksum_verified": true,
       "component": "ao2-control-plane",
@@ -101,6 +116,12 @@
       "component": "ao2",
       "kind": "ao2-post-stable",
       "platform": "windows"
+    },
+    {
+      "artifact": "ao2-dual-public-release-smoke",
+      "component": "ao2",
+      "kind": "ao2-dual-public-release-smoke",
+      "platform": "public-release-pair"
     },
     {
       "artifact": "ao2-control-plane-post-release-verification-ubuntu",
