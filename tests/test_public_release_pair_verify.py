@@ -186,6 +186,7 @@ def test_public_release_pair_verify_requires_control_plane_summary_checksum_entr
 
 def test_public_release_pair_verify_is_documented_executable_and_in_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    post_release = (REPO_ROOT / ".github/workflows/post-release-verification.yml").read_text(encoding="utf-8")
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
@@ -221,3 +222,13 @@ def test_public_release_pair_verify_is_documented_executable_and_in_ci():
         assert needle in ci
         assert needle in readme
         assert needle in runbook
+
+    for needle in [
+        "public-release-pair-verification",
+        "scripts/public_release_pair_verify.py",
+        "--strict",
+        "ao2-control-plane-post-release-pair-verification",
+        "control_plane_public_release_pair_verification=passed",
+        "ao2.cp-public-release-pair-verification.v1",
+    ]:
+        assert needle in post_release

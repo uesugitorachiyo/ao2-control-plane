@@ -161,6 +161,14 @@ artifact when reviewing whether AO2 and the control plane are releasable
 together, not just individually. The script and CI wiring are guarded by
 `tests/test_public_release_pair_verify.py`.
 
+`Post Release Verification` also runs this verifier with `--strict` on its
+weekly/manual schedule and uploads
+`ao2-control-plane-post-release-pair-verification`. Use that scheduled artifact
+as the drift monitor for the public release pair after merge: missing assets,
+missing checksum entries, missing common platforms, prerelease/draft releases,
+or a control-plane `summary.json` without a `SHA256SUMS` entry fail the
+workflow instead of producing advisory-only evidence.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public

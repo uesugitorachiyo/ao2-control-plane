@@ -189,6 +189,14 @@ complete. It is read-only: it does not download large archives, approve AO2
 runs, mutate AO artifacts, mutate GitHub releases, or include credential
 material.
 
+`Post Release Verification` also runs this verifier in strict mode on its
+weekly/manual schedule and uploads
+`ao2-control-plane-post-release-pair-verification`. That scheduled artifact is
+the drift monitor for the public AO2/control-plane release pair: if a public
+release asset, provenance sidecar, checksum entry, common platform, or
+control-plane `summary.json` checksum disappears after merge, the scheduled
+workflow fails instead of leaving the gap hidden until the next PR.
+
 ```bash
 scripts/public_release_pair_verify.py \
   --summary-json target/public-release-pair-verification/summary.json
