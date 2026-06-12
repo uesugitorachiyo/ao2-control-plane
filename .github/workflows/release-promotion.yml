@@ -53,6 +53,33 @@ jobs:
       - uses: actions/checkout@v6.0.3
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+      - name: Verify requested version matches workspace metadata
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          input_version = "${{ inputs.version }}"
+          workspace_version = ""
+          in_workspace_package = False
+          for line in Path("Cargo.toml").read_text(encoding="utf-8").splitlines():
+              stripped = line.strip()
+              if stripped == "[workspace.package]":
+                  in_workspace_package = True
+                  continue
+              if in_workspace_package and stripped.startswith("["):
+                  break
+              if in_workspace_package and stripped.startswith("version = "):
+                  workspace_version = stripped.split('"', 2)[1]
+                  break
+          if not workspace_version:
+              raise SystemExit("release promotion version mismatch: missing Cargo.toml workspace_version")
+          if input_version != workspace_version:
+              raise SystemExit(
+                  f"release promotion version mismatch: input_version={input_version} workspace_version={workspace_version}"
+              )
+          print(f"release_promotion_workspace_version={workspace_version}")
+          PY
       - name: Build release binary
         run: cargo build --release -p ao2-cp-server
       - name: Package archive
@@ -251,11 +278,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           root="target/release-promotion/${{ inputs.tag }}"
-          gh release create "${{ inputs.tag }}" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "ao2-control-plane ${{ inputs.tag }}" \
-            --notes-file "$root/release-notes.md" \
-            --target "$GITHUB_SHA"
+          if gh release view "${{ inputs.tag }}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "${{ inputs.tag }}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "ao2-control-plane ${{ inputs.tag }}" \
+              --notes-file "$root/release-notes.md" \
+              --target "$GITHUB_SHA" \
+              --latest
+          else
+            gh release create "${{ inputs.tag }}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "ao2-control-plane ${{ inputs.tag }}" \
+              --notes-file "$root/release-notes.md" \
+              --target "$GITHUB_SHA" \
+              --latest
+          fi
           gh release upload "${{ inputs.tag }}" \
             --repo "$GITHUB_REPOSITORY" \
             "$root"/downloaded/*/dist/ao2-control-plane-${{ inputs.version }}-*.tar.gz \

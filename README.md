@@ -1,6 +1,6 @@
 # ao2-control-plane
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.13)
 
 Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
 
@@ -88,8 +88,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.12 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.12-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.13 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.13-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -100,8 +100,8 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.12 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.12-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.13 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.13-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
@@ -118,17 +118,17 @@ macOS, and Windows.
 ## Install From Public Release
 
 The current public release is
-[`v0.1.12`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.12).
-It publishes the macOS archive plus token-free release support and bridge smoke
-evidence. Download and verify it with:
+[`v0.1.13`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.13).
+It publishes Linux, macOS, and Windows archives plus token-free promotion
+summary evidence. Download and verify it with:
 
 ```bash
 mkdir -p dist-release
-gh release download v0.1.12 --repo uesugitorachiyo/ao2-control-plane \
-  --pattern ao2-control-plane-0.1.12-macos-aarch64.tar.gz \
+gh release download v0.1.13 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.13-macos-aarch64.tar.gz \
   --pattern SHA256SUMS \
   --dir dist-release
-(cd dist-release && grep 'ao2-control-plane-0.1.12-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+(cd dist-release && grep 'ao2-control-plane-0.1.13-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
 Or run the repository verifier, which downloads all published prerelease assets

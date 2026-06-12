@@ -14,7 +14,7 @@ concurrency:
 
 env:
   AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane
-  AO2_CP_RELEASE_TAG: v0.1.12
+  AO2_CP_RELEASE_TAG: v0.1.13
 
 jobs:
   post-release-verification:
@@ -68,7 +68,7 @@ jobs:
           assert summary["schema_version"] == "ao2.cp-release-publication-closure.v1", summary
           assert summary["status"] == "passed", summary
           assert summary["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
-          assert summary["release_tag"] == "v0.1.12", summary
+          assert summary["release_tag"] == "v0.1.13", summary
           assert summary["checksum_verified"] is True, summary
           assert summary["assets"], summary
           trust_boundary = summary["trust_boundary"]

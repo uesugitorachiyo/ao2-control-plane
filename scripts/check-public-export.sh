@@ -54,12 +54,12 @@ if grep -aEn '/Users/[A-Za-z0-9._-]+|C:\\Users\\[A-Za-z0-9._-]+|C:\\\\Users\\\\[
   fail "private path or private repo reference found"
 fi
 
-if grep -aEn 'ao2-control-plane-0\.1\.(0|1|2|3|4|5|6|7|8|9|10|11)-|v0\.1\.(0|1|2|3|4|5|6|7|8|9|10|11)\b' README.md .github/workflows/ci.yml scripts/package-local.sh; then
+if grep -aEn 'ao2-control-plane-0\.1\.(0|1|2|3|4|5|6|7|8|9|10|11|12)-|v0\.1\.(0|1|2|3|4|5|6|7|8|9|10|11|12)\b' README.md .github/workflows/ci.yml scripts/package-local.sh; then
   fail "stale control-plane release artifact reference found"
 fi
 
-if ! grep -q 'version = "0.1.12"' Cargo.toml; then
-  fail "Cargo.toml does not advertise ao2-control-plane version 0.1.12"
+if ! grep -q 'version = "0.1.13"' Cargo.toml; then
+  fail "Cargo.toml does not advertise ao2-control-plane version 0.1.13"
 fi
 
 rm -f "$scan_files"

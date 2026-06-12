@@ -2,7 +2,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-VERSION="0.1.12"
+VERSION="0.1.13"
 OUT_DIR="$ROOT/dist"
 BINARY="$ROOT/target/release/ao2-cp-server"
 TARGET_LABEL=""
