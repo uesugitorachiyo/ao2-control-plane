@@ -140,6 +140,7 @@ def control_plane_checksum_required_assets(version: str) -> list[str]:
         f"ao2-control-plane-{version}-linux-x86_64.tar.gz",
         f"ao2-control-plane-{version}-macos-aarch64.tar.gz",
         f"ao2-control-plane-{version}-windows-x86_64.tar.gz",
+        "summary.json",
     ]
 
 

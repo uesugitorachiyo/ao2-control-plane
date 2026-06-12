@@ -89,6 +89,9 @@ def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
         '"credential_material_included": False',
         '"release_acceptance_owner": "factory-v3 evaluator-closer"',
         '"github_release_mutation_requested": dry_run is False',
+        'summary_sha256 = hashlib.sha256(summary_bytes).hexdigest()',
+        'checksum_lines.append(f"{summary_sha256}  summary.json\\n")',
+        '"evidence_assets": evidence_assets',
         "ao2-control-plane-release-promotion-plan-${{ inputs.tag }}",
     ]:
         assert needle in workflow

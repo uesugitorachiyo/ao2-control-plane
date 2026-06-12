@@ -165,17 +165,23 @@ def test_public_release_pair_verify_reports_missing_ao2_provenance_gap(tmp_path)
     ]
 
 
-def test_public_release_pair_verify_allows_control_plane_summary_without_checksum_entry(tmp_path):
+def test_public_release_pair_verify_requires_control_plane_summary_checksum_entry(tmp_path):
     cp_checksum_assets = [asset for asset in control_plane_assets() if asset != "summary.json"]
 
     result, summary = run_pair_verify(tmp_path, cp_checksum_assets=cp_checksum_assets, strict=True)
 
-    assert result.returncode == 0, result.stderr
-    assert "control_plane_public_release_pair_verification=passed" in result.stdout
-    assert summary["status"] == "passed"
+    assert result.returncode != 0
+    assert "control_plane_public_release_pair_verification=attention" in result.stdout
+    assert summary["status"] == "attention"
     assert "summary.json" in summary["control_plane"]["published_assets"]
     assert "summary.json" not in summary["control_plane"]["checksum_entries"]
-    assert summary["gaps"] == []
+    assert summary["gaps"] == [
+        {
+            "gap_kind": "control_plane_missing_checksum_entries",
+            "severity": "release_blocker",
+            "assets": ["summary.json"],
+        }
+    ]
 
 
 def test_public_release_pair_verify_is_documented_executable_and_in_ci():

@@ -145,10 +145,15 @@ Expected output includes
 `ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.80`,
 control-plane `v0.1.13`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
-promotion summary evidence, and a read-only trust boundary. Use
-`--strict` in release-promotion or stable-channel gates when missing public
-assets should fail immediately instead of producing an advisory `attention`
-summary.
+promotion summary evidence, checksum coverage for `summary.json`, and a
+read-only trust boundary. Use `--strict` in release-promotion or stable-channel
+gates when missing public assets or missing evidence checksum entries should
+fail immediately instead of producing an advisory `attention` summary.
+
+If a historical release has `summary.json` uploaded but not listed in
+`SHA256SUMS`, repair only the checksum manifest: download `summary.json`,
+append its SHA-256 as `summary.json`, re-upload `SHA256SUMS`, and rerun this
+verifier plus `scripts/release-download-verify.sh`.
 
 Pull-request CI runs the same check in the `Public release pair verification`
 job and uploads `ao2-control-plane-public-release-pair-verification`. Use that
