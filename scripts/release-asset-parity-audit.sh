@@ -100,23 +100,35 @@ asset_names = sorted(asset.get("name", "") for asset in assets if asset.get("nam
 
 checksum_text = Path(checksums_path).read_text(encoding="utf-8")
 checksum_entries = []
+checksum_sha256_by_asset = {}
 for line in checksum_text.splitlines():
     parts = line.strip().split()
     if len(parts) >= 2 and re.fullmatch(r"[0-9a-fA-F]{64}", parts[0]):
-        checksum_entries.append(parts[-1].lstrip("*"))
+        asset_name = parts[-1].lstrip("*")
+        checksum_entries.append(asset_name)
+        checksum_sha256_by_asset[asset_name] = parts[0].lower()
 
 notes_archives = []
+notes_sha256_by_archive = {}
 notes_path = Path(release_notes_path)
 if notes_path.exists():
     notes_text = notes_path.read_text(encoding="utf-8")
+    archive_pattern = (
+        r"ao2-control-plane-\d+\.\d+\.\d+-(?:linux-x86_64|macos-aarch64|windows-x86_64)\.tar\.gz"
+    )
     notes_archives = sorted(
         set(
             re.findall(
-                r"ao2-control-plane-\d+\.\d+\.\d+-(?:linux-x86_64|macos-aarch64|windows-x86_64)\.tar\.gz",
+                archive_pattern,
                 notes_text,
             )
         )
     )
+    for match in re.finditer(
+        rf"`({archive_pattern})`\s*\|\s*`([0-9a-fA-F]{{64}})`",
+        notes_text,
+    ):
+        notes_sha256_by_archive[match.group(1)] = match.group(2).lower()
 
 asset_name_set = set(asset_names)
 checksum_entry_set = set(checksum_entries)
@@ -134,6 +146,17 @@ missing_checksum_entries = [
 release_notes_archive_drift = sorted(
     (notes_archive_set - asset_name_set) | (set(expected_platform_archives) - notes_archive_set)
 )
+release_notes_checksum_drift = [
+    {
+        "asset": name,
+        "checksum_manifest_sha256": checksum_sha256_by_asset[name],
+        "release_notes_sha256": notes_sha256_by_archive[name],
+    }
+    for name in expected_platform_archives
+    if name in checksum_sha256_by_asset
+    and name in notes_sha256_by_archive
+    and checksum_sha256_by_asset[name] != notes_sha256_by_archive[name]
+]
 
 gaps = []
 if missing_platform_archives:
@@ -168,6 +191,14 @@ if release_notes_archive_drift:
             "assets": release_notes_archive_drift,
         }
     )
+if release_notes_checksum_drift:
+    gaps.append(
+        {
+            "gap_kind": "release_notes_checksum_drift",
+            "severity": "release_attention",
+            "assets": [item["asset"] for item in release_notes_checksum_drift],
+        }
+    )
 
 status = "attention" if gaps else "passed"
 strict = strict_raw == "1"
@@ -189,11 +220,14 @@ summary = {
     "expected_evidence_assets": expected_evidence_assets,
     "published_assets": asset_names,
     "checksum_entries": sorted(checksum_entries),
+    "checksum_sha256_by_asset": checksum_sha256_by_asset,
     "release_notes_archives": notes_archives,
+    "release_notes_sha256_by_archive": notes_sha256_by_archive,
     "missing_platform_archives": missing_platform_archives,
     "missing_evidence_assets": missing_evidence_assets,
     "missing_checksum_entries": missing_checksum_entries,
     "release_notes_archive_drift": release_notes_archive_drift,
+    "release_notes_checksum_drift": release_notes_checksum_drift,
     "gaps": gaps,
     "trust_boundary": {
         "control_plane_approves_release": False,
