@@ -121,7 +121,7 @@ echo $! > target/long-lived-control-plane/server.pid
 Liveness check:
 ```bash
 curl -sf http://127.0.0.1:18745/healthz | jq .
-# {"status":"ok","version":"0.1.12","schema_version":"ao2.cp-healthz.v1"}
+# {"status":"ok","version":"0.1.13","schema_version":"ao2.cp-healthz.v1"}
 ```
 
 Readiness check (token-gated):

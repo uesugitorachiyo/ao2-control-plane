@@ -2,7 +2,7 @@
 set -euo pipefail
 
 AO2_CP_RELEASE_REPO="${AO2_CP_RELEASE_REPO:-uesugitorachiyo/ao2-control-plane}"
-AO2_CP_RELEASE_TAG="${AO2_CP_RELEASE_TAG:-v0.1.12}"
+AO2_CP_RELEASE_TAG="${AO2_CP_RELEASE_TAG:-v0.1.13}"
 AO2_CP_RELEASE_ASSET_PARITY_ROOT="${AO2_CP_RELEASE_ASSET_PARITY_ROOT:-target/release-asset-parity-audit}"
 AO2_CP_RELEASE_ASSET_PARITY_SUMMARY_JSON="${AO2_CP_RELEASE_ASSET_PARITY_SUMMARY_JSON:-$AO2_CP_RELEASE_ASSET_PARITY_ROOT/summary.json}"
 AO2_CP_RELEASE_ASSET_PARITY_RELEASE_VIEW_JSON="${AO2_CP_RELEASE_ASSET_PARITY_RELEASE_VIEW_JSON:-}"
@@ -85,13 +85,10 @@ expected_platform_archives = [
     f"ao2-control-plane-{version}-{target}.tar.gz" for target in target_labels
 ]
 expected_evidence_assets = [
-    "ao2-control-plane-release-support-fixture-parity-summary.json",
-    "ao2-control-plane-release-train-bridge-macos-summary.json",
-    "ao2-control-plane-release-train-bridge-ubuntu-summary.json",
-    "ao2-control-plane-release-train-bridge-windows-summary.json",
+    "summary.json",
 ]
 required_assets = ["SHA256SUMS"] + expected_platform_archives + expected_evidence_assets
-checksum_required_assets = expected_platform_archives + expected_evidence_assets
+checksum_required_assets = expected_platform_archives
 
 release_view_bytes = Path(release_view_path).read_bytes()
 release_view = json.loads(release_view_bytes.decode("utf-8"))

@@ -33,6 +33,19 @@ def test_release_promotion_workflow_is_manual_dry_run_by_default():
     assert "actions/download-artifact@v7.0.1" not in workflow
 
 
+def test_release_promotion_refuses_version_that_does_not_match_workspace_package():
+    workflow = workflow_text()
+
+    for needle in [
+        "Verify requested version matches workspace metadata",
+        "workspace_version",
+        "release promotion version mismatch",
+        "Cargo.toml",
+        "input_version = \"${{ inputs.version }}\"",
+    ]:
+        assert needle in workflow
+
+
 def test_release_promotion_builds_and_smokes_three_target_archives():
     workflow = workflow_text()
 
@@ -96,8 +109,11 @@ def test_release_promotion_publish_step_is_explicitly_guarded():
     for needle in [
         "if: ${{ inputs.dry_run == 'false' }}",
         "GH_TOKEN: ${{ github.token }}",
+        "gh release view \"${{ inputs.tag }}\"",
+        "gh release edit \"${{ inputs.tag }}\"",
         "gh release create \"${{ inputs.tag }}\"",
         "--target \"$GITHUB_SHA\"",
+        "--latest",
         "gh release upload \"${{ inputs.tag }}\"",
         "target/release-promotion/${{ inputs.tag }}/release-notes.md",
     ]:
