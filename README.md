@@ -494,6 +494,15 @@ Both modes emit `ao2.cp-operator-release-evidence-bridge-smoke.v1` under
 `target/operator-release-evidence-bridge-smoke/`, including token-free JSON and
 HTML captures plus server logs.
 
+CI also runs `Operator release evidence hosted bridge smoke` on Ubuntu after
+the three-OS fixture smoke passes. That gate downloads the latest successful
+AO2 `ao2-operator-release-evidence-bundle` artifact from GitHub Actions, starts
+the local control-plane server, verifies JSON/HTML readback, and uploads
+`ao2-control-plane-operator-release-evidence-hosted-bridge-smoke`. It remains a
+read-only release-readiness check: it can download GitHub Actions artifacts, but
+it does not approve releases, store credentials, publish tags, or mutate AO2
+artifacts.
+
 For an end-to-end local bridge smoke, first generate the AO2-side bridge
 manifest into this repository, then run the control-plane observer smoke:
 
