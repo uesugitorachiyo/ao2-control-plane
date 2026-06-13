@@ -47,6 +47,7 @@ fn write_operator_release_evidence_bundle(dir: &tempfile::TempDir) -> std::path:
                 {"component": "ao2", "platform": "macos", "artifact": "post-stable-release-smoke-macOS", "kind": "ao2-post-stable"},
                 {"component": "ao2", "platform": "windows", "artifact": "post-stable-release-smoke-Windows", "kind": "ao2-post-stable"},
                 {"component": "ao2", "platform": "public-release-pair", "artifact": "ao2-dual-public-release-smoke", "kind": "ao2-dual-public-release-smoke"},
+                {"component": "ao2", "platform": "public-release-pair", "artifact": "ao2-public-release-pair-digest-audit", "kind": "public-pair-digest-audit"},
                 {"component": "ao2-control-plane", "platform": "ubuntu", "artifact": "ao2-control-plane-post-release-verification-ubuntu", "kind": "control-plane-post-release"},
                 {"component": "ao2-control-plane", "platform": "macos", "artifact": "ao2-control-plane-post-release-verification-macos", "kind": "control-plane-post-release"},
                 {"component": "ao2-control-plane", "platform": "windows", "artifact": "ao2-control-plane-post-release-verification-windows", "kind": "control-plane-post-release"}
@@ -57,6 +58,7 @@ fn write_operator_release_evidence_bundle(dir: &tempfile::TempDir) -> std::path:
                 {"component": "ao2", "platform": "macos", "artifact": "post-stable-release-smoke-macOS", "kind": "ao2-post-stable", "status": "passed", "signature_verified": true, "install_status": "installed"},
                 {"component": "ao2", "platform": "windows", "artifact": "post-stable-release-smoke-Windows", "kind": "ao2-post-stable", "status": "passed", "signature_verified": true, "install_status": "installed"},
                 {"component": "ao2", "platform": "public-release-pair", "artifact": "ao2-dual-public-release-smoke", "kind": "ao2-dual-public-release-smoke", "status": "passed", "schema_version": "ao2.dual-public-release-smoke.v1", "task_board_readback_schema": "ao2.cp-ai-task-board-readback.v1", "task_board_dashboard_schema": "ao2.cp-ai-task-board-dashboard.v1", "auth_value_stored": false, "credential_material_in_urls": false, "credential_material_included": false, "mutates_github_releases": false, "control_plane_approves_release": false},
+                {"component": "ao2", "platform": "public-release-pair", "artifact": "ao2-public-release-pair-digest-audit", "kind": "public-pair-digest-audit", "status": "passed", "schema_version": "ao2.public-release-pair-digest-audit.v1", "summary_status": "passed", "archive_parity_status": "passed", "mutates_releases": false, "stores_credentials": false},
                 {"component": "ao2-control-plane", "platform": "ubuntu", "artifact": "ao2-control-plane-post-release-verification-ubuntu", "kind": "control-plane-post-release", "status": "passed", "schema_version": "ao2.cp-release-publication-closure.v1", "checksum_verified": true, "credential_material_included": false, "mutates_github_releases": false},
                 {"component": "ao2-control-plane", "platform": "macos", "artifact": "ao2-control-plane-post-release-verification-macos", "kind": "control-plane-post-release", "status": "passed", "schema_version": "ao2.cp-release-publication-closure.v1", "checksum_verified": true, "credential_material_included": false, "mutates_github_releases": false},
                 {"component": "ao2-control-plane", "platform": "windows", "artifact": "ao2-control-plane-post-release-verification-windows", "kind": "control-plane-post-release", "status": "passed", "schema_version": "ao2.cp-release-publication-closure.v1", "checksum_verified": true, "credential_material_included": false, "mutates_github_releases": false}
@@ -128,7 +130,7 @@ async fn operator_release_evidence_json_and_dashboard_are_read_only_observer_sur
             .as_array()
             .unwrap()
             .len(),
-        8
+        9
     );
     let dual_public = body["operator_release_evidence"]["checks"]
         .as_array()
@@ -151,6 +153,20 @@ async fn operator_release_evidence_json_and_dashboard_are_read_only_observer_sur
     assert_eq!(dual_public["auth_value_stored"], false);
     assert_eq!(dual_public["credential_material_in_urls"], false);
     assert_eq!(dual_public["control_plane_approves_release"], false);
+    let public_pair_digest = body["operator_release_evidence"]["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|check| check["artifact"] == "ao2-public-release-pair-digest-audit")
+        .expect("public pair digest audit check is present");
+    assert_eq!(
+        public_pair_digest["schema_version"],
+        "ao2.public-release-pair-digest-audit.v1"
+    );
+    assert_eq!(public_pair_digest["summary_status"], "passed");
+    assert_eq!(public_pair_digest["archive_parity_status"], "passed");
+    assert_eq!(public_pair_digest["mutates_releases"], false);
+    assert_eq!(public_pair_digest["stores_credentials"], false);
     assert!(!serde_json::to_string(&body).unwrap().contains("secret"));
     assert!(!serde_json::to_string(&body)
         .unwrap()
@@ -175,6 +191,11 @@ async fn operator_release_evidence_json_and_dashboard_are_read_only_observer_sur
     assert!(html.contains("ao2.cp-ai-task-board-readback.v1"));
     assert!(html.contains("auth_value_stored=false"));
     assert!(html.contains("control_plane_approves_release=false"));
+    assert!(html.contains("ao2-public-release-pair-digest-audit"));
+    assert!(html.contains("ao2.public-release-pair-digest-audit.v1"));
+    assert!(html.contains("archive_parity_status=passed"));
+    assert!(html.contains("mutates_releases=false"));
+    assert!(html.contains("stores_credentials=false"));
     assert!(html.contains("ao2-control-plane-post-release-verification-windows"));
     assert!(html.contains("read-only-observer"));
     assert!(!html.contains("Bearer secret"));

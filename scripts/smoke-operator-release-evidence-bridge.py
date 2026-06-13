@@ -22,6 +22,8 @@ SUMMARY_ENV = "AO2_CP_OPERATOR_RELEASE_EVIDENCE_SUMMARY"
 AO2_REPO = "uesugitorachiyo/ao2"
 AO2_WORKFLOW = "Operator Release Evidence Audit"
 AO2_ARTIFACT = "ao2-operator-release-evidence-bundle"
+DUAL_PUBLIC_SMOKE_ARTIFACT = "ao2-dual-public-release-smoke"
+PUBLIC_PAIR_DIGEST_ARTIFACT = "ao2-public-release-pair-digest-audit"
 PROVIDER_KEY_ENVS = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")
 ABSOLUTE_PATH_CANARIES = ("/private/ao2", "/Users/local")
 
@@ -160,14 +162,14 @@ def load_operator_summary(path: Path) -> dict:
     if payload.get("operator_release_evidence_ready") is not True:
         raise SystemExit("operator evidence summary is not release-ready")
     checks = payload.get("checks")
-    if not isinstance(checks, list) or len(checks) != 8:
-        raise SystemExit("operator evidence summary must contain exactly eight checks")
+    if not isinstance(checks, list) or len(checks) != 9:
+        raise SystemExit("operator evidence summary must contain exactly nine checks")
     dual_public = next(
-        (check for check in checks if check.get("artifact") == "ao2-dual-public-release-smoke"),
+        (check for check in checks if check.get("artifact") == DUAL_PUBLIC_SMOKE_ARTIFACT),
         None,
     )
     if dual_public is None:
-        raise SystemExit("operator evidence summary missing ao2-dual-public-release-smoke")
+        raise SystemExit(f"operator evidence summary missing {DUAL_PUBLIC_SMOKE_ARTIFACT}")
     if (
         dual_public.get("schema_version") != "ao2.dual-public-release-smoke.v1"
         or dual_public.get("task_board_readback_schema") != "ao2.cp-ai-task-board-readback.v1"
@@ -177,6 +179,20 @@ def load_operator_summary(path: Path) -> dict:
         or dual_public.get("control_plane_approves_release") is not False
     ):
         raise SystemExit("operator evidence dual public smoke check is not read-only and schema-complete")
+    public_pair_digest = next(
+        (check for check in checks if check.get("artifact") == PUBLIC_PAIR_DIGEST_ARTIFACT),
+        None,
+    )
+    if public_pair_digest is None:
+        raise SystemExit(f"operator evidence summary missing {PUBLIC_PAIR_DIGEST_ARTIFACT}")
+    if (
+        public_pair_digest.get("schema_version") != "ao2.public-release-pair-digest-audit.v1"
+        or public_pair_digest.get("summary_status") != "passed"
+        or public_pair_digest.get("archive_parity_status") != "passed"
+        or public_pair_digest.get("mutates_releases") is not False
+        or public_pair_digest.get("stores_credentials") is not False
+    ):
+        raise SystemExit("operator evidence public pair digest audit check is not read-only and archive-complete")
     if any(check.get("status") != "passed" for check in checks):
         raise SystemExit("operator evidence summary contains a non-passing check")
     trust = payload.get("trust_boundary")
@@ -298,12 +314,12 @@ def main() -> int:
     add_check("operator_evidence_schema", operator_evidence.get("schema_version") == OPERATOR_EVIDENCE_SCHEMA)
     add_check("operator_evidence_status", operator_evidence.get("status") == "passed")
     add_check("operator_evidence_ready", operator_evidence.get("operator_release_evidence_ready") is True)
-    add_check("operator_evidence_check_count", len(operator_evidence.get("checks", [])) == 8)
+    add_check("operator_evidence_check_count", len(operator_evidence.get("checks", [])) == 9)
     observer_dual_public = next(
         (
             check
             for check in operator_evidence.get("checks", [])
-            if check.get("artifact") == "ao2-dual-public-release-smoke"
+            if check.get("artifact") == DUAL_PUBLIC_SMOKE_ARTIFACT
         ),
         {},
     )
@@ -327,6 +343,32 @@ def main() -> int:
         "dual_public_control_plane_does_not_approve_release",
         observer_dual_public.get("control_plane_approves_release") is False,
     )
+    observer_public_pair_digest = next(
+        (
+            check
+            for check in operator_evidence.get("checks", [])
+            if check.get("artifact") == PUBLIC_PAIR_DIGEST_ARTIFACT
+        ),
+        {},
+    )
+    add_check("public_pair_digest_present", bool(observer_public_pair_digest))
+    add_check(
+        "public_pair_digest_schema",
+        observer_public_pair_digest.get("schema_version")
+        == "ao2.public-release-pair-digest-audit.v1",
+    )
+    add_check(
+        "public_pair_digest_archive_parity",
+        observer_public_pair_digest.get("archive_parity_status") == "passed",
+    )
+    add_check(
+        "public_pair_digest_does_not_mutate_releases",
+        observer_public_pair_digest.get("mutates_releases") is False,
+    )
+    add_check(
+        "public_pair_digest_stores_no_credentials",
+        observer_public_pair_digest.get("stores_credentials") is False,
+    )
     add_check("operator_evidence_matches_source", operator_evidence.get("status") == source_summary.get("status"))
     add_check("control_plane_role", observer.get("control_plane_role") == "read-only-observer")
     add_check("release_approval_deferred", observer.get("control_plane_approves_release") is False)
@@ -338,9 +380,15 @@ def main() -> int:
     add_check("html_title", "AO2 Operator Release Evidence" in html)
     add_check("html_role", "read-only-observer" in html)
     add_check("html_operator_evidence_schema", OPERATOR_EVIDENCE_SCHEMA in html)
-    add_check("html_dual_public_smoke", "ao2-dual-public-release-smoke" in html)
+    add_check("html_dual_public_smoke", DUAL_PUBLIC_SMOKE_ARTIFACT in html)
     add_check("html_dual_public_readback_schema", "ao2.cp-ai-task-board-readback.v1" in html)
     add_check("html_dual_public_trust_boundary", "control_plane_approves_release=false" in html)
+    add_check("html_public_pair_digest", PUBLIC_PAIR_DIGEST_ARTIFACT in html)
+    add_check(
+        "html_public_pair_digest_archive_parity",
+        "archive_parity_status=passed" in html,
+    )
+    add_check("html_public_pair_digest_read_only", "mutates_releases=false" in html)
     add_check("token not in json", token not in observer_text)
     add_check("token not in html", token not in html)
     add_check("token not in start_output", token not in start_output)
