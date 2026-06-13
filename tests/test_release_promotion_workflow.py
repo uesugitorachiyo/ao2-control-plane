@@ -77,6 +77,7 @@ def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
     workflow = workflow_text()
 
     for needle in [
+        "needs: post-release-verification-baseline",
         "assemble-release-promotion-plan:",
         "ao2.cp-release-promotion-plan.v1",
         "target/release-promotion/${{ inputs.tag }}/summary.json",
@@ -104,6 +105,34 @@ def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
         "control_plane_approves_release\": True",
     ]:
         assert forbidden not in workflow
+
+
+def test_release_promotion_requires_successful_post_release_baseline_artifacts():
+    workflow = workflow_text()
+
+    for needle in [
+        "actions: read",
+        "post-release-verification-baseline:",
+        "Require successful post-release verification baseline",
+        "scripts/verify_post_release_baseline.py",
+        "--repo uesugitorachiyo/ao2-control-plane",
+        "--branch main",
+        "--workflow \"Post Release Verification\"",
+        "--head-sha \"${{ github.sha }}\"",
+        "--out-json target/release-promotion/${{ inputs.tag }}/post-release-baseline.json",
+        "ao2.cp-post-release-verification-baseline.v1",
+        "ao2-control-plane-post-release-verification-ubuntu",
+        "ao2-control-plane-post-release-verification-macos",
+        "ao2-control-plane-post-release-verification-windows",
+        "ao2-control-plane-post-release-pair-verification",
+        "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
+        '"post_release_verification_baseline": post_release_baseline',
+        '"required_post_release_artifacts": required_post_release_artifacts',
+        "control_plane_approves_release",
+        "mutates_ao_artifacts",
+        "credential_material_included",
+    ]:
+        assert needle in workflow
 
 
 def test_release_promotion_publish_step_is_explicitly_guarded():
@@ -142,6 +171,9 @@ def test_release_promotion_is_documented_and_guarded_in_ci():
         "dry_run",
         "v0.1.13",
         "Linux x86_64, macOS aarch64, and Windows x86_64",
+        "Post Release Verification",
+        "ao2.cp-post-release-verification-baseline.v1",
+        "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
     ]:
         assert needle in readme
         assert needle in workflow or needle in ci or needle in readme
