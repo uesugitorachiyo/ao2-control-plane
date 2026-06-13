@@ -159,6 +159,16 @@ artifact contains an `ao2.cp-release-publication-closure.v1` summary proving
 the published release remains downloadable and checksum-valid without mutating
 GitHub releases or AO2 artifacts.
 
+The same `Post Release Verification` workflow also runs
+`AO2 operator evidence hosted bridge drift monitor` on Ubuntu. That job
+downloads AO2's latest successful `ao2-operator-release-evidence-bundle` from
+GitHub Actions, starts the local control-plane server, verifies the
+`ao2.cp-operator-release-evidence-bridge-smoke.v1` JSON/HTML readback path, and
+uploads `ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`.
+This is a read-only drift monitor for the hosted AO2 operator evidence bridge:
+it can download public GitHub Actions artifacts, but it does not approve
+releases, store credentials, publish tags, or mutate AO2 artifacts.
+
 CI also runs `Release asset parity audit`, which uploads
 `ao2-control-plane-release-asset-parity-audit`. Its `summary.json` uses schema
 `ao2.cp-release-asset-parity-audit.v1` and compares the public release assets,

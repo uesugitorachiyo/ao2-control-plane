@@ -6,6 +6,7 @@ on:
     - cron: "29 12 * * 2"
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -133,4 +134,63 @@ jobs:
         with:
           name: ao2-control-plane-post-release-pair-verification
           path: target/post-release-pair-verification
+          if-no-files-found: error
+
+  operator-release-evidence-hosted-bridge-smoke:
+    name: AO2 operator evidence hosted bridge drift monitor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release verifier
+        uses: actions/checkout@v6.0.3
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release -p ao2-cp-server
+
+      - name: Run hosted AO2 operator release evidence bridge smoke
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/smoke-operator-release-evidence-bridge.py \
+            --download-latest-ao2-artifact \
+            --server-bin target/release/ao2-cp-server \
+            --out-root target/post-release-operator-evidence-hosted-bridge-smoke
+
+      - name: Validate hosted bridge smoke summary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("target/post-release-operator-evidence-hosted-bridge-smoke/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-operator-release-evidence-bridge-smoke.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["downloaded_latest_ao2_artifact"] is True, summary
+          operator = summary["operator_release_evidence"]
+          assert operator["schema_version"] == "ao2.operator-release-evidence-bundle.v1", summary
+          assert operator["status"] == "passed", summary
+          assert operator["operator_release_evidence_ready"] is True, summary
+          assert operator["path_redacted"] is True, summary
+          trust = summary["trust_boundary"]
+          assert trust["downloads_github_actions_artifacts"] is True, summary
+          assert trust["control_plane_approves_release"] is False, summary
+          assert trust["mutates_ao_artifacts"] is False, summary
+          assert trust["mutates_observer_storage"] is False, summary
+          assert trust["credential_material_included"] is False, summary
+          assert trust["provider_api_keys_allowed"] is False, summary
+          failed = [check for check in summary["checks"] if check["status"] != "passed"]
+          assert not failed, failed
+          PY
+
+      - name: Upload hosted operator release evidence bridge smoke artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke
+          path: target/post-release-operator-evidence-hosted-bridge-smoke
           if-no-files-found: error
