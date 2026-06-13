@@ -214,12 +214,16 @@ fn check_detail_summary(check: &serde_json::Value) -> String {
         "schema_version",
         "task_board_readback_schema",
         "task_board_dashboard_schema",
+        "summary_status",
+        "archive_parity_status",
         "signature_verified",
         "checksum_verified",
         "auth_value_stored",
         "credential_material_in_urls",
         "credential_material_included",
         "mutates_github_releases",
+        "mutates_releases",
+        "stores_credentials",
         "control_plane_approves_release",
     ]
     .iter()

@@ -461,12 +461,13 @@ AO2 operator release evidence bundles can be observed by setting
 `/api/v1/release/operator-evidence.json` route wraps the
 `ao2.operator-release-evidence-bundle.v1` summary in
 `ao2.cp-operator-release-evidence-readback.v1` observer metadata, and
-`/api/v1/release/operator-evidence` renders the same eight-check release
+`/api/v1/release/operator-evidence` renders the same nine-check release
 evidence set as an authenticated dashboard, including the AO2
-`ao2-dual-public-release-smoke` task-board readback/dashboard schemas and
-read-only trust-boundary fields. Both surfaces redact local absolute paths and
-remain read-only: they do not approve releases, store credentials, publish tags,
-or mutate AO2 artifacts.
+`ao2-dual-public-release-smoke` task-board readback/dashboard schemas, the
+`ao2-public-release-pair-digest-audit` full archive parity check, and read-only
+trust-boundary fields. Both surfaces redact local absolute paths and remain
+read-only: they do not approve releases, store credentials, publish tags, or
+mutate AO2 artifacts.
 
 Operator release evidence bridge smoke proves the hosted AO2 artifact can be
 consumed by this control plane. CI runs the fixture-backed smoke across Ubuntu,
