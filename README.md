@@ -143,9 +143,10 @@ uploads `ao2-control-plane-release-publication-closure`. Its
 `summary.json` uses schema `ao2.cp-release-publication-closure.v1`, records the
 downloaded release assets and checksums, and prints
 `control_plane_release_publication_closure=passed` when the published assets are
-downloadable and checksum-valid. This is read-only release evidence: it does
-not approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
-credential material.
+downloadable, checksum-valid, and include at least one
+`ao2-control-plane-*.tar.gz` release archive. This is read-only release
+evidence: it does not approve AO2 runs, mutate AO artifacts, mutate GitHub
+releases, or include credential material.
 
 `Post Release Verification` in
 `.github/workflows/post-release-verification.yml` can also be dispatched
