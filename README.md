@@ -239,16 +239,25 @@ targets on every pull request and `main` push. Open
 governed path for preparing the next control-plane release. It is manual and
 uses `dry_run=true` by default for `v0.1.13`, building and smoking release
 archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
-the `ao2-control-plane-release-promotion-plan-<tag>` artifact. That artifact
-contains `ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and
-release notes generated from `SHA256SUMS` with the source commit and archive
-hashes. `SHA256SUMS` covers the platform archives and the published
-`summary.json` evidence asset so post-release verification can prove the release
-metadata did not drift. The plan records that AO2 release acceptance remains owned by the
-factory-v3 evaluator closer and that the control plane does not approve AO2
-runs, mutate AO artifacts, or include credential material. Publishing a GitHub
-release requires dispatching the workflow with `dry_run=false`; the normal path
-only prepares evidence.
+the `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
+archive build starts, release promotion requires the latest successful
+`Post Release Verification` run on `main` to expose all five baseline artifacts:
+the Ubuntu, macOS, and Windows post-release verifier outputs,
+`ao2-control-plane-post-release-pair-verification`, and
+`ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`. The
+preflight summary uses `ao2.cp-post-release-verification-baseline.v1` and is
+embedded into the promotion plan. The baseline run must match the exact
+promotion commit SHA, so stale post-release evidence from an older `main`
+revision blocks promotion. That plan contains
+`ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and release
+notes generated from `SHA256SUMS` with the source commit and archive hashes.
+`SHA256SUMS` covers the platform archives, `summary.json`, and
+`post-release-baseline.json` evidence assets so post-release verification can
+prove the release metadata did not drift. The plan records that AO2 release
+acceptance remains owned by the factory-v3 evaluator closer and that the control
+plane does not approve AO2 runs, mutate AO artifacts, or include credential
+material. Publishing a GitHub release requires dispatching the workflow with
+`dry_run=false`; the normal path only prepares evidence.
 
 ## Running tests
 

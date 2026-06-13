@@ -182,6 +182,30 @@ missing checksum entries, missing common platforms, prerelease/draft releases,
 or a control-plane `summary.json` without a `SHA256SUMS` entry fail the
 workflow instead of producing advisory-only evidence.
 
+`Release Promotion` requires the latest successful `Post Release Verification`
+run on `main` before it builds release archives. The preflight emits
+`ao2.cp-post-release-verification-baseline.v1` to
+`post-release-baseline.json`, requires the Ubuntu, macOS, Windows,
+public-release-pair, and hosted operator bridge artifacts, and embeds that
+summary into `ao2-control-plane-release-promotion-plan-<tag>`. Run the same
+read-only check locally before dispatching a stable promotion:
+
+```sh
+python3 scripts/verify_post_release_baseline.py \
+  --repo uesugitorachiyo/ao2-control-plane \
+  --branch main \
+  --workflow "Post Release Verification" \
+  --head-sha "$(git rev-parse origin/main)" \
+  --out-json target/release-promotion/v0.1.13/post-release-baseline.json
+```
+
+Expected output is `post_release_verification_baseline=passed`. This check
+reads GitHub Actions run and artifact metadata only; it does not download
+artifacts, approve releases, mutate AO artifacts, mutate GitHub releases, or
+store credential material. The `--head-sha` value must match the release
+promotion commit, so dispatch `Post Release Verification` from `main` again
+after merging release-gate changes and before promoting a stable release.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public
