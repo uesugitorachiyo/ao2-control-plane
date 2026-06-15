@@ -17,4 +17,5 @@ pub mod provider_registry;
 pub mod release_publication;
 pub mod release_train;
 pub mod risky_pr_golden;
+pub mod stable_promotion_evidence;
 pub mod storage;

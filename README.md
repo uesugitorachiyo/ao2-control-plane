@@ -236,6 +236,16 @@ The script is guarded by
 GitHub Actions artifact for readback, but it does not approve releases, mutate
 AO2 artifacts, mutate GitHub releases, or allow provider API keys.
 
+The server can also expose the same producer summary as an authenticated
+read-only operator surface. Set
+`AO2_CP_STABLE_PROMOTION_EVIDENCE_INDEX_SUMMARY` to the downloaded
+`summary.json`; `/api/v1/release/stable-promotion-evidence.json` wraps the
+`ao2.stable-promotion-evidence-index.v1` document in
+`ao2.cp-stable-promotion-evidence-readback.v1`, and
+`/api/v1/release/stable-promotion-evidence` renders the matching HTML view. Both
+surfaces redact local paths and do not approve releases, store credentials,
+publish tags, or mutate AO2 artifacts.
+
 Release notes are generated from `SHA256SUMS` with
 `scripts/generate_release_notes_from_checksums.py`, so archive hashes flow from
 the published checksum manifest instead of a handwritten table:
@@ -744,7 +754,7 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `GET` | `/api/v1/control-plane/bundle` | List fleet/control-plane bundle evidence. |
 | `GET` | `/api/v1/control-plane/bundle/:sha` | Fetch original fleet/control-plane bundle by canonical SHA-256. |
 | `GET` | `/api/v1/control-plane/routes.json` | Fetch the token-free route index for Hermes/front-end discovery of read-only observer, portable download, signed evidence/memory, and factory-v3 evaluator-owned surfaces. The index includes a `portable_artifacts` section that groups the CI evidence index, gap reports, and support bundles with JSON, HTML, download, checksum, manifest, and verification links so schedulers do not need to infer handoff surfaces from the full route list. The index is regression-tested against frontend-relevant static routes to reduce discovery drift without placing credentials in URLs. |
-| `GET` | `/api/v1/ci/evidence-index` | Render an authenticated read-only HTML index of production-readiness CI evidence families, including bridge, ingest, release archive, and backup/restore artifacts. |
+| `GET` | `/api/v1/ci/evidence-index` | Render an authenticated read-only HTML index of production-readiness CI evidence families, including bridge, ingest, release archive, backup/restore, and stable-promotion readback artifacts. |
 | `GET` | `/api/v1/ci/evidence-index.json` | Fetch the machine-readable `ao2.cp-ci-evidence-index.v1` contract for CI evidence artifact names, schema versions, and read-only trust-boundary metadata. |
 | `POST` | `/api/v1/evidence-pack/signed` | Verify and ingest a signed `ao2.evidence-pack.v1` observer wrapper, storing signature metadata as a sidecar. |
 | `GET` | `/api/v1/evidence-pack` | List ingested AO2 evidence packs. |
@@ -787,6 +797,8 @@ The PowerShell path supports Windows PowerShell 5.1 and PowerShell 7+.
 | `GET` | `/api/v1/release/train.json` | Fetch the machine-readable `ao2.cp-release-train-readback.v1` wrapper around AO2's `ao2.public-release-train-drill.v1` summary without storing, publishing, or mutating AO2 evidence. |
 | `GET` | `/api/v1/release/operator-evidence` | Render an authenticated read-only AO2 operator release evidence dashboard configured by `AO2_CP_OPERATOR_RELEASE_EVIDENCE_SUMMARY`, with local paths redacted and no release approval authority. |
 | `GET` | `/api/v1/release/operator-evidence.json` | Fetch the machine-readable `ao2.cp-operator-release-evidence-readback.v1` wrapper around AO2's `ao2.operator-release-evidence-bundle.v1` summary without storing, publishing, or mutating AO2 evidence. |
+| `GET` | `/api/v1/release/stable-promotion-evidence` | Render an authenticated read-only AO2 stable-promotion evidence dashboard configured by `AO2_CP_STABLE_PROMOTION_EVIDENCE_INDEX_SUMMARY`, with blockers, required evidence families, trust boundary, and local paths redacted. |
+| `GET` | `/api/v1/release/stable-promotion-evidence.json` | Fetch the machine-readable `ao2.cp-stable-promotion-evidence-readback.v1` wrapper around AO2's `ao2.stable-promotion-evidence-index.v1` summary without storing, publishing, approving, or mutating AO2 evidence. |
 | `GET` | `/api/v1/release/readiness` | Render an authenticated read-only release-readiness verdict that summarizes handoff gates and explicitly defers acceptance to factory-v3 evaluator-closer. |
 | `GET` | `/api/v1/release/readiness.json` | Fetch the machine-readable release-readiness verdict for Hermes/factory-v3 checklists without approving or mutating AO artifacts. |
 | `GET` | `/api/v1/release/support-bundle.json` | Fetch the portable read-only release support bundle, including embedded same-candidate `release_assembly` and evaluator-decision dashboard surfaces for offline factory-v3 evaluator-closer review. |
