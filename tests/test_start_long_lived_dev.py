@@ -1,4 +1,5 @@
 import json
+import importlib.util
 import os
 import re
 import stat
@@ -14,6 +15,7 @@ RISKY_PR_GOLDEN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-risky-pr-golden
 RISKY_PR_GOLDEN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "risky-pr-golden-artifact-manifest.json"
 RELEASE_TRAIN_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-release-train-bridge.py"
 RELEASE_TRAIN_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "public-release-train-summary.json"
+OPERATOR_BRIDGE_SMOKE_PY = REPO_ROOT / "scripts" / "smoke-operator-release-evidence-bridge.py"
 CI_EVIDENCE_HANDLER = REPO_ROOT / "crates" / "ao2-cp-server" / "src" / "handlers" / "ci_evidence.rs"
 DASHBOARD_SNAPSHOT = REPO_ROOT / "scripts" / "cp_dashboard_snapshot.py"
 
@@ -277,6 +279,65 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
     ]:
         assert needle in readme
         assert needle in release_smoke
+
+
+def test_operator_release_evidence_bridge_accepts_additive_passed_checks(tmp_path):
+    spec = importlib.util.spec_from_file_location("operator_bridge_smoke", OPERATOR_BRIDGE_SMOKE_PY)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+
+    summary = {
+        "schema_version": "ao2.operator-release-evidence-bundle.v1",
+        "status": "passed",
+        "operator_release_evidence_ready": True,
+        "checks": [
+            {"artifact": "ao2-dual-repo-release-publication-closure-index", "status": "passed"},
+            {"artifact": "post-stable-release-smoke-Linux", "status": "passed"},
+            {"artifact": "post-stable-release-smoke-macOS", "status": "passed"},
+            {"artifact": "post-stable-release-smoke-Windows", "status": "passed"},
+            {
+                "artifact": "ao2-dual-public-release-smoke",
+                "status": "passed",
+                "schema_version": "ao2.dual-public-release-smoke.v1",
+                "task_board_readback_schema": "ao2.cp-ai-task-board-readback.v1",
+                "task_board_dashboard_schema": "ao2.cp-ai-task-board-dashboard.v1",
+                "auth_value_stored": False,
+                "credential_material_in_urls": False,
+                "control_plane_approves_release": False,
+            },
+            {
+                "artifact": "ao2-public-release-pair-digest-audit",
+                "status": "passed",
+                "schema_version": "ao2.public-release-pair-digest-audit.v1",
+                "summary_status": "passed",
+                "archive_parity_status": "passed",
+                "mutates_releases": False,
+                "stores_credentials": False,
+            },
+            {"artifact": "ao2-control-plane-post-release-verification-ubuntu", "status": "passed"},
+            {"artifact": "ao2-control-plane-post-release-verification-macos", "status": "passed"},
+            {"artifact": "ao2-control-plane-post-release-verification-windows", "status": "passed"},
+            {
+                "artifact": "ao2-stable-promotion-evidence-index",
+                "status": "passed",
+                "schema_version": "ao2.stable-promotion-evidence-index.v1",
+            },
+        ],
+        "trust_boundary": {
+            "mutates_releases": False,
+            "stores_credentials": False,
+        },
+    }
+    path = tmp_path / "operator-summary.json"
+    path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    loaded = module.load_operator_summary(path)
+
+    assert len(loaded["checks"]) == 10
+    assert loaded["checks"][-1]["artifact"] == "ao2-stable-promotion-evidence-index"
+    script = OPERATOR_BRIDGE_SMOKE_PY.read_text(encoding="utf-8")
+    assert "exactly nine checks" not in script
 
 
 def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
@@ -572,7 +633,7 @@ def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
 
     assert "Python guard tests" in ci
     assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest" in ci
-    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py -q" in ci
+    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py -q" in ci
     assert "AO2_CP_LONG_LIVED_SMOKE_LIVE" in script
     assert "live_restart_readiness" in script
     assert "/readyz" in script

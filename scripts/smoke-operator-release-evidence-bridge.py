@@ -26,6 +26,17 @@ DUAL_PUBLIC_SMOKE_ARTIFACT = "ao2-dual-public-release-smoke"
 PUBLIC_PAIR_DIGEST_ARTIFACT = "ao2-public-release-pair-digest-audit"
 PROVIDER_KEY_ENVS = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")
 ABSOLUTE_PATH_CANARIES = ("/private/ao2", "/Users/local")
+REQUIRED_OPERATOR_EVIDENCE_ARTIFACTS = (
+    "ao2-dual-repo-release-publication-closure-index",
+    "post-stable-release-smoke-Linux",
+    "post-stable-release-smoke-macOS",
+    "post-stable-release-smoke-Windows",
+    DUAL_PUBLIC_SMOKE_ARTIFACT,
+    PUBLIC_PAIR_DIGEST_ARTIFACT,
+    "ao2-control-plane-post-release-verification-ubuntu",
+    "ao2-control-plane-post-release-verification-macos",
+    "ao2-control-plane-post-release-verification-windows",
+)
 
 
 def default_server_bin() -> Path:
@@ -162,8 +173,16 @@ def load_operator_summary(path: Path) -> dict:
     if payload.get("operator_release_evidence_ready") is not True:
         raise SystemExit("operator evidence summary is not release-ready")
     checks = payload.get("checks")
-    if not isinstance(checks, list) or len(checks) != 9:
-        raise SystemExit("operator evidence summary must contain exactly nine checks")
+    if not isinstance(checks, list):
+        raise SystemExit("operator evidence summary must contain checks")
+    present_artifacts = {check.get("artifact") for check in checks if isinstance(check, dict)}
+    missing_artifacts = [
+        artifact for artifact in REQUIRED_OPERATOR_EVIDENCE_ARTIFACTS if artifact not in present_artifacts
+    ]
+    if missing_artifacts:
+        raise SystemExit(
+            "operator evidence summary missing required checks: " + ", ".join(missing_artifacts)
+        )
     dual_public = next(
         (check for check in checks if check.get("artifact") == DUAL_PUBLIC_SMOKE_ARTIFACT),
         None,
@@ -314,7 +333,19 @@ def main() -> int:
     add_check("operator_evidence_schema", operator_evidence.get("schema_version") == OPERATOR_EVIDENCE_SCHEMA)
     add_check("operator_evidence_status", operator_evidence.get("status") == "passed")
     add_check("operator_evidence_ready", operator_evidence.get("operator_release_evidence_ready") is True)
-    add_check("operator_evidence_check_count", len(operator_evidence.get("checks", [])) == 9)
+    present_artifacts = {
+        check.get("artifact")
+        for check in operator_evidence.get("checks", [])
+        if isinstance(check, dict)
+    }
+    missing_artifacts = [
+        artifact for artifact in REQUIRED_OPERATOR_EVIDENCE_ARTIFACTS if artifact not in present_artifacts
+    ]
+    add_check(
+        "operator_evidence_required_artifacts",
+        not missing_artifacts,
+        ", ".join(missing_artifacts),
+    )
     observer_dual_public = next(
         (
             check
