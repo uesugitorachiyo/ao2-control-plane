@@ -59,6 +59,7 @@ REQUIRED_CI_EVIDENCE_FAMILY_IDS = (
     "ingest-smoke",
     "release-archive-smoke",
     "backup-restore-drill",
+    "stable-promotion-evidence-readback",
 )
 
 
