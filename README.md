@@ -215,6 +215,27 @@ scripts/public_release_pair_verify.py \
 
 The script and CI wiring are guarded by `tests/test_public_release_pair_verify.py`.
 
+CI also runs `AO2 stable promotion evidence index readback`, which downloads
+AO2's latest successful `ao2-stable-promotion-evidence-index` artifact from the
+`Stable Promotion Evidence Index` workflow and emits
+`ao2.cp-ao2-stable-promotion-evidence-index-readback.v1`. This is the
+control-plane readback for AO2's stable-promotion closure: it requires the
+producer summary schema `ao2.stable-promotion-evidence-index.v1`, passed
+artifact-size budget audit, post-release verification gate, public pair digest
+audit, and stable release evidence packet. The command prints
+`control_plane_ao2_stable_promotion_evidence_index_readback=passed` only when
+the producer index is complete and its read-only trust boundary is intact:
+
+```bash
+scripts/verify_ao2_stable_promotion_evidence_index.py \
+  --out-json target/ao2-stable-promotion-evidence-index-readback/summary.json
+```
+
+The script is guarded by
+`tests/test_ao2_stable_promotion_evidence_index_readback.py`. It may download a
+GitHub Actions artifact for readback, but it does not approve releases, mutate
+AO2 artifacts, mutate GitHub releases, or allow provider API keys.
+
 Release notes are generated from `SHA256SUMS` with
 `scripts/generate_release_notes_from_checksums.py`, so archive hashes flow from
 the published checksum manifest instead of a handwritten table:

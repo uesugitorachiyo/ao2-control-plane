@@ -206,6 +206,45 @@ store credential material. The `--head-sha` value must match the release
 promotion commit, so dispatch `Post Release Verification` from `main` again
 after merging release-gate changes and before promoting a stable release.
 
+## AO2 stable promotion evidence index readback
+
+Use `scripts/verify_ao2_stable_promotion_evidence_index.py` to verify that
+AO2's stable-promotion closure artifact is consumable by the control plane
+without moving release authority into the observer service. By default the
+script finds the latest successful AO2 `Stable Promotion Evidence Index` run on
+`main`, downloads the `ao2-stable-promotion-evidence-index` artifact, reads its
+`summary.json`, and emits a control-plane readback summary:
+
+```sh
+scripts/verify_ao2_stable_promotion_evidence_index.py \
+  --out-json target/ao2-stable-promotion-evidence-index-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao2_stable_promotion_evidence_index_readback=passed`. The
+readback schema is
+`ao2.cp-ao2-stable-promotion-evidence-index-readback.v1`; the producer schema
+must be `ao2.stable-promotion-evidence-index.v1`. The verifier requires passed
+and ready evidence for `artifact_size_budget_audit`,
+`post_release_verification_gate`, `public_pair_digest_audit`, and
+`stable_release_evidence_packet`, with no producer blockers and with the
+producer trust boundary still local-only/read-only.
+
+For deterministic local triage, pass an already-downloaded AO2 summary:
+
+```sh
+scripts/verify_ao2_stable_promotion_evidence_index.py \
+  --index-summary-json ../ao2/target/stable-promotion-evidence-index-main-27523026536/summary.json \
+  --out-json target/ao2-stable-promotion-evidence-index-readback/summary.json
+```
+
+Pull-request CI runs the same live readback job and uploads
+`ao2-control-plane-ao2-stable-promotion-evidence-index-readback`. The script and
+CI wiring are guarded by
+`tests/test_ao2_stable_promotion_evidence_index_readback.py`. This is read-only
+evidence: it may download GitHub Actions artifacts, but it does not approve AO2
+runs, mutate AO artifacts, mutate GitHub releases, or allow provider API keys.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public
