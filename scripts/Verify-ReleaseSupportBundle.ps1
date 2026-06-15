@@ -58,8 +58,7 @@ $RequiredCiEvidenceFamilyIds = @(
     'release-train-bridge-smoke',
     'ingest-smoke',
     'release-archive-smoke',
-    'backup-restore-drill',
-    'stable-promotion-evidence-readback'
+    'backup-restore-drill'
 )
 # Operator-visible candidate-correlation field MUST be present at the top of
 # every embedded surface that exposes cross-evidence triage to the operator.

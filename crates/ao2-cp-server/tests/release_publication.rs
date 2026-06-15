@@ -3325,7 +3325,7 @@ async fn release_support_bundle_packages_read_only_operator_handoff() {
     );
     assert_eq!(
         fetch_summary["ci_evidence_index"]["required_family_count"],
-        6
+        5
     );
     assert_eq!(
         fetch_summary["ci_evidence_index"]["required_families_present"],

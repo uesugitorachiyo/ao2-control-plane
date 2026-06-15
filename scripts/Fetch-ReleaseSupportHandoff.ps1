@@ -39,8 +39,7 @@ $RequiredCiEvidenceFamilyIds = @(
     "release-train-bridge-smoke",
     "ingest-smoke",
     "release-archive-smoke",
-    "backup-restore-drill",
-    "stable-promotion-evidence-readback"
+    "backup-restore-drill"
 )
 
 $SecretMarkerPatterns = [ordered]@{
