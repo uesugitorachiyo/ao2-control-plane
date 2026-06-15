@@ -1112,6 +1112,7 @@ fn verify_release_support_bundle_python_and_powershell_agree_on_verification_con
         "ingest-smoke",
         "release-archive-smoke",
         "backup-restore-drill",
+        "stable-promotion-evidence-readback",
         "ci_evidence_index.evidence_families",
         "credential_material_included",
         "credential_material_in_urls",
@@ -11512,6 +11513,9 @@ fn ci_compares_shared_release_support_fixture_with_ao2() {
         "name: Release support fixture parity with AO2",
         "repository: uesugitorachiyo/ao2",
         "path: ao2",
+        "Use matching AO2 branch when present",
+        "refs/heads/${head_ref}",
+        "checkout --detach FETCH_HEAD",
         "cmp -s ao2-control-plane/tests/fixtures/release-support-bundle-contract-v1.json ao2/tests/fixtures/release-support-bundle-contract-v1.json",
         "shasum -a 256 ao2-control-plane/tests/fixtures/release-support-bundle-contract-v1.json ao2/tests/fixtures/release-support-bundle-contract-v1.json",
         "target/release-support-fixture-parity/summary.json",
@@ -11524,6 +11528,9 @@ fn ci_compares_shared_release_support_fixture_with_ao2() {
     }
     assert!(readme.contains("Release support fixture parity with AO2"));
     assert!(readme.contains("ao2-control-plane-release-support-fixture-parity"));
+    assert!(readme.contains("same branch name"));
+    assert!(readme.contains("repositories"));
+    assert!(readme.contains("strict CI evidence family"));
 }
 
 #[test]

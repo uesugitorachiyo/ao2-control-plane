@@ -736,6 +736,12 @@ job checks out both public repos, compares the mirrored fixture byte-for-byte,
 and uploads `ao2-control-plane-release-support-fixture-parity` with SHA-256
 evidence.
 
+When the mirrored fixture or a strict CI evidence family requirement changes,
+open AO2 and ao2-control-plane PRs with the same branch name in both
+repositories. The parity jobs check out the matching peer branch when present;
+using different branch names makes each PR compare against the other repository's
+old `main` fixture and creates a false circular failure.
+
 The helper fetches `/api/v1/release/support-bundle/handoff.json`, the portable bundle, checksums, verifier JSON, and manifest JSON into the output directory. It reads the bearer value from `AO2_CP_AUTH_VALUE`, writes a sanitized `fetch-summary.json`, and records `auth_value_stored=false`; do not paste bearer values into command-line arguments or committed artifacts.
 
 The offline verifier requires exactly the eight required surfaces (CI evidence
