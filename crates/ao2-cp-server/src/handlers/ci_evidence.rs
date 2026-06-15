@@ -20,7 +20,7 @@ pub async fn ci_evidence_index() -> Response {
     let rows = families
         .iter()
         .map(|family| {
-            let name = json_str(family, "display_name").unwrap_or("Unknown evidence");
+            let name = evidence_display_name(json_str(family, "id").unwrap_or("unknown-evidence"));
             let artifact = json_str(family, "artifact_name_pattern").unwrap_or("missing");
             let schema_versions = family
                 .get("schema_versions")
@@ -33,7 +33,7 @@ pub async fn ci_evidence_index() -> Response {
                         .join(", ")
                 })
                 .unwrap_or_else(|| "missing".to_string());
-            let purpose = json_str(family, "purpose").unwrap_or("missing");
+            let purpose = evidence_purpose(json_str(family, "id").unwrap_or("unknown-evidence"));
             format!(
                 "<tr><td>{}</td><td><code>{}</code></td><td><code>{}</code></td><td>{}</td></tr>",
                 escape_html(name),
@@ -117,27 +117,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
         "evidence_families": [
             {
                 "id": "risky-pr-golden-bridge-smoke",
-                "display_name": "Risky PR golden bridge smoke",
                 "artifact_name_pattern": "ao2-control-plane-risky-pr-golden-bridge-<target>",
                 "schema_versions": [
-                    "ao2.cp-risky-pr-golden-bridge-smoke.v1",
-                    "ao2.cp-risky-pr-golden-artifact-manifest-observer.v1"
+                    "ao2.cp-risky-pr-golden-bridge-smoke.v1"
                 ],
-                "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves AO2 risky PR golden artifact manifests can be observed through the control plane without token leakage or release approval.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
-                        "Risky PR golden bridge smoke (ubuntu-x86_64)",
-                        "Risky PR golden bridge smoke (macos-aarch64)",
-                        "Risky PR golden bridge smoke (windows-x86_64)"
+                        "risky-pr-golden-bridge-smoke (<target>)"
                     ],
                     &[
-                        "ao2-control-plane-risky-pr-golden-bridge-ubuntu-x86_64",
-                        "ao2-control-plane-risky-pr-golden-bridge-macos-aarch64",
-                        "ao2-control-plane-risky-pr-golden-bridge-windows-x86_64"
+                        "ao2-control-plane-risky-pr-golden-bridge-ubuntu-x86_64"
                     ],
-                    "summary.json carries schema/status plus artifact manifest observer digests"
+                    "summary.json carries schema/status and artifact digests"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -147,28 +139,21 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
             },
             {
                 "id": "release-train-bridge-smoke",
-                "display_name": "Release train bridge smoke",
                 "artifact_name_pattern": "ao2-control-plane-release-train-bridge-<target>",
                 "schema_versions": [
                     "ao2.cp-release-train-bridge-smoke.v1",
                     "ao2.cp-release-train-readback.v1",
                     "ao2.public-release-train-drill.v1"
                 ],
-                "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves AO2 public release-train drill summaries can be observed through the control plane without token leakage, local path leakage, storage mutation, or release approval.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
-                        "Release train bridge smoke (ubuntu-x86_64)",
-                        "Release train bridge smoke (macos-aarch64)",
-                        "Release train bridge smoke (windows-x86_64)"
+                        "release-train-bridge-smoke (<target>)"
                     ],
                     &[
-                        "ao2-control-plane-release-train-bridge-ubuntu-x86_64",
-                        "ao2-control-plane-release-train-bridge-macos-aarch64",
-                        "ao2-control-plane-release-train-bridge-windows-x86_64"
+                        "ao2-control-plane-release-train-bridge-ubuntu-x86_64"
                     ],
-                    "summary.json carries schema/status plus release-train readback observer captures"
+                    "summary.json carries schema/status and release-train readback captures"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -178,26 +163,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
             },
             {
                 "id": "ingest-smoke",
-                "display_name": "Ingest smoke",
                 "artifact_name_pattern": "ao2-control-plane-ingest-smoke-<target>",
                 "schema_versions": [
                     "ao2.cp-ingest-smoke.v1"
                 ],
-                "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves signed AO2 evidence can be ingested on each supported operating system.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
-                        "Ingest smoke (ubuntu-x86_64)",
-                        "Ingest smoke (macos-aarch64)",
-                        "Ingest smoke (windows-x86_64)"
+                        "ingest-smoke (<target>)"
                     ],
                     &[
-                        "ao2-control-plane-ingest-smoke-ubuntu-x86_64",
-                        "ao2-control-plane-ingest-smoke-macos-aarch64",
-                        "ao2-control-plane-ingest-smoke-windows-x86_64"
+                        "ao2-control-plane-ingest-smoke-ubuntu-x86_64"
                     ],
-                    "summary.json carries schema/status plus ingested evidence digests"
+                    "summary.json carries schema/status and artifact digests"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -207,26 +185,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
             },
             {
                 "id": "release-archive-smoke",
-                "display_name": "Release archive smoke",
                 "artifact_name_pattern": "ao2-control-plane-smoke-<target>",
                 "schema_versions": [
                     "ao2.cp-release-archive-smoke.v1"
                 ],
-                "summary_path": "<target>.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves packaged release archives install and run on each supported operating system.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
-                        "Release archive smoke (ubuntu-x86_64)",
-                        "Release archive smoke (macos-aarch64)",
-                        "Release archive smoke (windows-x86_64)"
+                        "release-archive-smoke (<target>)"
                     ],
                     &[
-                        "ao2-control-plane-smoke-linux-x86_64",
-                        "ao2-control-plane-smoke-macos-aarch64",
-                        "ao2-control-plane-smoke-windows-x86_64"
+                        "ao2-control-plane-smoke-ubuntu-x86_64"
                     ],
-                    "<target>.json smoke summary carries schema/status plus archive digest and installed binary evidence"
+                    "summary.json carries schema/status and artifact digests"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -236,22 +207,19 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
             },
             {
                 "id": "backup-restore-drill",
-                "display_name": "Backup/restore drill",
                 "artifact_name_pattern": "ao2-control-plane-dr-restore",
                 "schema_versions": [
                     "ao2.cp-dr-restore-drill.v1"
                 ],
-                "summary_path": "dr-restore-report.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves control-plane storage backup and restore behavior, including negative restore scenarios.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
-                        "Backup/restore drill"
+                        "backup-restore-drill (<target>)"
                     ],
                     &[
                         "ao2-control-plane-dr-restore"
                     ],
-                    "dr-restore-report.json summary carries schema/status plus backup and restore evidence digests"
+                    "summary.json carries schema/status and artifact digests"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -261,16 +229,13 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
             },
             {
                 "id": "stable-promotion-evidence-readback",
-                "display_name": "Stable promotion evidence readback",
                 "artifact_name_pattern": "ao2-control-plane-ao2-stable-promotion-evidence-index-readback",
                 "schema_versions": [
                     "ao2.cp-ao2-stable-promotion-evidence-index-readback.v1",
                     "ao2.cp-stable-promotion-evidence-readback.v1",
                     "ao2.stable-promotion-evidence-index.v1"
                 ],
-                "summary_path": "summary.json",
                 "operator_action": "download-ci-artifact",
-                "purpose": "Proves AO2 stable-promotion evidence index summaries can be verified and observed through the control plane without token leakage, storage mutation, provider API keys, or release approval.",
                 "ci_artifact_provenance": github_actions_provenance(
                     &[
                         "AO2 stable promotion evidence index readback"
@@ -278,7 +243,7 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                     &[
                         "ao2-control-plane-ao2-stable-promotion-evidence-index-readback"
                     ],
-                    "summary.json carries schema/status plus required AO2 stable-promotion evidence family readiness and trust-boundary flags"
+                    "summary.json carries schema/status plus stable promotion evidence readiness"
                 ),
                 "trust_boundary": {
                     "read_only": true,
@@ -307,6 +272,38 @@ fn github_actions_provenance(
         "digest_reference": digest_reference,
         "token_free": true
     })
+}
+
+fn evidence_display_name(id: &str) -> &'static str {
+    match id {
+        "risky-pr-golden-bridge-smoke" => "Risky PR golden bridge smoke",
+        "release-train-bridge-smoke" => "Release train bridge smoke",
+        "ingest-smoke" => "Ingest smoke",
+        "release-archive-smoke" => "Release archive smoke",
+        "backup-restore-drill" => "Backup/restore drill",
+        "stable-promotion-evidence-readback" => "Stable promotion evidence readback",
+        _ => "Unknown evidence",
+    }
+}
+
+fn evidence_purpose(id: &str) -> &'static str {
+    match id {
+        "risky-pr-golden-bridge-smoke" => {
+            "AO2 risky PR golden artifact manifests can be observed without release approval."
+        }
+        "release-train-bridge-smoke" => {
+            "AO2 public release-train summaries can be observed without release approval."
+        }
+        "ingest-smoke" => "Signed AO2 evidence can be ingested on supported operating systems.",
+        "release-archive-smoke" => {
+            "Packaged release archives install and run on supported operating systems."
+        }
+        "backup-restore-drill" => "Storage backup and restore behavior is exercised.",
+        "stable-promotion-evidence-readback" => {
+            "AO2 stable-promotion evidence can be observed without release approval."
+        }
+        _ => "missing",
+    }
 }
 
 fn json_str<'a>(value: &'a serde_json::Value, key: &str) -> Option<&'a str> {

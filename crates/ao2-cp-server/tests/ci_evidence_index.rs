@@ -4,6 +4,9 @@ use ao2_cp_storage::Storage;
 use std::sync::Arc;
 use tempfile::tempdir;
 
+const RELEASE_SUPPORT_CONTRACT_FIXTURE: &str =
+    include_str!("../../../tests/fixtures/release-support-bundle-contract-v1.json");
+
 async fn spawn_server() -> (String, tempfile::TempDir) {
     let dir = tempdir().unwrap();
     let storage = Storage::open(dir.path().to_path_buf()).await.unwrap();
@@ -54,6 +57,12 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
     assert_eq!(body["mutates_observer_storage"], false);
     assert_eq!(body["auth"]["credential_material_included"], false);
     assert_eq!(body["auth"]["credential_material_in_urls"], false);
+    let shared_fixture: serde_json::Value =
+        serde_json::from_str(RELEASE_SUPPORT_CONTRACT_FIXTURE).unwrap();
+    assert_eq!(
+        body, shared_fixture["ci_evidence_index"],
+        "generated CI evidence index must match the shared release-support fixture"
+    );
 
     let evidence = body["evidence_families"].as_array().unwrap();
     assert_eq!(evidence.len(), 6);
