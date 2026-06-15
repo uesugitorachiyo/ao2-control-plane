@@ -56,7 +56,7 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
     assert_eq!(body["auth"]["credential_material_in_urls"], false);
 
     let evidence = body["evidence_families"].as_array().unwrap();
-    assert_eq!(evidence.len(), 5);
+    assert_eq!(evidence.len(), 6);
     let ids = evidence
         .iter()
         .map(|item| item["id"].as_str().unwrap())
@@ -69,13 +69,14 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
             "ingest-smoke",
             "release-archive-smoke",
             "backup-restore-drill",
+            "stable-promotion-evidence-readback",
         ]
     );
     assert!(evidence.iter().all(|item| {
         item["artifact_name_pattern"]
             .as_str()
             .unwrap()
-            .contains("ao2-control-plane")
+            .contains("ao2")
             && !item["schema_versions"].as_array().unwrap().is_empty()
             && item["operator_action"].as_str().unwrap() == "download-ci-artifact"
             && item["trust_boundary"]["read_only"].as_bool().unwrap()
@@ -128,6 +129,7 @@ async fn ci_evidence_index_json_and_dashboard_are_read_only_operator_surfaces() 
     assert!(html.contains("Release train bridge smoke"));
     assert!(html.contains("Release archive smoke"));
     assert!(html.contains("Backup/restore drill"));
+    assert!(html.contains("Stable promotion evidence readback"));
     assert!(!html.contains("Bearer secret"));
 }
 

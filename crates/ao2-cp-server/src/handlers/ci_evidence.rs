@@ -258,6 +258,33 @@ pub(crate) fn ci_evidence_index_value() -> serde_json::Value {
                     "approves_release": false,
                     "mutates_ao_artifacts": false
                 }
+            },
+            {
+                "id": "stable-promotion-evidence-readback",
+                "display_name": "Stable promotion evidence readback",
+                "artifact_name_pattern": "ao2-control-plane-ao2-stable-promotion-evidence-index-readback",
+                "schema_versions": [
+                    "ao2.cp-ao2-stable-promotion-evidence-index-readback.v1",
+                    "ao2.cp-stable-promotion-evidence-readback.v1",
+                    "ao2.stable-promotion-evidence-index.v1"
+                ],
+                "summary_path": "summary.json",
+                "operator_action": "download-ci-artifact",
+                "purpose": "Proves AO2 stable-promotion evidence index summaries can be verified and observed through the control plane without token leakage, storage mutation, provider API keys, or release approval.",
+                "ci_artifact_provenance": github_actions_provenance(
+                    &[
+                        "AO2 stable promotion evidence index readback"
+                    ],
+                    &[
+                        "ao2-control-plane-ao2-stable-promotion-evidence-index-readback"
+                    ],
+                    "summary.json carries schema/status plus required AO2 stable-promotion evidence family readiness and trust-boundary flags"
+                ),
+                "trust_boundary": {
+                    "read_only": true,
+                    "approves_release": false,
+                    "mutates_ao_artifacts": false
+                }
             }
         ]
     })
