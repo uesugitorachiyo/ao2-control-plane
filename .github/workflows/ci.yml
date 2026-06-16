@@ -71,7 +71,7 @@ jobs:
         run: |
           mkdir -p target/ci-artifacts/python-guards
           set +e
-          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py -q \
+          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py -q \
             2>&1 | tee target/ci-artifacts/python-guards/pytest.log
           status="${PIPESTATUS[0]}"
           set -e
@@ -85,7 +85,7 @@ jobs:
           payload = {
               "schema_version": "ao2.cp-python-guard-ci-artifacts.v1",
               "status": "passed" if status == 0 else "failed",
-              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py -q",
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py -q",
               "log": str(out / "pytest.log"),
           }
           (out / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -306,6 +306,57 @@ jobs:
         with:
           name: ao2-control-plane-ao2-stable-promotion-evidence-index-readback
           path: target/ao2-stable-promotion-evidence-index-readback
+          if-no-files-found: error
+
+  ao2-dual-repo-public-approval-closure-readback:
+    name: AO2 dual-repo public approval closure readback
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: Verify AO2 dual-repo public approval closure
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p target/ao2-dual-repo-public-approval-closure-readback
+          scripts/verify_ao2_dual_repo_public_approval_closure.py \
+            --out-json target/ao2-dual-repo-public-approval-closure-readback/summary.json \
+            | tee target/ao2-dual-repo-public-approval-closure-readback/verify.log
+          grep -q 'control_plane_ao2_dual_repo_public_approval_closure_readback=passed' target/ao2-dual-repo-public-approval-closure-readback/verify.log
+          test -f target/ao2-dual-repo-public-approval-closure-readback/summary.json
+      - name: Validate AO2 dual-repo public approval closure readback summary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("target/ao2-dual-repo-public-approval-closure-readback/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-ao2-dual-repo-public-approval-closure-readback.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["producer_schema_version"] == "ao2.dual-repo-public-approval-closure.v1", summary
+          assert summary["producer_repo"] == "uesugitorachiyo/ao2", summary
+          assert summary["producer_artifact"]["name"] == "ao2-dual-repo-public-approval-closure", summary
+          assert summary["producer_release_go_no_go"] == "go", summary
+          assert summary["required_source_artifacts"] == [
+              "ao2-public-release-operator-checklist-closure",
+              "ao2-control-plane-public-release-pair-verification",
+              "ao2-control-plane-ao2-stable-promotion-evidence-index-readback",
+          ], summary
+          assert summary["gaps"] == [], summary
+          trust_boundary = summary["trust_boundary"]
+          assert trust_boundary["downloads_github_actions_artifacts"] is True, summary
+          assert trust_boundary["control_plane_approves_release"] is False, summary
+          assert trust_boundary["mutates_ao_artifacts"] is False, summary
+          assert trust_boundary["mutates_github_releases"] is False, summary
+          assert trust_boundary["credential_material_included"] is False, summary
+          assert trust_boundary["provider_api_keys_allowed"] is False, summary
+          PY
+      - name: Upload AO2 dual-repo public approval closure readback
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-ao2-dual-repo-public-approval-closure-readback
+          path: target/ao2-dual-repo-public-approval-closure-readback
           if-no-files-found: error
 
   operator-release-evidence-bridge-contract:

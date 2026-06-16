@@ -236,6 +236,28 @@ The script is guarded by
 GitHub Actions artifact for readback, but it does not approve releases, mutate
 AO2 artifacts, mutate GitHub releases, or allow provider API keys.
 
+CI also runs `AO2 dual-repo public approval closure readback`, which downloads
+AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
+the `Dual Repo Public Approval Closure` workflow and emits
+`ao2.cp-ao2-dual-repo-public-approval-closure-readback.v1`. This is the
+control-plane readback for AO2's final public release go/no-go packet: it
+requires the producer schema `ao2.dual-repo-public-approval-closure.v1`,
+`release_go_no_go=go`, no producer failures, the AO2 checklist closure source,
+the control-plane public release pair verification source, and the
+control-plane AO2 stable promotion evidence readback source. The command prints
+`control_plane_ao2_dual_repo_public_approval_closure_readback=passed` only when
+the closure is complete and its trust boundary still shows the control plane
+does not approve releases, mutate AO2 artifacts, mutate GitHub releases, or
+allow provider API keys:
+
+```bash
+scripts/verify_ao2_dual_repo_public_approval_closure.py \
+  --out-json target/ao2-dual-repo-public-approval-closure-readback/summary.json
+```
+
+The script is guarded by
+`tests/test_ao2_dual_repo_public_approval_closure_readback.py`.
+
 The server can also expose the same producer summary as an authenticated
 read-only operator surface. Set
 `AO2_CP_STABLE_PROMOTION_EVIDENCE_INDEX_SUMMARY` to the downloaded

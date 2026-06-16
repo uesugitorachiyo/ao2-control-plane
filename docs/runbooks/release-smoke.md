@@ -245,6 +245,48 @@ CI wiring are guarded by
 evidence: it may download GitHub Actions artifacts, but it does not approve AO2
 runs, mutate AO artifacts, mutate GitHub releases, or allow provider API keys.
 
+## AO2 dual-repo public approval closure readback
+
+Use `scripts/verify_ao2_dual_repo_public_approval_closure.py` to verify that
+AO2's final dual-repo public approval closure is consumable by the control
+plane without moving public release approval authority into the observer
+service. By default the script finds the latest successful AO2
+`Dual Repo Public Approval Closure` run on `main`, downloads the
+`ao2-dual-repo-public-approval-closure` artifact, reads its `summary.json`, and
+emits a control-plane readback summary:
+
+```sh
+scripts/verify_ao2_dual_repo_public_approval_closure.py \
+  --out-json target/ao2-dual-repo-public-approval-closure-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao2_dual_repo_public_approval_closure_readback=passed`. The
+readback schema is
+`ao2.cp-ao2-dual-repo-public-approval-closure-readback.v1`; the producer schema
+must be `ao2.dual-repo-public-approval-closure.v1`. The verifier requires
+`release_go_no_go=go`, no producer failures, no missing source artifacts, and
+the three source artifacts:
+`ao2-public-release-operator-checklist-closure`,
+`ao2-control-plane-public-release-pair-verification`, and
+`ao2-control-plane-ao2-stable-promotion-evidence-index-readback`.
+
+For deterministic local triage, pass an already-downloaded AO2 summary:
+
+```sh
+scripts/verify_ao2_dual_repo_public_approval_closure.py \
+  --closure-summary-json ../ao2/target/dual-repo-public-approval-closure/latest/summary.json \
+  --out-json target/ao2-dual-repo-public-approval-closure-readback/summary.json
+```
+
+Pull-request CI runs the same live readback job and uploads
+`ao2-control-plane-ao2-dual-repo-public-approval-closure-readback`. The script
+and CI wiring are guarded by
+`tests/test_ao2_dual_repo_public_approval_closure_readback.py`. This is
+read-only evidence: it may download GitHub Actions artifacts, but it does not
+approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or allow
+provider API keys.
+
 ## AO2 release train bridge smoke
 
 Use the release train bridge smoke to verify that AO2's public
