@@ -12,13 +12,33 @@ from pathlib import Path
 
 
 DEFAULT_AO2_REPO = "uesugitorachiyo/ao2"
-DEFAULT_AO2_TAG = "v0.4.80"
 DEFAULT_CONTROL_PLANE_REPO = "uesugitorachiyo/ao2-control-plane"
-DEFAULT_CONTROL_PLANE_TAG = "v0.1.13"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+RELEASE_TRAIN_MANIFEST = REPO_ROOT / "docs/release/release-train.json"
 DEFAULT_OUTPUT_ROOT = Path("target/public-release-pair-verification")
 PLATFORM_ORDER = ["linux-x86_64", "linux-aarch64", "macos-aarch64", "windows-x86_64"]
 # Current default control-plane Windows archive contract:
 # ao2-control-plane-0.1.13-windows-x86_64.tar.gz
+
+
+def load_release_train_manifest(path: Path = RELEASE_TRAIN_MANIFEST) -> dict:
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    if manifest.get("schema_version") != "ao2.release-train-manifest.v1":
+        raise SystemExit(f"unexpected release train manifest schema: {manifest.get('schema_version')}")
+    for train_name in ("stable", "next_patch"):
+        train = manifest.get(train_name)
+        if not isinstance(train, dict):
+            raise SystemExit(f"missing release train: {train_name}")
+        for component in ("ao2", "ao2_control_plane"):
+            target = train.get(component)
+            if not isinstance(target, dict) or not target.get("tag") or not target.get("version"):
+                raise SystemExit(f"invalid release train target: {train_name}.{component}")
+    return manifest
+
+
+RELEASE_TRAIN_DEFAULTS = load_release_train_manifest()
+DEFAULT_AO2_TAG = RELEASE_TRAIN_DEFAULTS["stable"]["ao2"]["tag"]
+DEFAULT_CONTROL_PLANE_TAG = RELEASE_TRAIN_DEFAULTS["stable"]["ao2_control_plane"]["tag"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -296,10 +316,43 @@ def main() -> int:
         )
 
     status = "attention" if gaps else "passed"
+    selected_train = (
+        "stable"
+        if args.ao2_tag == DEFAULT_AO2_TAG and args.control_plane_tag == DEFAULT_CONTROL_PLANE_TAG
+        else "custom"
+    )
+    if selected_train == "stable":
+        selected_targets = RELEASE_TRAIN_DEFAULTS["stable"]
+    else:
+        selected_targets = {
+            "ao2": {"tag": args.ao2_tag, "version": version_from_tag(args.ao2_tag)},
+            "ao2_control_plane": {
+                "tag": args.control_plane_tag,
+                "version": version_from_tag(args.control_plane_tag),
+            },
+            "promotion_confirm": "",
+            "public_operator_confirm": "",
+        }
+    release_train_manifest = {
+        "schema_version": RELEASE_TRAIN_DEFAULTS["schema_version"],
+        "source": str(RELEASE_TRAIN_MANIFEST),
+        "selected_train": selected_train,
+        "stable": RELEASE_TRAIN_DEFAULTS["stable"],
+        "next_patch": RELEASE_TRAIN_DEFAULTS["next_patch"],
+    }
+    release_targets = {
+        "selected_train": selected_train,
+        "ao2": selected_targets["ao2"],
+        "ao2_control_plane": selected_targets["ao2_control_plane"],
+        "promotion_confirm": selected_targets["promotion_confirm"],
+        "public_operator_confirm": selected_targets["public_operator_confirm"],
+    }
     summary = {
         "schema_version": "ao2.cp-public-release-pair-verification.v1",
         "status": status,
         "strict": args.strict,
+        "release_train_manifest": release_train_manifest,
+        "release_targets": release_targets,
         "ao2": release_summary(
             repo=args.ao2_repo,
             tag=args.ao2_tag,

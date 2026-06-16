@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 import stat
@@ -73,6 +74,35 @@ def control_plane_assets():
         f"ao2-control-plane-{version}-windows-x86_64.tar.gz",
         "summary.json",
     ]
+
+
+def test_public_release_pair_verify_defaults_follow_release_train_manifest():
+    manifest_path = REPO_ROOT / "docs" / "release" / "release-train.json"
+    assert manifest_path.is_file()
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
+    assert manifest["stable"]["ao2"] == {"tag": "v0.4.80", "version": "0.4.80"}
+    assert manifest["stable"]["ao2_control_plane"] == {
+        "tag": "v0.1.13",
+        "version": "0.1.13",
+    }
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.4.81", "version": "0.4.81"}
+    assert manifest["next_patch"]["ao2_control_plane"] == {
+        "tag": "v0.1.14",
+        "version": "0.1.14",
+    }
+
+    spec = importlib.util.spec_from_file_location("public_release_pair_verify", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.RELEASE_TRAIN_MANIFEST == manifest_path
+    assert module.DEFAULT_AO2_TAG == manifest["stable"]["ao2"]["tag"]
+    assert module.DEFAULT_CONTROL_PLANE_TAG == manifest["stable"]["ao2_control_plane"]["tag"]
+
+    script = SCRIPT.read_text(encoding="utf-8")
+    assert "load_release_train_manifest" in script
+    assert "docs/release/release-train.json" in script
 
 
 def run_pair_verify(tmp_path, *, ao2_release_assets=None, cp_checksum_assets=None, strict=False):

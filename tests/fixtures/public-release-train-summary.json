@@ -40,6 +40,48 @@
     "refuses_publish_side_effects_by_default": true,
     "tag_push_publish_deploy": "not executed by this drill"
   },
+  "release_targets": {
+    "ao2": {
+      "tag": "v0.4.81",
+      "version": "0.4.81"
+    },
+    "ao2_control_plane": {
+      "tag": "v0.1.14",
+      "version": "0.1.14"
+    },
+    "promotion_confirm": "promote-stable-v0.4.81-v0.1.14",
+    "public_operator_confirm": "public-release-reviewed-v0.4.81-v0.1.14",
+    "selected_train": "next_patch"
+  },
+  "release_train_manifest": {
+    "next_patch": {
+      "ao2": {
+        "tag": "v0.4.81",
+        "version": "0.4.81"
+      },
+      "ao2_control_plane": {
+        "tag": "v0.1.14",
+        "version": "0.1.14"
+      },
+      "promotion_confirm": "promote-stable-v0.4.81-v0.1.14",
+      "public_operator_confirm": "public-release-reviewed-v0.4.81-v0.1.14"
+    },
+    "schema_version": "ao2.release-train-manifest.v1",
+    "selected_train": "next_patch",
+    "source": "docs/release/release-train.json",
+    "stable": {
+      "ao2": {
+        "tag": "v0.4.80",
+        "version": "0.4.80"
+      },
+      "ao2_control_plane": {
+        "tag": "v0.1.13",
+        "version": "0.1.13"
+      },
+      "promotion_confirm": "promote-stable-v0.4.80-v0.1.13",
+      "public_operator_confirm": "public-release-reviewed-v0.4.80-v0.1.13"
+    }
+  },
   "release_readiness_artifact_consumer_contract": {
     "check_detail": "downloads ao2-release-readiness and validates schema/status/core cross-OS checks",
     "release_readiness_status": "passed",
