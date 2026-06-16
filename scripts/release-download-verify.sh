@@ -1,8 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 AO2_CP_RELEASE_REPO="${AO2_CP_RELEASE_REPO:-uesugitorachiyo/ao2-control-plane}"
-AO2_CP_RELEASE_TAG="${AO2_CP_RELEASE_TAG:-v0.1.13}"
+if [ -z "${AO2_CP_RELEASE_TAG+x}" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    python_bin="python3"
+  elif command -v python >/dev/null 2>&1; then
+    python_bin="python"
+  else
+    python_bin=""
+  fi
+  if [ -n "$python_bin" ] && [ -f "$ROOT/docs/release/release-train.json" ]; then
+    AO2_CP_RELEASE_TAG="$("$python_bin" - "$ROOT/docs/release/release-train.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+if manifest.get("schema_version") != "ao2.release-train-manifest.v1":
+    raise SystemExit(f"unexpected release train manifest schema: {manifest.get('schema_version')}")
+print(manifest["stable"]["ao2_control_plane"]["tag"])
+PY
+)"
+  else
+    AO2_CP_RELEASE_TAG="v0.1.13"
+  fi
+fi
 AO2_CP_RELEASE_DOWNLOAD_DIR="${AO2_CP_RELEASE_DOWNLOAD_DIR:-target/release-download/$AO2_CP_RELEASE_TAG}"
 AO2_CP_RELEASE_DOWNLOAD_OFFLINE="${AO2_CP_RELEASE_DOWNLOAD_OFFLINE:-0}"
 AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON="${AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON:-}"

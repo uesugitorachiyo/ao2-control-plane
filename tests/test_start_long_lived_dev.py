@@ -561,6 +561,15 @@ def test_ci_runs_cross_os_release_train_bridge_fixture_smoke():
 
     assert fixture["schema_version"] == "ao2.public-release-train-drill.v1"
     assert fixture["status"] == "passed"
+    assert fixture["release_train_manifest"]["schema_version"] == "ao2.release-train-manifest.v1"
+    assert fixture["release_train_manifest"]["selected_train"] == "next_patch"
+    assert fixture["release_targets"] == {
+        "selected_train": "next_patch",
+        "ao2": {"tag": "v0.4.81", "version": "0.4.81"},
+        "ao2_control_plane": {"tag": "v0.1.14", "version": "0.1.14"},
+        "promotion_confirm": "promote-stable-v0.4.81-v0.1.14",
+        "public_operator_confirm": "public-release-reviewed-v0.4.81-v0.1.14",
+    }
     assert fixture["release_readiness_artifact_consumer_contract"]["status"] == "passed"
     assert fixture["publish_guards"]["refuses_publish_side_effects_by_default"] is True
 

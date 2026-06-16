@@ -190,7 +190,9 @@ CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
 AO2 stable release (`v0.4.80`) and control-plane release (`v0.1.13`) as one
-public release pair. The verifier reads GitHub release metadata and
+public release pair. Those stable defaults are read from
+`docs/release/release-train.json`, which also records the next candidate train
+(`v0.4.81` / `v0.1.14`). The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
 summary evidence, and checksum coverage for the published control-plane
@@ -606,7 +608,9 @@ server with `AO2_CP_RELEASE_TRAIN_SUMMARY`, fetches
 `/api/v1/release/train.json` and `/api/v1/release/train`, verifies
 `ao2.cp-release-train-readback.v1` over the AO2
 `ao2.public-release-train-drill.v1` summary, and uploads the full token-free
-evidence directory. It checks that local absolute paths are redacted and that
+evidence directory. The fixture carries the manifest-backed `next_patch`
+targets so candidate rehearsal output can be observed before public release
+assets exist. It checks that local absolute paths are redacted and that
 the control plane remains a read-only observer with no release approval or
 artifact mutation authority.
 
