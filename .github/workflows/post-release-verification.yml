@@ -2,6 +2,12 @@ name: Post Release Verification
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "ao2-control-plane release tag to verify."
+        required: false
+        type: string
+        default: v0.1.13
   schedule:
     - cron: "29 12 * * 2"
 
@@ -15,7 +21,7 @@ concurrency:
 
 env:
   AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane
-  AO2_CP_RELEASE_TAG: v0.1.13
+  AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.13' }}
 
 jobs:
   post-release-verification:
@@ -51,6 +57,8 @@ jobs:
 
       - name: Validate post release verification summary
         shell: bash
+        env:
+          EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.13' }}
         run: |
           if command -v python3 >/dev/null 2>&1; then
             python_bin="python3"
@@ -62,6 +70,7 @@ jobs:
           fi
           "$python_bin" - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           summary_path = Path("target/post-release-verification/${{ matrix.name }}/summary.json")
@@ -69,7 +78,7 @@ jobs:
           assert summary["schema_version"] == "ao2.cp-release-publication-closure.v1", summary
           assert summary["status"] == "passed", summary
           assert summary["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
-          assert summary["release_tag"] == "v0.1.13", summary
+          assert summary["release_tag"] == os.environ["EXPECTED_AO2_CP_RELEASE_TAG"], summary
           assert summary["checksum_verified"] is True, summary
           assert summary["assets"], summary
           trust_boundary = summary["trust_boundary"]
