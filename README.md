@@ -60,7 +60,7 @@ audited.
 
 ## License
 
-`ao2-control-plane` is licensed under `MIT OR Apache-2.0`, at your option. See `LICENSE`, `LICENSE-MIT`, and `LICENSE-APACHE`.
+`ao2-control-plane` is licensed under `Apache-2.0`. See `LICENSE`.
 
 ## Quickstart
 
@@ -1138,4 +1138,4 @@ v0.1 — see GitHub releases.
 
 ## License
 
-MIT OR Apache-2.0
+Apache-2.0

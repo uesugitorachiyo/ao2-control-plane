@@ -11557,10 +11557,10 @@ fn public_repo_license_and_release_examples_match_workspace_version() {
         .expect("workspace package version is quoted");
     let workspace_version = &after_section[version_start..version_end];
 
-    for file in ["LICENSE", "LICENSE-MIT", "LICENSE-APACHE"] {
+    for file in ["LICENSE"] {
         assert!(
             root.join(file).is_file(),
-            "public repo license file {file} must exist when Cargo declares MIT OR Apache-2.0"
+            "public repo license file {file} must exist when Cargo declares Apache-2.0"
         );
     }
 
@@ -11768,10 +11768,9 @@ fn package_local_cp_source_paths_resolve_to_real_files_lane_rrrrr() {
 //   - `version = "0.1.0"` in member A but `version = "0.2.0"` in
 //     member B means the workspace version (Lane PPPPP) only binds
 //     to member A; release archives mislabel member B's content.
-//   - `license = "MIT OR Apache-2.0"` in member A but `license =
-//     "MIT"` in member B is a legal compliance violation; the
-//     workspace claims dual-licensing but a member crate only ships
-//     under one license.
+//   - `license = "Apache-2.0"` in member A but `license = "MIT"` in
+//     member B is a legal compliance violation; the workspace claims
+//     Apache-2.0 but a member crate ships under a different license.
 //
 // The binding: for every member crate's `[package]` table, every
 // listed core field (`version`, `edition`, `license`) MUST use
