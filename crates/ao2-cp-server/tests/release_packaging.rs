@@ -11557,12 +11557,10 @@ fn public_repo_license_and_release_examples_match_workspace_version() {
         .expect("workspace package version is quoted");
     let workspace_version = &after_section[version_start..version_end];
 
-    for file in ["LICENSE"] {
-        assert!(
-            root.join(file).is_file(),
-            "public repo license file {file} must exist when Cargo declares Apache-2.0"
-        );
-    }
+    assert!(
+        root.join("LICENSE").is_file(),
+        "public repo LICENSE file must exist when Cargo declares Apache-2.0"
+    );
 
     for doc in [
         ("README.md", readme.as_str()),
