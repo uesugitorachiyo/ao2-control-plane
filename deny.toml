@@ -27,7 +27,7 @@ ignore = ["RUSTSEC-2023-0071"]
 # Permissive-only allow-list. Every crate in the current tree resolves to one
 # of these via SPDX OR/AND evaluation. Notably BSD-3-Clause is required by
 # `subtle` (BSD-3-Clause only, no OR) and Unicode-3.0 by `unicode-ident`
-# (`(MIT OR Apache-2.0) AND Unicode-3.0`). No copyleft (GPL/LGPL/MPL) is
+# (`(MIT OR Apache-2.0) AND Unicode-3.0`). No GPL/LGPL/AGPL/SSPL family is
 # allowed — any such crate must fail the build for a deliberate review.
 allow = [
     "MIT",
