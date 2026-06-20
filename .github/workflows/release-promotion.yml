@@ -146,6 +146,9 @@ jobs:
             --version "${{ inputs.version }}" \
             --binary "${{ matrix.binary }}" \
             --target-label "${{ matrix.target_label }}"
+      - name: Check release archive license files
+        shell: bash
+        run: scripts/check-license-policy.sh --scan-archives
       - name: Run Unix archive smoke
         if: matrix.shell == 'bash'
         shell: bash
