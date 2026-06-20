@@ -99,6 +99,8 @@ cp "$ROOT/scripts/verify_release_support_bundle.py" "$STAGE/verify_release_suppo
 cp "$ROOT/scripts/Verify-ReleaseSupportBundle.ps1" "$STAGE/Verify-ReleaseSupportBundle.ps1"
 cp "$ROOT/scripts/fetch_release_support_handoff.py" "$STAGE/fetch_release_support_handoff.py"
 cp "$ROOT/scripts/Fetch-ReleaseSupportHandoff.ps1" "$STAGE/Fetch-ReleaseSupportHandoff.ps1"
+cp "$ROOT/LICENSE" "$STAGE/LICENSE"
+cp "$ROOT/NOTICE" "$STAGE/NOTICE"
 chmod 755 "$STAGE/bin/$BINARY_NAME" 2>/dev/null || true
 chmod 755 "$STAGE/bin/$GC_BINARY_NAME" 2>/dev/null || true
 chmod 755 "$STAGE/verify_release_support_bundle.py" 2>/dev/null || true
@@ -111,6 +113,8 @@ if command -v sha256sum >/dev/null 2>&1; then
   ps_verifier_sha=$(sha256sum "$STAGE/Verify-ReleaseSupportBundle.ps1" | awk '{ print $1 }')
   fetch_handoff_sha=$(sha256sum "$STAGE/fetch_release_support_handoff.py" | awk '{ print $1 }')
   ps_fetch_handoff_sha=$(sha256sum "$STAGE/Fetch-ReleaseSupportHandoff.ps1" | awk '{ print $1 }')
+  license_sha=$(sha256sum "$STAGE/LICENSE" | awk '{ print $1 }')
+  notice_sha=$(sha256sum "$STAGE/NOTICE" | awk '{ print $1 }')
 else
   binary_sha=$(shasum -a 256 "$STAGE/bin/$BINARY_NAME" | awk '{ print $1 }')
   gc_binary_sha=$(shasum -a 256 "$STAGE/bin/$GC_BINARY_NAME" | awk '{ print $1 }')
@@ -118,6 +122,8 @@ else
   ps_verifier_sha=$(shasum -a 256 "$STAGE/Verify-ReleaseSupportBundle.ps1" | awk '{ print $1 }')
   fetch_handoff_sha=$(shasum -a 256 "$STAGE/fetch_release_support_handoff.py" | awk '{ print $1 }')
   ps_fetch_handoff_sha=$(shasum -a 256 "$STAGE/Fetch-ReleaseSupportHandoff.ps1" | awk '{ print $1 }')
+  license_sha=$(shasum -a 256 "$STAGE/LICENSE" | awk '{ print $1 }')
+  notice_sha=$(shasum -a 256 "$STAGE/NOTICE" | awk '{ print $1 }')
 fi
 printf "%s  bin/%s\n" "$binary_sha" "$BINARY_NAME" > "$STAGE/SHA256SUMS"
 printf "%s  bin/%s\n" "$gc_binary_sha" "$GC_BINARY_NAME" >> "$STAGE/SHA256SUMS"
@@ -125,6 +131,8 @@ printf "%s  verify_release_support_bundle.py\n" "$py_verifier_sha" >> "$STAGE/SH
 printf "%s  Verify-ReleaseSupportBundle.ps1\n" "$ps_verifier_sha" >> "$STAGE/SHA256SUMS"
 printf "%s  fetch_release_support_handoff.py\n" "$fetch_handoff_sha" >> "$STAGE/SHA256SUMS"
 printf "%s  Fetch-ReleaseSupportHandoff.ps1\n" "$ps_fetch_handoff_sha" >> "$STAGE/SHA256SUMS"
+printf "%s  LICENSE\n" "$license_sha" >> "$STAGE/SHA256SUMS"
+printf "%s  NOTICE\n" "$notice_sha" >> "$STAGE/SHA256SUMS"
 
 python3 - "$STAGE/RELEASE-MANIFEST.json" "$VERSION" "$TARGET_LABEL" "$BINARY_NAME" "$binary_sha" "$py_verifier_sha" "$ps_verifier_sha" "$fetch_handoff_sha" "$ps_fetch_handoff_sha" "$GC_BINARY_NAME" "$gc_binary_sha" <<'PY'
 import json
@@ -139,6 +147,7 @@ manifest = {
     "binary": sys.argv[4],
     "binary_path": f"bin/{sys.argv[4]}",
     "binary_sha256": sys.argv[5],
+    "legal_files": ["LICENSE", "NOTICE"],
     "server": "ao2-cp-server",
     "operator_tools": {
         "gc": {
@@ -527,7 +536,7 @@ Audit-log rotation budget (Lanes UU, VV, XX, ZZ)
 TXT
 
 ARCHIVE="$OUT_DIR/ao2-control-plane-$VERSION-$TARGET_LABEL.tar.gz"
-(cd "$STAGE" && tar -czf "$ARCHIVE" bin install.sh install.ps1 verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt)
+(cd "$STAGE" && tar -czf "$ARCHIVE" bin install.sh install.ps1 verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt LICENSE NOTICE)
 if command -v sha256sum >/dev/null 2>&1; then
   archive_sha=$(sha256sum "$ARCHIVE" | awk '{ print $1 }')
 else
