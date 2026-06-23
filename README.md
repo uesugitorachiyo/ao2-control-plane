@@ -29,6 +29,11 @@ active production stack is AO2-first and is validated by the active-stack
 handoff readback against `ao2`, `ao2-control-plane`, `ao-foundry`, `ao-forge`,
 `ao-command`, and `ao-covenant`.
 
+Likewise, `operator-release` schema, artifact, workflow, and route names are
+AO2 release-evidence compatibility labels, not references to the deprecated `ao-operator` repository.
+New active-stack work must not reintroduce `ao-operator` or route release
+authority through this observer service.
+
 ## What it does
 
 `ao2-control-plane` turns AO2's local evidence into a durable, authenticated
