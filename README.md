@@ -22,6 +22,13 @@ readback, retention, release readiness observation, and authenticated operator
 views. Execution and evaluator closure remain in
 [`ao2`](https://github.com/uesugitorachiyo/ao2).
 
+Some stored evidence schemas and route-owner strings still contain historical
+`factory-v3` or `Hermes` labels. Treat those as compatibility labels for
+already-published evidence contracts, not active repository dependencies. The
+active production stack is AO2-first and is validated by the active-stack
+handoff readback against `ao2`, `ao2-control-plane`, `ao-foundry`, `ao-forge`,
+`ao-command`, and `ao-covenant`.
+
 ## What it does
 
 `ao2-control-plane` turns AO2's local evidence into a durable, authenticated
