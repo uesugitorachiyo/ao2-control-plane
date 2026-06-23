@@ -6,6 +6,14 @@ Optional server layer for AO2 evidence ingest. Receives signed acceptance bundle
 
 This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
 
+## Successor Boundary
+
+AO2 Control Plane replaces the deprecated AO Control Plane path for active AO
+work. It is the home for typed state, evidence readback, retention, release
+readiness observation, and authenticated operator views. Execution and
+evaluator closure remain in
+[`ao2`](https://github.com/uesugitorachiyo/ao2).
+
 ## What it does
 
 `ao2-control-plane` turns AO2's local evidence into a durable, authenticated
@@ -706,11 +714,9 @@ AO2 release-publication summaries can be posted to
 `/api/v1/release/publication` after the governed release workflow has shipped a
 tag. The release dashboard observes publication state, provenance tag match,
 download verification, rollback status, release doctor status, and archive
-targets without entering the release trust path. Factory v3 / AO Operator still
-owns evaluator closure and release acceptance.
-Factory-v3 materializes that closure separately as
-`factory-v3/ao2-release-evaluator-decision/v1` after it compares the
-control-plane readiness observer with the AO Operator handoff checklist. The
+targets without entering the release trust path. AO2 owns evaluator closure and
+release acceptance. AO2 materializes closure evidence separately after it
+compares release-readiness inputs with the control-plane observer state. The
 control plane may observe the surrounding signed evidence, but it must not
 produce or approve that evaluator decision.
 When running `scripts/smoke-three-os-release.sh` for a Phase 1 release
