@@ -6,6 +6,14 @@ Optional server layer for AO2 evidence ingest. Receives signed acceptance bundle
 
 This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
 
+## AO Stack Architecture
+
+This repository is part of the AO agent orchestration stack. Start with the
+central architecture guide at
+[uesugitorachiyo/ao-architecture](https://github.com/uesugitorachiyo/ao-architecture);
+the ao2-control-plane-specific architecture page is
+[ao2-control-plane](https://github.com/uesugitorachiyo/ao-architecture/tree/main/ao2-control-plane).
+
 ## Successor Boundary
 
 AO2-first control-plane evidence replaces the deprecated standalone control-plane
