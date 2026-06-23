@@ -22,9 +22,9 @@ usage() {
   cat <<'EOF'
 usage: scripts/verify-branch-protection.sh [--repo <owner/name>] [--branch <branch>]
 
-Verifies that the live GitHub branch protection requires the ao2-control-plane
-CI, ingest smoke, release archive smoke, supply-chain, and lint checks. This
-script is read-only.
+Verifies that the live GitHub branch protection and active branch rulesets
+require only the current ao2-control-plane CI, ingest smoke, release archive
+smoke, supply-chain, and lint checks. This script is read-only.
 EOF
 }
 
@@ -81,6 +81,7 @@ check_jq() {
 }
 
 if [[ "$mode" == "full" ]]; then
+  rulesets="$(gh api "repos/$REPO/rulesets")"
   check_jq "required_status_checks_strict" '.required_status_checks.strict == true'
   check_jq "enforce_admins" '.enforce_admins.enabled == true'
   check_jq "required_linear_history" '.required_linear_history.enabled == true'
@@ -103,8 +104,59 @@ if [[ "$actual_checks" != "$expected_checks" ]]; then
   exit 1
 fi
 
+if [[ "$mode" == "full" ]]; then
+  ruleset_errors="$(RULESETS_JSON="$rulesets" python3 - "$BRANCH" "${REQUIRED_CHECKS[@]}" <<'PY'
+import json
+import os
+import sys
+
+branch = sys.argv[1]
+allowed_contexts = set(sys.argv[2:])
+rulesets = json.loads(os.environ["RULESETS_JSON"])
+errors = []
+
+for ruleset in rulesets:
+    if ruleset.get("enforcement") != "active" or ruleset.get("target") != "branch":
+        continue
+    conditions = ruleset.get("conditions") or {}
+    ref_name = conditions.get("ref_name") or {}
+    includes = ref_name.get("include") or []
+    excludes = ref_name.get("exclude") or []
+    branch_refs = {branch, f"refs/heads/{branch}", "~DEFAULT_BRANCH"}
+    if includes and not any(include in branch_refs for include in includes):
+        continue
+    if branch in excludes or f"refs/heads/{branch}" in excludes:
+        continue
+    for rule in ruleset.get("rules") or []:
+        if rule.get("type") != "required_status_checks":
+            continue
+        parameters = rule.get("parameters") or {}
+        for check in parameters.get("required_status_checks") or []:
+            context = check.get("context")
+            if context and context not in allowed_contexts:
+                errors.append(
+                    f"{ruleset.get('name', '<unnamed>')}: unexpected required status check {context}"
+                )
+
+if errors:
+    print("\n".join(errors))
+PY
+)"
+  if [[ -n "$ruleset_errors" ]]; then
+    echo "branch_protection=failed check=ruleset_status_checks_current" >&2
+    printf '%s\n' "$ruleset_errors" >&2
+    exit 1
+  fi
+fi
+
 echo "branch_protection=passed"
 echo "mode=$mode"
 echo "repo=$REPO"
 echo "branch=$BRANCH"
+if [[ "$mode" == "full" ]]; then
+  echo "rulesets_checked=true"
+  echo "rulesets_count=$(printf '%s' "$rulesets" | jq 'length')"
+else
+  echo "rulesets_checked=false"
+fi
 printf 'required_check=%s\n' "${REQUIRED_CHECKS[@]}"

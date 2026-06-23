@@ -382,8 +382,9 @@ The same read-only verifier runs from
 schedule. It reports `mode=full` with an admin-capable token and `mode=limited`
 from GitHub Actions branch metadata when the built-in token cannot read the full
 branch protection endpoint. The policy requires admin enforcement, linear history,
-force-push protection, deletion protection, and the current CI, ingest, release
-archive, lint, audit, and deny checks.
+force-push protection, deletion protection, active branch rulesets without stale
+required-check names, and the current CI, ingest, release archive, lint, audit,
+and deny checks.
 
 Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and

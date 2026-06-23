@@ -1,8 +1,8 @@
 # Branch Protection
 
 `ao2-control-plane` protects `main` with strict required status checks, admin
-enforcement, required linear history, force-push protection, and branch deletion
-protection.
+enforcement, required linear history, force-push protection, branch deletion
+protection, and active branch rulesets that do not require stale check names.
 
 The required status checks are:
 
@@ -30,10 +30,13 @@ mutate branch protection.
 
 When the token can read the full branch protection endpoint, the verifier runs in
 `mode=full` and checks strict status checks, admin enforcement, linear history,
-force-push protection, deletion protection, and required check names. When
-GitHub Actions restricts the built-in token from that endpoint, the verifier
-falls back to `mode=limited` through branch metadata and still checks that
-`main` is protected for everyone with the required CI matrix contexts.
+force-push protection, deletion protection, required check names, and active
+branch rulesets that apply to `main`. Ruleset required status checks must be
+within the same current required-check set so an active ruleset cannot silently
+pin an obsolete CI context. When GitHub Actions restricts the built-in token from
+that endpoint, the verifier falls back to `mode=limited` through branch metadata
+and still checks that `main` is protected for everyone with the required CI
+matrix contexts.
 
 The same verifier also runs from
 `.github/workflows/production-readiness-ops.yml` on manual dispatch and a daily
