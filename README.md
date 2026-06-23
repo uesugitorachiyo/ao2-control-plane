@@ -8,10 +8,10 @@ This server is an observer: it does not approve AO2 runs, execute providers, or 
 
 ## Successor Boundary
 
-AO2 Control Plane replaces the deprecated AO Control Plane path for active AO
-work. It is the home for typed state, evidence readback, retention, release
-readiness observation, and authenticated operator views. Execution and
-evaluator closure remain in
+AO2-first control-plane evidence replaces the deprecated standalone control-plane
+path for active AO work. This repository is the home for typed state, evidence
+readback, retention, release readiness observation, and authenticated operator
+views. Execution and evaluator closure remain in
 [`ao2`](https://github.com/uesugitorachiyo/ao2).
 
 ## What it does
@@ -268,6 +268,31 @@ scripts/verify_ao2_dual_repo_public_approval_closure.py \
 The script is guarded by
 `tests/test_ao2_dual_repo_public_approval_closure_readback.py`.
 
+CI also runs `Active stack release handoff readback`, which consumes AO
+Foundry's `examples/readiness/active-stack-readiness.ledger.json` and AO
+Covenant's generated `covenant policy spine --json` output. It emits
+`ao2.cp-active-stack-release-handoff-readback.v1` and prints
+`control_plane_active_stack_release_handoff_readback=passed` only when the
+active stack contains `ao2`, `ao2-control-plane`, `ao-foundry`, `ao-forge`,
+`ao-command`, and `ao-covenant`; the Foundry release handoff includes
+`foundry-release-candidate`, `forge-release-candidate-handoff`,
+`covenant-policy-spine`, and `signed-smoke-release-gate`; and the Covenant
+policy spine remains `ao2-first`.
+
+```bash
+scripts/verify_active_stack_release_handoff.py \
+  --foundry-ledger ../ao-foundry/examples/readiness/active-stack-readiness.ledger.json \
+  --covenant-policy-spine target/active-stack-release-handoff-readback/covenant-policy-spine.json \
+  --out-json target/active-stack-release-handoff-readback/summary.json
+```
+
+The CI job uses explicit `Checkout AO Foundry` and `Checkout AO Covenant` steps,
+generates the policy-spine JSON from AO Covenant, and uploads
+`ao2-control-plane-active-stack-release-handoff-readback`. The script is guarded
+by `tests/test_active_stack_release_handoff_readback.py` and remains read-only:
+it does not approve releases, mutate AO2 artifacts, mutate GitHub releases,
+write observer storage, or allow provider API keys.
+
 The server can also expose the same producer summary as an authenticated
 read-only operator surface. Set
 `AO2_CP_STABLE_PROMOTION_EVIDENCE_INDEX_SUMMARY` to the downloaded
@@ -304,10 +329,11 @@ uses `dry_run=true` by default for `v0.1.13`, building and smoking release
 archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
 the `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
 archive build starts, release promotion requires the latest successful
-`Post Release Verification` run on `main` to expose all five baseline artifacts:
+`Post Release Verification` run on `main` to expose all six baseline artifacts:
 the Ubuntu, macOS, and Windows post-release verifier outputs,
 `ao2-control-plane-post-release-pair-verification`, and
-`ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`. The
+`ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`, and
+`ao2-control-plane-post-release-active-stack-release-handoff-readback`. The
 preflight summary uses `ao2.cp-post-release-verification-baseline.v1` and is
 embedded into the promotion plan. The baseline run must match the exact
 promotion commit SHA, so stale post-release evidence from an older `main`
