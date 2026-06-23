@@ -90,13 +90,13 @@ and Windows, then uploads per-OS evidence artifacts:
 approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or include
 credential material.
 
-The workflow also runs `AO2 operator evidence hosted bridge drift monitor` on
+The workflow also runs `AO2 release evidence hosted bridge drift monitor` on
 Ubuntu. That job downloads AO2's latest successful
 `ao2-operator-release-evidence-bundle` artifact from GitHub Actions, starts the
 local control-plane server, verifies the
 `ao2.cp-operator-release-evidence-bridge-smoke.v1` readback summary, and uploads
 `ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`. Use that
-scheduled artifact to prove the hosted AO2 operator release evidence bundle is
+scheduled artifact to prove the hosted AO2 release evidence bundle is
 still consumable end-to-end after merge. The job is read-only: it downloads
 GitHub Actions artifacts but does not approve releases, store credentials,
 publish tags, or mutate AO2 artifacts.

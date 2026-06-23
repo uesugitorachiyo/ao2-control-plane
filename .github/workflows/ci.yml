@@ -447,11 +447,11 @@ jobs:
           if-no-files-found: error
 
   operator-release-evidence-bridge-contract:
-    name: Operator release evidence bridge contract
+    name: AO2 release evidence bridge contract
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.3
-      - name: Verify operator release evidence bridge contract
+      - name: Verify AO2 release evidence bridge contract
         run: scripts/operator-release-evidence-bridge-contract.sh
 
   dr-restore-drill:
@@ -601,7 +601,7 @@ jobs:
           if-no-files-found: error
 
   operator-release-evidence-bridge-smoke:
-    name: Operator release evidence bridge smoke (${{ matrix.name }})
+    name: AO2 release evidence bridge smoke (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     needs: test
     strategy:
@@ -626,7 +626,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build release binary
         run: cargo build --release -p ao2-cp-server
-      - name: Run Unix operator release evidence bridge smoke
+      - name: Run Unix AO2 release evidence bridge smoke
         if: matrix.shell == 'bash'
         shell: bash
         run: |
@@ -634,7 +634,7 @@ jobs:
             --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json \
             --server-bin "${{ matrix.server_bin }}" \
             --out-root "target/operator-release-evidence-bridge-smoke/${{ matrix.name }}"
-      - name: Run Windows operator release evidence bridge smoke
+      - name: Run Windows AO2 release evidence bridge smoke
         if: matrix.shell == 'pwsh'
         shell: pwsh
         run: |
@@ -642,7 +642,7 @@ jobs:
             --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json `
             --server-bin "${{ matrix.server_bin }}" `
             --out-root "target/operator-release-evidence-bridge-smoke/${{ matrix.name }}"
-      - name: Upload operator release evidence bridge smoke artifact
+      - name: Upload AO2 release evidence bridge smoke artifact
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ao2-control-plane-operator-release-evidence-bridge-smoke-${{ matrix.name }}
@@ -650,7 +650,7 @@ jobs:
           if-no-files-found: error
 
   operator-release-evidence-hosted-bridge-smoke:
-    name: Operator release evidence hosted bridge smoke
+    name: AO2 release evidence hosted bridge smoke
     runs-on: ubuntu-latest
     needs: operator-release-evidence-bridge-smoke
     steps:
@@ -659,7 +659,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build release binary
         run: cargo build --release -p ao2-cp-server
-      - name: Run hosted AO2 operator release evidence bridge smoke
+      - name: Run hosted AO2 release evidence bridge smoke
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -694,7 +694,7 @@ jobs:
           failed = [check for check in summary["checks"] if check["status"] != "passed"]
           assert not failed, failed
           PY
-      - name: Upload hosted operator release evidence bridge smoke artifact
+      - name: Upload hosted AO2 release evidence bridge smoke artifact
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ao2-control-plane-operator-release-evidence-hosted-bridge-smoke
