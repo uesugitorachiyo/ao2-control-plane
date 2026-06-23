@@ -256,6 +256,9 @@ def test_current_public_docs_do_not_use_deprecated_ao_product_names():
     ]
     for path in checked_docs:
         text = path.read_text(encoding="utf-8")
+        if path.name == "README.md":
+            text = text.replace("not references to the deprecated `ao-operator` repository", "")
+            text = text.replace("must not reintroduce `ao-operator`", "")
         for needle in forbidden:
             assert needle not in text, f"{path.relative_to(REPO_ROOT)} still contains {needle!r}"
 
@@ -271,5 +274,16 @@ def test_readme_marks_factory_v3_and_hermes_as_historical_compatibility_labels()
         "active production stack is AO2-first",
         "`ao2`, `ao2-control-plane`, `ao-foundry`, `ao-forge`",
         "`ao-command`, and `ao-covenant`",
+    ]:
+        assert needle in readme
+
+
+def test_readme_marks_operator_release_labels_as_ao2_compatibility_not_ao_operator_scope():
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    for needle in [
+        "`operator-release` schema, artifact, workflow, and route names",
+        "AO2 release-evidence compatibility labels",
+        "not references to the deprecated `ao-operator` repository",
+        "must not reintroduce `ao-operator`",
     ]:
         assert needle in readme
