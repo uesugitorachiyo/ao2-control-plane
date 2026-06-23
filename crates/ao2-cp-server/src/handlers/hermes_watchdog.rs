@@ -187,7 +187,7 @@ fn wrap_latest_panel(entry: serde_json::Value) -> serde_json::Value {
         "trust_boundary": {
             "frontend": "Hermes",
             "trusted_execution": "ao2 local signed evidence and digest replay",
-            "governed_backend": "factory-v3 / AO Operator evaluator-closer",
+            "governed_backend": "AO2 governed evaluator-closer",
             "observer": "ao2-control-plane"
         },
         "sha256": entry["sha256"],

@@ -344,7 +344,7 @@ fn support_bundle_operator_handoff(keep_latest: usize) -> SupportBundleOperatorH
         recommended_follow_up: vec![
             "Review signed evidence and phase readiness dashboards before release-line decisions."
                 .to_string(),
-            "Use Factory v3 / AO Operator evaluator-closer workflow for release approval."
+            "Use AO2's governed evaluator-closer workflow for release approval."
                 .to_string(),
             "Use AO2 signed evidence exports as the trusted execution record; this support bundle is diagnostic observer context only."
                 .to_string(),
@@ -438,7 +438,7 @@ fn support_bundle_phase1_readiness(entries: &[IndexEntry]) -> SupportBundlePhase
         (
             "provider_readiness",
             "latest provider readiness evidence",
-            "publish provider readiness evidence through the governed Factory v3 / AO Operator workflow",
+            "publish provider readiness evidence through the governed AO2 evaluator-closer workflow",
         ),
         (
             "codex_live_acceptance",
@@ -932,7 +932,7 @@ impl Storage {
             generated_at: chrono::Utc::now(),
             trust_boundary: SupportBundleTrustBoundary {
                 frontend: "Hermes".to_string(),
-                governed_backend: "Factory v3 / AO Operator".to_string(),
+                governed_backend: "AO2 governed evaluator-closer".to_string(),
                 trusted_execution: "AO2".to_string(),
                 role: "read_only_observer".to_string(),
                 mutates_ao_artifacts: false,

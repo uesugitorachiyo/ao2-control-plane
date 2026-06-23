@@ -4626,7 +4626,7 @@ fn validate_release_evaluator_decision(decision: &serde_json::Value) -> Result<(
 fn trust_boundary() -> serde_json::Value {
     serde_json::json!({
         "frontend": "Hermes front end / queue / memory surface",
-        "governed_backend": "factory-v3 / AO Operator evaluator-closer",
+        "governed_backend": "AO2 governed evaluator-closer",
         "trusted_execution": "ao2 signed evidence boundary",
         "role": "read_only_observer",
         "mutates_ao_artifacts": false,

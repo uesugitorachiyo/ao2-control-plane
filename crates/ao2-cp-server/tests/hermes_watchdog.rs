@@ -24,7 +24,7 @@ fn sample_panel(run_id: &str, generated_at_ms: u64) -> String {
         "trust_boundary": {
             "frontend": "Hermes",
             "trusted_execution": "ao2 repair resume",
-            "governed_backend": "factory-v3 / AO Operator evaluator-closer",
+            "governed_backend": "AO2 governed evaluator-closer",
             "control_plane": "ao2-control-plane read-only observer"
         },
         "operator_links": {

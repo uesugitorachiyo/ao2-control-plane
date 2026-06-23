@@ -10,8 +10,7 @@
 //!
 //! # Trust boundary
 //! - The control plane **never** mutates AO2 artifacts or approves runs.
-//! - Release acceptance lives with factory-v3 / AO Operator
-//!   evaluator-closer, not here.
+//! - Release acceptance lives with AO2's governed evaluator-closer, not here.
 //! - Bearer tokens are accepted only via the `Authorization` header and
 //!   never appear in URLs, logs, or response bodies.
 //! - The preflight refuses to start if `OPENAI_API_KEY` or

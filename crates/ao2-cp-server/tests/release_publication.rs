@@ -521,7 +521,7 @@ fn release_evaluator_decision_fixture() -> String {
         },
         "trust_boundary": {
             "frontend": "Hermes front end / queue / memory surface",
-            "governed_backend": "factory-v3 / AO Operator evaluator-closer",
+            "governed_backend": "AO2 governed evaluator-closer",
             "trusted_execution": "ao2 signed evidence boundary",
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": false,
