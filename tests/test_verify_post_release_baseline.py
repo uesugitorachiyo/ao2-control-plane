@@ -76,6 +76,12 @@ def test_post_release_baseline_verifier_accepts_latest_successful_run_with_requi
             "expired": False,
             "size_in_bytes": 30885996,
         },
+        {
+            "id": 6,
+            "name": "ao2-control-plane-post-release-active-stack-release-handoff-readback",
+            "expired": False,
+            "size_in_bytes": 2048,
+        },
     ]
     runs = [
         {
@@ -104,6 +110,7 @@ def test_post_release_baseline_verifier_accepts_latest_successful_run_with_requi
         "ao2-control-plane-post-release-verification-windows",
         "ao2-control-plane-post-release-pair-verification",
         "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
+        "ao2-control-plane-post-release-active-stack-release-handoff-readback",
     ]
     assert summary["trust_boundary"] == {
         "downloads_github_actions_artifacts": False,
@@ -141,6 +148,7 @@ def test_post_release_baseline_verifier_blocks_missing_required_artifact(tmp_pat
         "ao2-control-plane-post-release-verification-windows",
         "ao2-control-plane-post-release-pair-verification",
         "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
+        "ao2-control-plane-post-release-active-stack-release-handoff-readback",
     ]
 
 
@@ -155,6 +163,12 @@ def test_post_release_baseline_verifier_blocks_stale_main_run(tmp_path):
             "name": "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
             "expired": False,
             "size_in_bytes": 30885996,
+        },
+        {
+            "id": 6,
+            "name": "ao2-control-plane-post-release-active-stack-release-handoff-readback",
+            "expired": False,
+            "size_in_bytes": 2048,
         },
     ]
     runs = [

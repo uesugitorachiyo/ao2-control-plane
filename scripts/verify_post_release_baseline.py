@@ -20,6 +20,7 @@ REQUIRED_ARTIFACTS = [
     "ao2-control-plane-post-release-verification-windows",
     "ao2-control-plane-post-release-pair-verification",
     "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
+    "ao2-control-plane-post-release-active-stack-release-handoff-readback",
 ]
 
 

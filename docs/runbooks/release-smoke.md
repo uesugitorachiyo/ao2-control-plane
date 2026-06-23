@@ -186,9 +186,11 @@ workflow instead of producing advisory-only evidence.
 run on `main` before it builds release archives. The preflight emits
 `ao2.cp-post-release-verification-baseline.v1` to
 `post-release-baseline.json`, requires the Ubuntu, macOS, Windows,
-public-release-pair, and hosted operator bridge artifacts, and embeds that
-summary into `ao2-control-plane-release-promotion-plan-<tag>`. Run the same
-read-only check locally before dispatching a stable promotion:
+public-release-pair, hosted operator bridge, and
+`ao2-control-plane-post-release-active-stack-release-handoff-readback`
+artifacts, and embeds that summary into
+`ao2-control-plane-release-promotion-plan-<tag>`. Run the same read-only check
+locally before dispatching a stable promotion:
 
 ```sh
 python3 scripts/verify_post_release_baseline.py \
@@ -286,6 +288,39 @@ and CI wiring are guarded by
 read-only evidence: it may download GitHub Actions artifacts, but it does not
 approve AO2 runs, mutate AO artifacts, mutate GitHub releases, or allow
 provider API keys.
+
+## Active stack release handoff readback
+
+Use `scripts/verify_active_stack_release_handoff.py` to verify that AO Foundry's
+active-stack release handoff and AO Covenant's policy spine are consumable by
+the control plane without moving release approval authority into the observer
+service. CI checks out AO Foundry and AO Covenant, runs
+`covenant policy spine --json`, reads
+`examples/readiness/active-stack-readiness.ledger.json`, and emits a
+control-plane readback summary:
+
+```sh
+scripts/verify_active_stack_release_handoff.py \
+  --foundry-ledger ../ao-foundry/examples/readiness/active-stack-readiness.ledger.json \
+  --covenant-policy-spine target/active-stack-release-handoff-readback/covenant-policy-spine.json \
+  --out-json target/active-stack-release-handoff-readback/summary.json
+```
+
+Expected output includes
+`control_plane_active_stack_release_handoff_readback=passed`. The readback
+schema is `ao2.cp-active-stack-release-handoff-readback.v1`; the producer
+schemas must be `ao.foundry.active-stack-readiness.v0.1` and
+`covenant.policy-spine-result.v1`. The verifier requires the six active
+repositories, the `ao2-first` Covenant policy spine, and the Foundry release
+handoff gates `foundry-release-candidate`, `forge-release-candidate-handoff`,
+`covenant-policy-spine`, and `signed-smoke-release-gate`.
+
+Pull-request CI runs the same readback job with explicit `Checkout AO Foundry`
+and `Checkout AO Covenant` steps, and uploads
+`ao2-control-plane-active-stack-release-handoff-readback`. The script and CI
+wiring are guarded by `tests/test_active_stack_release_handoff_readback.py`.
+This is read-only evidence: it does not approve AO2 runs, mutate AO artifacts,
+mutate GitHub releases, write observer storage, or allow provider API keys.
 
 ## AO2 release train bridge smoke
 

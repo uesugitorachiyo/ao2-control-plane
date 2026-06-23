@@ -145,6 +145,76 @@ jobs:
           path: target/post-release-pair-verification
           if-no-files-found: error
 
+  active-stack-release-handoff-readback:
+    name: Active stack release handoff readback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ao2-control-plane
+        uses: actions/checkout@v6.0.3
+        with:
+          path: ao2-control-plane
+
+      - name: Checkout AO Foundry
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-foundry
+          path: ao-foundry
+
+      - name: Checkout AO Covenant
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-covenant
+          path: ao-covenant
+
+      - name: Setup Go for AO Covenant policy spine
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ao-covenant/go.mod
+
+      - name: Verify active-stack release handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ao2-control-plane/target/post-release-active-stack-release-handoff-readback
+          go -C ao-covenant run ./cmd/covenant policy spine --json \
+            > ao2-control-plane/target/post-release-active-stack-release-handoff-readback/covenant-policy-spine.json
+          ao2-control-plane/scripts/verify_active_stack_release_handoff.py \
+            --foundry-ledger ao-foundry/examples/readiness/active-stack-readiness.ledger.json \
+            --covenant-policy-spine ao2-control-plane/target/post-release-active-stack-release-handoff-readback/covenant-policy-spine.json \
+            --out-json ao2-control-plane/target/post-release-active-stack-release-handoff-readback/summary.json \
+            | tee ao2-control-plane/target/post-release-active-stack-release-handoff-readback/verify.log
+          grep -q 'control_plane_active_stack_release_handoff_readback=passed' ao2-control-plane/target/post-release-active-stack-release-handoff-readback/verify.log
+          test -f ao2-control-plane/target/post-release-active-stack-release-handoff-readback/summary.json
+
+      - name: Validate active-stack release handoff readback summary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("ao2-control-plane/target/post-release-active-stack-release-handoff-readback/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-active-stack-release-handoff-readback.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["foundry_schema_version"] == "ao.foundry.active-stack-readiness.v0.1", summary
+          assert summary["covenant_schema_version"] == "covenant.policy-spine-result.v1", summary
+          assert summary["gaps"] == [], summary
+          trust = summary["trust_boundary"]
+          assert trust["control_plane_approves_release"] is False, summary
+          assert trust["mutates_ao_artifacts"] is False, summary
+          assert trust["mutates_github_releases"] is False, summary
+          assert trust["mutates_observer_storage"] is False, summary
+          assert trust["credential_material_included"] is False, summary
+          assert trust["provider_api_keys_allowed"] is False, summary
+          PY
+
+      - name: Upload active-stack release handoff readback evidence
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-post-release-active-stack-release-handoff-readback
+          path: ao2-control-plane/target/post-release-active-stack-release-handoff-readback
+          if-no-files-found: error
+
   operator-release-evidence-hosted-bridge-smoke:
     name: AO2 operator evidence hosted bridge drift monitor
     runs-on: ubuntu-latest
