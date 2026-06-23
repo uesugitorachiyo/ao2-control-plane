@@ -168,12 +168,12 @@ the published release remains downloadable and checksum-valid without mutating
 GitHub releases or AO2 artifacts.
 
 The same `Post Release Verification` workflow also runs
-`AO2 operator evidence hosted bridge drift monitor` on Ubuntu. That job
+`AO2 release evidence hosted bridge drift monitor` on Ubuntu. That job
 downloads AO2's latest successful `ao2-operator-release-evidence-bundle` from
 GitHub Actions, starts the local control-plane server, verifies the
 `ao2.cp-operator-release-evidence-bridge-smoke.v1` JSON/HTML readback path, and
 uploads `ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`.
-This is a read-only drift monitor for the hosted AO2 operator evidence bridge:
+This is a read-only drift monitor for the hosted AO2 release evidence bridge:
 it can download public GitHub Actions artifacts, but it does not approve
 releases, store credentials, publish tags, or mutate AO2 artifacts.
 
@@ -574,7 +574,7 @@ setting `AO2_CP_RELEASE_TRAIN_SUMMARY` to AO2's generated
 redact local absolute paths and do not publish, approve, persist, or mutate AO2
 release evidence.
 
-AO2 operator release evidence bundles can be observed by setting
+AO2 release evidence bundles can be observed by setting
 `AO2_CP_OPERATOR_RELEASE_EVIDENCE_SUMMARY` to AO2's generated
 `target/operator-release-evidence-bundle/latest/summary.json`. The
 `/api/v1/release/operator-evidence.json` route wraps the
@@ -588,7 +588,7 @@ trust-boundary fields. Both surfaces redact local absolute paths and remain
 read-only: they do not approve releases, store credentials, publish tags, or
 mutate AO2 artifacts.
 
-Operator release evidence bridge smoke proves the hosted AO2 artifact can be
+AO2 release evidence bridge smoke proves the hosted AO2 artifact can be
 consumed by this control plane. CI runs the fixture-backed smoke across Ubuntu,
 macOS, and Windows:
 
@@ -598,7 +598,7 @@ python3 scripts/smoke-operator-release-evidence-bridge.py \
   --summary crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json
 ```
 
-For live operator verification, first run or wait for AO2's `Operator Release
+For live AO2 release evidence verification, first run or wait for AO2's `Operator Release
 Evidence Audit` workflow, then download the latest successful
 `ao2-operator-release-evidence-bundle` artifact and exercise the readback
 routes in one command:
@@ -613,7 +613,7 @@ Both modes emit `ao2.cp-operator-release-evidence-bridge-smoke.v1` under
 `target/operator-release-evidence-bridge-smoke/`, including token-free JSON and
 HTML captures plus server logs.
 
-CI also runs `Operator release evidence hosted bridge smoke` on Ubuntu after
+CI also runs `AO2 release evidence hosted bridge smoke` on Ubuntu after
 the three-OS fixture smoke passes. That gate downloads the latest successful
 AO2 `ao2-operator-release-evidence-bundle` artifact from GitHub Actions, starts
 the local control-plane server, verifies JSON/HTML readback, and uploads

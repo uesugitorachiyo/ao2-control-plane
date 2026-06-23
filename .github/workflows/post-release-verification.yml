@@ -216,7 +216,7 @@ jobs:
           if-no-files-found: error
 
   operator-release-evidence-hosted-bridge-smoke:
-    name: AO2 operator evidence hosted bridge drift monitor
+    name: AO2 release evidence hosted bridge drift monitor
     runs-on: ubuntu-latest
     steps:
       - name: Checkout release verifier
@@ -229,7 +229,7 @@ jobs:
       - name: Build release binary
         run: cargo build --release -p ao2-cp-server
 
-      - name: Run hosted AO2 operator release evidence bridge smoke
+      - name: Run hosted AO2 release evidence bridge smoke
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -267,7 +267,7 @@ jobs:
           assert not failed, failed
           PY
 
-      - name: Upload hosted operator release evidence bridge smoke artifact
+      - name: Upload hosted AO2 release evidence bridge smoke artifact
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke

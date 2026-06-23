@@ -247,7 +247,7 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
         'assert summary["release_tag"] == os.environ["EXPECTED_AO2_CP_RELEASE_TAG"], summary',
         "ao2-control-plane-post-release-verification-${{ matrix.name }}",
         "operator-release-evidence-hosted-bridge-smoke:",
-        "AO2 operator evidence hosted bridge drift monitor",
+        "AO2 release evidence hosted bridge drift monitor",
         "actions: read",
         "scripts/smoke-operator-release-evidence-bridge.py",
         "--download-latest-ao2-artifact",
