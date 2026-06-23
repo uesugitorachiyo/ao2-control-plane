@@ -354,6 +354,17 @@ The public CI workflow runs on pull requests and pushes to `main`, and can also
 be dispatched manually. Release archive smokes remain part of that CI pipeline,
 while AO2 release approval stays outside this observer service.
 
+`main` branch protection is documented in
+[`docs/runbooks/branch-protection.md`](docs/runbooks/branch-protection.md).
+Verify the live settings with `scripts/verify-branch-protection.sh`.
+The same read-only verifier runs from
+`.github/workflows/production-readiness-ops.yml` on manual dispatch and a daily
+schedule. It reports `mode=full` with an admin-capable token and `mode=limited`
+from GitHub Actions branch metadata when the built-in token cannot read the full
+branch protection endpoint. The policy requires admin enforcement, linear history,
+force-push protection, deletion protection, and the current CI, ingest, release
+archive, lint, audit, and deny checks.
+
 Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
 `cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww`)

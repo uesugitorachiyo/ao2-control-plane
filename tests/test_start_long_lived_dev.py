@@ -286,6 +286,72 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
         assert needle in release_smoke
 
 
+def test_production_readiness_ops_workflow_runs_branch_protection_verifier():
+    workflow = (
+        REPO_ROOT / ".github/workflows/production-readiness-ops.yml"
+    ).read_text(encoding="utf-8")
+    verifier = (REPO_ROOT / "scripts/verify-branch-protection.sh").read_text(
+        encoding="utf-8"
+    )
+    runbook = (REPO_ROOT / "docs/runbooks/branch-protection.md").read_text(
+        encoding="utf-8"
+    )
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    for needle in [
+        "name: production-readiness-ops",
+        "workflow_dispatch:",
+        "schedule:",
+        'cron: "23 10 * * *"',
+        "contents: read",
+        "GH_TOKEN: ${{ github.token }}",
+        "scripts/verify-branch-protection.sh",
+    ]:
+        assert needle in workflow
+
+    for needle in [
+        "uesugitorachiyo/ao2-control-plane",
+        "branches/$BRANCH/protection",
+        "branches/$BRANCH\"",
+        "mode=limited",
+        "Cargo audit",
+        "Cargo deny (bans + licenses + sources)",
+        "Lint (fmt + clippy)",
+        "Test (ubuntu-latest)",
+        "Test (macos-latest)",
+        "Test (windows-latest)",
+        "Ingest smoke (ubuntu-x86_64)",
+        "Ingest smoke (macos-aarch64)",
+        "Ingest smoke (windows-x86_64)",
+        "Release archive smoke (ubuntu-x86_64)",
+        "Release archive smoke (macos-aarch64)",
+        "Release archive smoke (windows-x86_64)",
+        "branch_protection=passed",
+    ]:
+        assert needle in verifier
+
+    for needle in [
+        "scripts/verify-branch-protection.sh",
+        ".github/workflows/production-readiness-ops.yml",
+        "mode=full",
+        "mode=limited",
+        "admin enforcement",
+        "linear history",
+    ]:
+        assert needle in runbook
+        assert needle in readme
+
+    for forbidden in [
+        "gh pr merge",
+        "git push origin",
+        "-X PUT",
+        "-X PATCH",
+        "gh repo edit",
+    ]:
+        assert forbidden not in workflow
+        assert forbidden not in verifier
+
+
 def test_operator_release_evidence_bridge_accepts_additive_passed_checks(tmp_path):
     spec = importlib.util.spec_from_file_location("operator_bridge_smoke", OPERATOR_BRIDGE_SMOKE_PY)
     module = importlib.util.module_from_spec(spec)
