@@ -244,8 +244,32 @@ def test_current_public_docs_do_not_use_deprecated_ao_product_names():
         REPO_ROOT / "docs/DEPLOYMENT.md",
         REPO_ROOT / "docs/SECURITY.md",
     ]
-    forbidden = ["AO Operator", "AO Control Plane", "ao-operator", "ao-control-plane", "ao-runtime"]
+    forbidden = [
+        "AO Operator",
+        "AO Control Plane",
+        "ao-operator",
+        "ao-control-plane",
+        "ao-runtime",
+        "ao-conductor",
+        "agy-swarms",
+        "codex-cron",
+    ]
     for path in checked_docs:
         text = path.read_text(encoding="utf-8")
         for needle in forbidden:
             assert needle not in text, f"{path.relative_to(REPO_ROOT)} still contains {needle!r}"
+
+
+def test_readme_marks_factory_v3_and_hermes_as_historical_compatibility_labels():
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    for needle in [
+        "Some stored evidence schemas and route-owner strings still contain historical",
+        "`factory-v3` or `Hermes` labels",
+        "compatibility labels for",
+        "already-published evidence contracts",
+        "not active repository dependencies",
+        "active production stack is AO2-first",
+        "`ao2`, `ao2-control-plane`, `ao-foundry`, `ao-forge`",
+        "`ao-command`, and `ao-covenant`",
+    ]:
+        assert needle in readme
