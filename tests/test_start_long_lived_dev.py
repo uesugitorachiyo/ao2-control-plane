@@ -1,9 +1,9 @@
 import json
 import importlib.util
 import os
+import subprocess
 import re
 import stat
-import subprocess
 from pathlib import Path
 
 
@@ -312,8 +312,11 @@ def test_production_readiness_ops_workflow_runs_branch_protection_verifier():
     for needle in [
         "uesugitorachiyo/ao2-control-plane",
         "branches/$BRANCH/protection",
+        "repos/$REPO/rulesets",
         "branches/$BRANCH\"",
         "mode=limited",
+        "ruleset_status_checks_current",
+        "rulesets_checked=true",
         "Cargo audit",
         "Cargo deny (bans + licenses + sources)",
         "Lint (fmt + clippy)",
@@ -335,6 +338,7 @@ def test_production_readiness_ops_workflow_runs_branch_protection_verifier():
         ".github/workflows/production-readiness-ops.yml",
         "mode=full",
         "mode=limited",
+        "active branch rulesets",
         "admin enforcement",
         "linear history",
     ]:
@@ -350,6 +354,83 @@ def test_production_readiness_ops_workflow_runs_branch_protection_verifier():
     ]:
         assert forbidden not in workflow
         assert forbidden not in verifier
+
+
+def test_branch_protection_verifier_rejects_stale_active_ruleset(tmp_path):
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    fake_gh = fake_bin / "gh"
+    contexts = [
+        "Cargo audit",
+        "Cargo deny (bans + licenses + sources)",
+        "Ingest smoke (macos-aarch64)",
+        "Ingest smoke (ubuntu-x86_64)",
+        "Ingest smoke (windows-x86_64)",
+        "Lint (fmt + clippy)",
+        "Release archive smoke (macos-aarch64)",
+        "Release archive smoke (ubuntu-x86_64)",
+        "Release archive smoke (windows-x86_64)",
+        "Test (macos-latest)",
+        "Test (ubuntu-latest)",
+        "Test (windows-latest)",
+    ]
+    protection = {
+        "required_status_checks": {"strict": True, "contexts": contexts},
+        "enforce_admins": {"enabled": True},
+        "required_linear_history": {"enabled": True},
+        "allow_force_pushes": {"enabled": False},
+        "allow_deletions": {"enabled": False},
+    }
+    rulesets = [
+        {
+            "name": "stale default branch checks",
+            "target": "branch",
+            "enforcement": "active",
+            "conditions": {"ref_name": {"include": ["~DEFAULT_BRANCH"], "exclude": []}},
+            "rules": [
+                {
+                    "type": "required_status_checks",
+                    "parameters": {
+                        "required_status_checks": [
+                            {"context": "Test (macos-13)"},
+                        ],
+                    },
+                }
+            ],
+        }
+    ]
+    fake_gh.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json, sys\n"
+        f"protection = {protection!r}\n"
+        f"rulesets = {rulesets!r}\n"
+        "path = sys.argv[-1]\n"
+        "if path.endswith('/protection'):\n"
+        "    print(json.dumps(protection))\n"
+        "elif path.endswith('/rulesets'):\n"
+        "    print(json.dumps(rulesets))\n"
+        "elif path.endswith('/branches/main'):\n"
+        "    print(json.dumps({'protected': True, 'protection': {'required_status_checks': {'enforcement_level': 'everyone', 'contexts': protection['required_status_checks']['contexts']}}}))\n"
+        "else:\n"
+        "    raise SystemExit(f'unexpected gh api path: {path}')\n",
+        encoding="utf-8",
+    )
+    fake_gh.chmod(0o755)
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    result = subprocess.run(
+        ["bash", "scripts/verify-branch-protection.sh"],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "ruleset_status_checks_current" in result.stderr
+    assert "Test (macos-13)" in result.stderr
 
 
 def test_operator_release_evidence_bridge_accepts_additive_passed_checks(tmp_path):
