@@ -27,6 +27,9 @@ repository. It was created without private git history.
 
 - `cargo fmt --all -- --check && cargo test --workspace`: PASS
 - `bash scripts/check-public-export.sh`: PASS before initial public git commit
+- `bash scripts/check-public-repo-policy.sh`: tracked-file public repository
+  policy gate for generated artifacts, credential material, private-key markers,
+  private AO2 references, and machine-local paths outside redaction canaries.
 - Digest-pinned fixture metadata was refreshed after public path/repo scrubbing so readback tests continue to verify exact public-export bytes.
 
 ## Publication Status
