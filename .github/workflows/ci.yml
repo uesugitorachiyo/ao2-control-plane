@@ -22,6 +22,8 @@ jobs:
       - uses: actions/checkout@v6.0.3
       - name: Check license policy
         run: scripts/check-license-policy.sh
+      - name: Check public repo policy
+        run: scripts/check-public-repo-policy.sh
 
   lint:
     name: Lint (fmt + clippy)

@@ -41,3 +41,7 @@ matrix contexts.
 The same verifier also runs from
 `.github/workflows/production-readiness-ops.yml` on manual dispatch and a daily
 schedule, using the repository-scoped `GITHUB_TOKEN` as `GH_TOKEN`.
+
+The existing `License policy` CI status also runs
+`scripts/check-public-repo-policy.sh`, keeping public repository hygiene inside
+an already-required check without adding a new branch-protection context.

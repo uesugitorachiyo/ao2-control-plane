@@ -386,6 +386,12 @@ force-push protection, deletion protection, active branch rulesets without stale
 required-check names, and the current CI, ingest, release archive, lint, audit,
 and deny checks.
 
+Before public-facing changes, run `scripts/check-public-repo-policy.sh` with the
+license policy check. The scanner rejects tracked generated export artifacts,
+private-key markers, high-confidence credential tokens, suspicious credential
+assignments, private AO2 repository references, and machine-local paths outside
+the redaction fixture/readback-test canary surface.
+
 Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
 `cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww`)
