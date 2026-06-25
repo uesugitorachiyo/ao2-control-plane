@@ -310,6 +310,40 @@ This is read-only evidence: it does not approve RSI claims, mutate AO2
 artifacts, apply AO2 patches, mutate GitHub repositories, write observer
 storage, or allow provider API keys.
 
+## AO2 RSI authority packet readback
+
+Use `scripts/verify_ao2_rsi_authority_packet.py` to verify that AO2's dry-run
+`covenant.live-self-change-authority.v1` packet candidate is observable by the
+control plane without turning that candidate into a claim-publish approval.
+Generate the producer summary from AO2, then run the control-plane readback:
+
+```sh
+(cd ../ao2 && npm run rsi:self-change-dry-run)
+scripts/verify_ao2_rsi_authority_packet.py \
+  --self-change-summary-json ../ao2/target/rsi-self-change-dry-run/latest/summary.json \
+  --out-json target/ao2-rsi-authority-packet-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao2_rsi_authority_packet_readback=passed`. The readback schema
+is `ao2.cp-ao2-rsi-authority-packet-readback.v1`; the producer schema must be
+`ao2.rsi-governed-self-change-dry-run.v1`. The verifier requires
+`mutation_authority_packet.mode=dry_run_candidate`,
+`schema_valid_for_claim_publish=false`, a hash-matched
+`live-self-change-authority.packet.json`, packet schema
+`covenant.live-self-change-authority.v1`, claim level
+`full_autonomous_self_mutating_rsi`, repository `ao2`,
+`live_self_change_evidence.status=dry_run_not_live`, and
+`observer_readback.status=missing`.
+
+Pull-request CI runs the same readback job with explicit `Checkout AO2` and
+`npm run rsi:self-change-dry-run` steps, and uploads
+`ao2-control-plane-ao2-rsi-authority-packet-readback`. The script and CI wiring
+are guarded by `tests/test_ao2_rsi_authority_packet_readback.py`. This is
+read-only evidence: it does not approve RSI claims, mutate AO2 artifacts, apply
+AO2 patches, mutate GitHub repositories, write observer storage, publish
+claims, or allow provider API keys.
+
 ## AO2 dual-repo public approval closure readback
 
 Use `scripts/verify_ao2_dual_repo_public_approval_closure.py` to verify that
