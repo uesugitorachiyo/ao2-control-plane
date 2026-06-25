@@ -289,6 +289,31 @@ uploads `ao2-control-plane-ao2-rsi-claim-readiness-readback`. It does not
 approve RSI claims, mutate AO2 artifacts, mutate GitHub repositories, write
 observer storage, or allow provider API keys.
 
+CI also runs `AO2 RSI self-change dry-run readback`, which checks out AO2, runs
+`npm run rsi:self-change-dry-run`, and emits
+`ao2.cp-ao2-rsi-self-change-dry-run-readback.v1`. This is the control-plane
+readback for AO2's governed self-change dry-run evidence: it requires the
+producer schema `ao2.rsi-governed-self-change-dry-run.v1`, status
+`dry_run_evidence_ready`, change class `verification_path_hardening`, a proposed
+patch artifact, a rollback patch artifact, `planned_not_executed` rollback
+status, and a boundary that still denies `full_autonomous_self_mutating_rsi`.
+The command prints
+`control_plane_ao2_rsi_self_change_dry_run_readback=passed` only when the
+observer remains read-only and confirms it did not apply AO2 patches:
+
+```bash
+scripts/verify_ao2_rsi_self_change_dry_run.py \
+  --self-change-summary-json ../ao2/target/rsi-self-change-dry-run/latest/summary.json \
+  --out-json target/ao2-rsi-self-change-dry-run-readback/summary.json
+```
+
+The script is guarded by
+`tests/test_ao2_rsi_self_change_dry_run_readback.py`. The CI job uses explicit
+`Checkout AO2` and `npm run rsi:self-change-dry-run` steps and uploads
+`ao2-control-plane-ao2-rsi-self-change-dry-run-readback`. It does not approve
+RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
+write observer storage, or allow provider API keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
