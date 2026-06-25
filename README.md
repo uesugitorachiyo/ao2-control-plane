@@ -315,6 +315,31 @@ The script is guarded by
 RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
 write observer storage, or allow provider API keys.
 
+CI also runs `AO2 RSI authority packet readback`, which checks out AO2, runs
+`npm run rsi:self-change-dry-run`, and emits
+`ao2.cp-ao2-rsi-authority-packet-readback.v1`. This is the control-plane
+readback for AO2's dry-run `covenant.live-self-change-authority.v1` packet
+candidate: it requires `mutation_authority_packet.mode=dry_run_candidate`,
+`schema_valid_for_claim_publish=false`, a hash-matched
+`live-self-change-authority.packet.json`, `live_self_change_evidence.status`
+`dry_run_not_live`, and `observer_readback.status` `missing`. The command
+prints `control_plane_ao2_rsi_authority_packet_readback=passed` only when the
+packet remains a non-publishable candidate and the full autonomous
+self-mutating RSI claim remains denied:
+
+```bash
+scripts/verify_ao2_rsi_authority_packet.py \
+  --self-change-summary-json ../ao2/target/rsi-self-change-dry-run/latest/summary.json \
+  --out-json target/ao2-rsi-authority-packet-readback/summary.json
+```
+
+The script is guarded by
+`tests/test_ao2_rsi_authority_packet_readback.py`. The CI job uses explicit
+`Checkout AO2` and `npm run rsi:self-change-dry-run` steps and uploads
+`ao2-control-plane-ao2-rsi-authority-packet-readback`. It does not approve RSI
+claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
+write observer storage, publish claims, or allow provider API keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
