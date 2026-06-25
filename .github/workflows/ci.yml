@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p target/ci-artifacts/python-guards
           set +e
-          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py -q \
+          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py -q \
             2>&1 | tee target/ci-artifacts/python-guards/pytest.log
           status="${PIPESTATUS[0]}"
           set -e
@@ -95,7 +95,7 @@ jobs:
           payload = {
               "schema_version": "ao2.cp-python-guard-ci-artifacts.v1",
               "status": "passed" if status == 0 else "failed",
-              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py -q",
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py -q",
               "log": str(out / "pytest.log"),
           }
           (out / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -106,6 +106,70 @@ jobs:
         with:
           name: ao2-control-plane-python-guards
           path: target/ci-artifacts/python-guards
+          if-no-files-found: error
+
+  ao2-rsi-claim-readiness-readback:
+    name: AO2 RSI claim-readiness readback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ao2-control-plane
+        uses: actions/checkout@v6.0.3
+        with:
+          path: ao2-control-plane
+      - name: Checkout AO2
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao2
+          path: ao2
+      - name: Use matching AO2 branch when present
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          head_ref="${HEAD_REF}"
+          if git -C ao2 ls-remote --exit-code origin "refs/heads/${head_ref}" >/dev/null 2>&1; then
+            git -C ao2 fetch --depth=1 origin "${head_ref}"
+            git -C ao2 checkout --detach FETCH_HEAD
+          fi
+      - name: Generate AO2 RSI claim-readiness audit
+        shell: bash
+        working-directory: ao2
+        run: |
+          npm run rsi:claim-readiness
+          test -f target/rsi-claim-readiness/latest/summary.json
+      - name: Verify AO2 RSI claim-readiness readback
+        shell: bash
+        working-directory: ao2-control-plane
+        run: |
+          mkdir -p target/ao2-rsi-claim-readiness-readback
+          scripts/verify_ao2_rsi_claim_readiness.py \
+            --claim-summary-json ../ao2/target/rsi-claim-readiness/latest/summary.json \
+            --out-json target/ao2-rsi-claim-readiness-readback/summary.json \
+            | tee target/ao2-rsi-claim-readiness-readback/verify.log
+          grep -q 'control_plane_ao2_rsi_claim_readiness_readback=passed' target/ao2-rsi-claim-readiness-readback/verify.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("target/ao2-rsi-claim-readiness-readback/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-ao2-rsi-claim-readiness-readback.v1", summary
+          assert summary["status"] == "passed", summary
+          assert summary["claim_boundary"]["bounded_governed_rsi"] == "allowed", summary
+          assert summary["claim_boundary"]["full_autonomous_self_mutating_rsi"] == "denied", summary
+          trust_boundary = summary["trust_boundary"]
+          assert trust_boundary["control_plane_approves_rsi_claims"] is False, summary
+          assert trust_boundary["mutates_ao_artifacts"] is False, summary
+          assert trust_boundary["mutates_github_repositories"] is False, summary
+          assert trust_boundary["mutates_observer_storage"] is False, summary
+          assert trust_boundary["provider_api_keys_allowed"] is False, summary
+          PY
+      - name: Upload AO2 RSI claim-readiness readback
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-ao2-rsi-claim-readiness-readback
+          path: ao2-control-plane/target/ao2-rsi-claim-readiness-readback
           if-no-files-found: error
 
   release-support-fixture-parity:

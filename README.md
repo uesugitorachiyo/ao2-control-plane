@@ -266,6 +266,29 @@ The script is guarded by
 GitHub Actions artifact for readback, but it does not approve releases, mutate
 AO2 artifacts, mutate GitHub releases, or allow provider API keys.
 
+CI also runs `AO2 RSI claim-readiness readback`, which checks out AO2, runs
+`npm run rsi:claim-readiness`, and emits
+`ao2.cp-ao2-rsi-claim-readiness-readback.v1`. This is the control-plane
+readback for AO2's local RSI claim boundary: it requires the producer schema
+`ao2.rsi-claim-readiness-audit.v1`, `bounded_governed_rsi` allowed,
+`full_autonomous_self_mutating_rsi` denied, and the missing full-claim evidence
+blockers for mutation authority, rollback evidence, live self-change evidence,
+observer readback, and Covenant claim-publish approval. The command prints
+`control_plane_ao2_rsi_claim_readiness_readback=passed` only when the boundary
+is enforced and the observer trust boundary remains read-only:
+
+```bash
+scripts/verify_ao2_rsi_claim_readiness.py \
+  --claim-summary-json ../ao2/target/rsi-claim-readiness/latest/summary.json \
+  --out-json target/ao2-rsi-claim-readiness-readback/summary.json
+```
+
+The script is guarded by `tests/test_ao2_rsi_claim_readiness_readback.py`. The
+CI job uses explicit `Checkout AO2` and `npm run rsi:claim-readiness` steps and
+uploads `ao2-control-plane-ao2-rsi-claim-readiness-readback`. It does not
+approve RSI claims, mutate AO2 artifacts, mutate GitHub repositories, write
+observer storage, or allow provider API keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
