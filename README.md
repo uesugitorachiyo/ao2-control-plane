@@ -296,7 +296,8 @@ readback for AO2's governed self-change dry-run evidence: it requires the
 producer schema `ao2.rsi-governed-self-change-dry-run.v1`, status
 `dry_run_evidence_ready`, change class `verification_path_hardening`, a proposed
 patch artifact, a rollback patch artifact, `planned_not_executed` rollback
-status, and a boundary that still denies `full_autonomous_self_mutating_rsi`.
+status, `rollback_rehearsal` mode `executed_in_temporary_workspace`, and a
+boundary that still denies `full_autonomous_self_mutating_rsi`.
 The command prints
 `control_plane_ao2_rsi_self_change_dry_run_readback=passed` only when the
 observer remains read-only and confirms it did not apply AO2 patches:
