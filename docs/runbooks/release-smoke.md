@@ -297,7 +297,8 @@ schema is `ao2.cp-ao2-rsi-self-change-dry-run-readback.v1`; the producer schema
 must be `ao2.rsi-governed-self-change-dry-run.v1`. The verifier requires
 `dry_run_evidence_ready`, change class `verification_path_hardening`, a proposed
 self-change patch artifact, a rollback patch artifact,
-`planned_not_executed` rollback status, and the full-claim blockers including
+`planned_not_executed` rollback status, `rollback_rehearsal` mode
+`executed_in_temporary_workspace`, and the full-claim blockers including
 executed rollback evidence and observer readback. It also requires the producer
 to keep `full_autonomous_self_mutating_rsi` denied.
 

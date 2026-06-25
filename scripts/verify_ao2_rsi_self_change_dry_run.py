@@ -59,6 +59,46 @@ def blocker_ids(producer: dict[str, Any]) -> list[str]:
     return [item for item in blockers if isinstance(item, str)]
 
 
+def validate_rollback_rehearsal(producer: dict[str, Any], target_sha: Any) -> list[str]:
+    rehearsal = (
+        producer.get("rollback_rehearsal")
+        if isinstance(producer.get("rollback_rehearsal"), dict)
+        else {}
+    )
+    details = []
+    if rehearsal.get("mode") != "executed_in_temporary_workspace":
+        details.append("rollback_rehearsal.mode must be executed_in_temporary_workspace")
+    if rehearsal.get("status") != "passed":
+        details.append("rollback_rehearsal.status must be passed")
+    if rehearsal.get("workspace") != "rollback-rehearsal/worktree":
+        details.append("rollback_rehearsal.workspace must be rollback-rehearsal/worktree")
+    if rehearsal.get("target_file") != "scripts/rsi-claim-readiness-audit.sh":
+        details.append("rollback_rehearsal.target_file must be scripts/rsi-claim-readiness-audit.sh")
+
+    target_sha_text = str(target_sha or "")
+    before_sha = str(rehearsal.get("target_before_sha256", ""))
+    proposed_sha = str(rehearsal.get("target_after_proposed_sha256", ""))
+    rollback_sha = str(rehearsal.get("target_after_rollback_sha256", ""))
+    if before_sha != target_sha_text or not SHA256_RE.fullmatch(before_sha):
+        details.append("rollback_rehearsal.target_before_sha256 must match self_change target sha256")
+    if not SHA256_RE.fullmatch(proposed_sha) or proposed_sha == target_sha_text:
+        details.append("rollback_rehearsal.target_after_proposed_sha256 must be a different lowercase sha256")
+    if rollback_sha != target_sha_text or not SHA256_RE.fullmatch(rollback_sha):
+        details.append("rollback_rehearsal.target_after_rollback_sha256 must match self_change target sha256")
+
+    if rehearsal.get("proposed_patch_applied") is not True:
+        details.append("rollback_rehearsal.proposed_patch_applied must be true")
+    if rehearsal.get("rollback_patch_applied") is not True:
+        details.append("rollback_rehearsal.rollback_patch_applied must be true")
+    if rehearsal.get("same_change_class") is not True:
+        details.append("rollback_rehearsal.same_change_class must be true")
+    if rehearsal.get("verification") != ["bash -n scripts/rsi-claim-readiness-audit.sh"]:
+        details.append(
+            "rollback_rehearsal.verification must include bash -n scripts/rsi-claim-readiness-audit.sh"
+        )
+    return details
+
+
 def validate_producer_summary(producer: dict[str, Any]) -> list[dict[str, Any]]:
     gaps: list[dict[str, Any]] = []
 
@@ -127,6 +167,7 @@ def validate_producer_summary(producer: dict[str, Any]) -> list[dict[str, Any]]:
     if not is_relative_artifact_path(rollback_patch.get("path")):
         rollback_details.append("rollback.rollback_patch.path must be a relative artifact path")
     add_gap(gaps, "rollback_not_planned_dry_run", rollback_details)
+    add_gap(gaps, "rollback_rehearsal_not_executed", validate_rollback_rehearsal(producer, target_sha))
 
     observed_blockers = blocker_ids(producer)
     missing_blockers = [name for name in REQUIRED_FULL_CLAIM_BLOCKERS if name not in observed_blockers]
@@ -164,6 +205,7 @@ def build_summary(producer: dict[str, Any], *, self_change_summary_path: Path) -
         "claim_boundary": producer.get("claim_boundary", {}),
         "self_change": producer.get("self_change", {}),
         "rollback": producer.get("rollback", {}),
+        "rollback_rehearsal": producer.get("rollback_rehearsal", {}),
         "required_full_claim_blockers": REQUIRED_FULL_CLAIM_BLOCKERS,
         "observed_full_claim_blockers": blocker_ids(producer),
         "gaps": gaps,
