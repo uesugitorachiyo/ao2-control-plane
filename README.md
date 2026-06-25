@@ -340,6 +340,36 @@ The script is guarded by
 claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
 write observer storage, publish claims, or allow provider API keys.
 
+CI also runs `AO2 RSI live self-change rehearsal readback`, which checks out
+AO2, runs
+`AO2_RSI_LIVE_SELF_CHANGE_REHEARSAL=1 npm run rsi:live-self-change-rehearsal`,
+and emits `ao2.cp-ao2-rsi-live-self-change-rehearsal-readback.v1`. This is the
+control-plane readback for AO2's operator-gated live self-change rehearsal: it
+requires the producer schema `ao2.rsi-live-self-change-rehearsal.v1`, status
+`live_rehearsal_passed`, change class `verification_path_hardening`, restored
+repository state, rollback evidence, `observer_readback.status` `missing`, and
+the retained full-claim blockers including `retained_claim_level_evidence`. The
+command prints
+`control_plane_ao2_rsi_live_self_change_rehearsal_readback=passed` only when
+the live rehearsal is observable while the full autonomous self-mutating RSI
+claim remains denied:
+
+```bash
+scripts/verify_ao2_rsi_live_self_change_rehearsal.py \
+  --live-rehearsal-summary-json ../ao2/target/rsi-live-self-change-rehearsal/latest/summary.json \
+  --out-json target/ao2-rsi-live-self-change-rehearsal-readback/summary.json
+```
+
+The script is guarded by
+`tests/test_ao2_rsi_live_self_change_rehearsal_readback.py`. The CI job uses
+explicit `Checkout AO2` and
+`AO2_RSI_LIVE_SELF_CHANGE_REHEARSAL=1 npm run rsi:live-self-change-rehearsal`
+steps and uploads
+`ao2-control-plane-ao2-rsi-live-self-change-rehearsal-readback`. It does not
+approve RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub
+repositories, write observer storage, publish claims, or allow provider API
+keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
