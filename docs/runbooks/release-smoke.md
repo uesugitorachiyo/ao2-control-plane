@@ -277,6 +277,38 @@ are guarded by `tests/test_ao2_rsi_claim_readiness_readback.py`. This is
 read-only evidence: it does not approve RSI claims, mutate AO2 artifacts, mutate
 GitHub repositories, write observer storage, or allow provider API keys.
 
+## AO2 RSI self-change dry-run readback
+
+Use `scripts/verify_ao2_rsi_self_change_dry_run.py` to verify that AO2's
+governed self-change dry-run packet is consumable by the control plane without
+turning the observer into a mutation authority. Generate the producer summary
+from AO2, then run the control-plane readback:
+
+```sh
+(cd ../ao2 && npm run rsi:self-change-dry-run)
+scripts/verify_ao2_rsi_self_change_dry_run.py \
+  --self-change-summary-json ../ao2/target/rsi-self-change-dry-run/latest/summary.json \
+  --out-json target/ao2-rsi-self-change-dry-run-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao2_rsi_self_change_dry_run_readback=passed`. The readback
+schema is `ao2.cp-ao2-rsi-self-change-dry-run-readback.v1`; the producer schema
+must be `ao2.rsi-governed-self-change-dry-run.v1`. The verifier requires
+`dry_run_evidence_ready`, change class `verification_path_hardening`, a proposed
+self-change patch artifact, a rollback patch artifact,
+`planned_not_executed` rollback status, and the full-claim blockers including
+executed rollback evidence and observer readback. It also requires the producer
+to keep `full_autonomous_self_mutating_rsi` denied.
+
+Pull-request CI runs the same readback job with explicit `Checkout AO2` and
+`npm run rsi:self-change-dry-run` steps, and uploads
+`ao2-control-plane-ao2-rsi-self-change-dry-run-readback`. The script and CI
+wiring are guarded by `tests/test_ao2_rsi_self_change_dry_run_readback.py`.
+This is read-only evidence: it does not approve RSI claims, mutate AO2
+artifacts, apply AO2 patches, mutate GitHub repositories, write observer
+storage, or allow provider API keys.
+
 ## AO2 dual-repo public approval closure readback
 
 Use `scripts/verify_ao2_dual_repo_public_approval_closure.py` to verify that
