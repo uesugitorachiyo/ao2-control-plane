@@ -389,4 +389,5 @@ jobs:
             "$root"/downloaded/*/dist/ao2-control-plane-${{ inputs.version }}-*.tar.gz \
             "$root/SHA256SUMS" \
             "$root/summary.json" \
+            "$root/post-release-baseline.json" \
             --clobber
