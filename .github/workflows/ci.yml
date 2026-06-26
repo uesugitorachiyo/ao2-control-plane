@@ -529,6 +529,7 @@ jobs:
           scripts/verify_ao_stack_rsi_chain_binding_readback.py \
             --blueprint-authorization-json target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json \
             --foundry-chain-json ../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/bounded-rsi-improvement-chain-retention-proof.json \
+            --foundry-control-surface-packet-json ../ao-foundry/examples/contract-fixtures/valid/foundry-rsi-control-surface-packet-v0.1.json \
             --forge-goal-run-json ../ao-forge/examples/goals/ao2-retained-evidence.goal-run.json \
             --ao2-cross-repo-summary-json ../ao2/target/rsi-cross-repo-e2e/latest/summary.json \
             --control-surface-readback-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json \
@@ -545,6 +546,7 @@ jobs:
           assert [stage["stage"] for stage in summary["chain_binding"]] == [
               "blueprint_authorization",
               "foundry_candidate_gate",
+              "foundry_control_surface_packet",
               "forge_goal_run",
               "covenant_claim_decision",
               "ao2_execution_evidence",

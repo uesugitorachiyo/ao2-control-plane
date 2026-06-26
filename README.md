@@ -404,11 +404,12 @@ CI also runs `AO stack RSI chain-binding readback`, which checks out AO
 Blueprint, AO Foundry, AO Forge, AO Covenant, AO2, and this control plane, then
 emits `ao2.cp-ao-stack-rsi-chain-binding-readback.v1`. This is the
 operator-facing readback for the bounded governed RSI chain:
-Blueprint authorization -> Foundry candidate/gate -> Forge GoalRun -> Covenant
-claim decision -> AO2 evidence -> control-plane readback. The verifier requires
+Blueprint authorization -> Foundry candidate/gate and control-surface packet ->
+Forge GoalRun -> Covenant claim decision -> AO2 evidence -> control-plane readback. The verifier requires
 Blueprint build authorization to be ready for AO Foundry, Foundry RSI candidate
-and improvement-gate evidence to stay non-mutating, Forge GoalRun retained
-evidence to bind the chain, Covenant to keep
+and improvement-gate evidence to stay non-mutating, the optional Foundry
+control-surface packet to preserve the bounded/full-RSI claim boundary, Forge
+GoalRun retained evidence to bind the chain, Covenant to keep
 `full_autonomous_self_mutating_rsi` denied, AO2 cross-repo evidence to pass, and
 the control-plane readback to remain observer-only.
 
@@ -416,6 +417,7 @@ the control-plane readback to remain observer-only.
 scripts/verify_ao_stack_rsi_chain_binding_readback.py \
   --blueprint-authorization-json target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json \
   --foundry-chain-json ../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/bounded-rsi-improvement-chain-retention-proof.json \
+  --foundry-control-surface-packet-json ../ao-foundry/examples/contract-fixtures/valid/foundry-rsi-control-surface-packet-v0.1.json \
   --forge-goal-run-json ../ao-forge/examples/goals/ao2-retained-evidence.goal-run.json \
   --ao2-cross-repo-summary-json ../ao2/target/rsi-cross-repo-e2e/latest/summary.json \
   --control-surface-readback-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json \
