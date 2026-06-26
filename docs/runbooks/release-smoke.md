@@ -247,6 +247,32 @@ CI wiring are guarded by
 evidence: it may download GitHub Actions artifacts, but it does not approve AO2
 runs, mutate AO artifacts, mutate GitHub releases, or allow provider API keys.
 
+## AO2 readiness convergence readback
+
+Use `scripts/verify_ao2_readiness_convergence.py` to verify that AO2's
+readiness convergence gate is consumable by the control plane without moving
+release approval or RSI claim approval into the observer service. Generate the
+producer summary in AO2 with `npm run readiness:convergence`, then run:
+
+```sh
+scripts/verify_ao2_readiness_convergence.py \
+  --convergence-summary-json ../ao2/target/readiness-convergence/latest/summary.json \
+  --out-json target/ao2-readiness-convergence-readback/summary.json
+```
+
+Expected output is
+`control_plane_ao2_readiness_convergence_readback=passed`. The summary schema is
+`ao2.cp-ao2-readiness-convergence-readback.v1`; the producer schema must be
+`ao2.readiness-convergence-gate.v1`. The verifier requires
+`recommended_next_action=operator_release_decision_required`,
+`continue_pulse_loop=false`, all producer components passed,
+`bounded_governed_rsi=supported`, and
+`full_autonomous_self_mutating_rsi=denied`. This is a read-only stop-loop signal
+for operator review; it does not approve releases, approve RSI claims, mutate
+AO2 artifacts, mutate GitHub releases, publish claims, or allow provider API
+keys. The script is guarded by
+`tests/test_ao2_readiness_convergence_readback.py`.
+
 ## AO2 RSI claim-readiness readback
 
 Use `scripts/verify_ao2_rsi_claim_readiness.py` to verify that AO2's local RSI
