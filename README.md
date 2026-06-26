@@ -266,6 +266,29 @@ The script is guarded by
 GitHub Actions artifact for readback, but it does not approve releases, mutate
 AO2 artifacts, mutate GitHub releases, or allow provider API keys.
 
+`AO2 readiness convergence readback` consumes AO2's local
+`target/readiness-convergence/latest/summary.json` and emits
+`ao2.cp-ao2-readiness-convergence-readback.v1`. This is the control-plane
+observer view of the point where repeated readiness evidence should stop and an
+operator release decision is required. The verifier requires the producer schema
+`ao2.readiness-convergence-gate.v1`, `continue_pulse_loop=false`,
+`recommended_next_action=operator_release_decision_required`, all components
+passed, `bounded_governed_rsi=supported`, and
+`full_autonomous_self_mutating_rsi=denied`. The command prints
+`control_plane_ao2_readiness_convergence_readback=passed` only when the summary
+cannot be mistaken for release mutation authority or full autonomous RSI claim
+approval:
+
+```bash
+scripts/verify_ao2_readiness_convergence.py \
+  --convergence-summary-json ../ao2/target/readiness-convergence/latest/summary.json \
+  --out-json target/ao2-readiness-convergence-readback/summary.json
+```
+
+The script is guarded by `tests/test_ao2_readiness_convergence_readback.py`. It
+does not approve releases, approve RSI claims, mutate AO2 artifacts, mutate
+GitHub releases, publish claims, or allow provider API keys.
+
 CI also runs `AO2 RSI claim-readiness readback`, which checks out AO2, runs
 `npm run rsi:claim-readiness`, and emits
 `ao2.cp-ao2-rsi-claim-readiness-readback.v1`. This is the control-plane
