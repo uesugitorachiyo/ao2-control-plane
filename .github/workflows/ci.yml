@@ -1204,19 +1204,19 @@ jobs:
             os: ubuntu-latest
             target_label: linux-x86_64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.13-linux-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.14-linux-x86_64.tar.gz
             shell: bash
           - name: macos-aarch64
             os: macos-latest
             target_label: macos-aarch64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.13-macos-aarch64.tar.gz
+            archive: dist/ao2-control-plane-0.1.14-macos-aarch64.tar.gz
             shell: bash
           - name: windows-x86_64
             os: windows-latest
             target_label: windows-x86_64
             binary: target/release/ao2-cp-server.exe
-            archive: dist/ao2-control-plane-0.1.13-windows-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.14-windows-x86_64.tar.gz
             shell: pwsh
     steps:
       - uses: actions/checkout@v6.0.3
@@ -1229,7 +1229,7 @@ jobs:
         run: |
           scripts/package-local.sh \
             --out-dir dist \
-            --version 0.1.13 \
+            --version 0.1.14 \
             --binary "${{ matrix.binary }}" \
             --target-label "${{ matrix.target_label }}"
       - name: Check release archive license files
