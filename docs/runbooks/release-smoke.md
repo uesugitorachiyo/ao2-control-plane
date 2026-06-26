@@ -378,6 +378,44 @@ evidence: it does not approve RSI claims, mutate AO2 artifacts, apply AO2
 patches, mutate GitHub repositories, write observer storage, publish claims, or
 allow provider API keys.
 
+## AO2 RSI control-surface readback
+
+Use `scripts/verify_ao2_rsi_control_surface_readback.py` to verify that AO2's
+operator-facing RSI improvement summaries remain consumable by the control
+plane without turning improvement coverage into claim-publication authority. In
+a fresh checkout, generate AO2's cross-repo RSI evidence chain first so the
+improvement gate has the live rehearsal, control-plane readback, Blueprint, and
+Covenant denial inputs it scores:
+
+```sh
+(cd ../ao2 && AO2_CONTROL_PLANE_REPO=../ao2-control-plane AO_COVENANT_REPO=../ao-covenant npm run rsi:cross-repo-e2e)
+(cd ../ao2 && npm run rsi:improvement-evidence-gate)
+(cd ../ao2 && npm run rsi:improvement-trend)
+scripts/verify_ao2_rsi_control_surface_readback.py \
+  --gate-summary-json ../ao2/target/rsi-improvement-evidence-gate/latest/summary.json \
+  --trend-summary-json ../ao2/target/rsi-improvement-trend/latest/summary.json \
+  --out-json target/ao2-rsi-control-surface-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao2_rsi_control_surface_readback=passed`. The readback schema is
+`ao2.cp-ao2-rsi-control-surface-readback.v1`; the producer schemas must be
+`ao2.rsi-improvement-evidence-gate.v1` and `ao2.rsi-improvement-trend.v1`. The
+verifier requires `bounded_governed_rsi` to remain supported and passing,
+`full_autonomous_self_mutating_rsi` to remain denied with
+`publish_authority=false`, and `improvement_score.target_exceeded=true` to mean
+`workflow_hardening_coverage_not_publication_authority`.
+
+Pull-request CI runs the same readback job with explicit `Checkout AO2`,
+`Checkout AO Covenant`, `npm run rsi:cross-repo-e2e`,
+`npm run rsi:improvement-evidence-gate`, and `npm run rsi:improvement-trend`
+steps, and uploads `ao2-control-plane-ao2-rsi-control-surface-readback`. The
+script and CI wiring are guarded by
+`tests/test_ao2_rsi_control_surface_readback.py`. This is read-only evidence:
+it does not approve RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate
+GitHub repositories, write observer storage, publish claims, or allow provider
+API keys.
+
 ## AO2 dual-repo public approval closure readback
 
 Use `scripts/verify_ao2_dual_repo_public_approval_closure.py` to verify that
