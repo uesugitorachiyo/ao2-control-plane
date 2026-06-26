@@ -215,6 +215,100 @@ def control_surface_readback(**overrides):
     return payload
 
 
+def foundry_control_surface_packet(**overrides):
+    payload = {
+        "schema_version": "ao.foundry.rsi-control-surface-packet.v0.1",
+        "status": "ready",
+        "generated_by": "foundry portfolio readback",
+        "goal_id": "bounded-governed-rsi-control-surface-readback",
+        "loop_goal": "bounded_governed_rsi_control_surface_readback",
+        "chain": [
+            "ao-blueprint",
+            "ao-foundry",
+            "ao-forge",
+            "ao-covenant",
+            "ao2",
+            "ao2-control-plane",
+        ],
+        "claim_boundaries": {
+            "bounded_governed_rsi": {
+                "decision": "allowed",
+                "status": "supported",
+                "reason": "bounded governed RSI evidence is linked",
+            },
+            "full_autonomous_self_mutating_rsi": {
+                "decision": "denied",
+                "status": "boundary_enforced",
+                "publish_authority": False,
+                "reason": "full autonomous RSI remains denied",
+            },
+            "improvement_score": {
+                "interpretation": "evidence_coverage_not_publication_authority",
+                "target_exceeded": True,
+            },
+        },
+        "evidence_links": [
+            {
+                "label": "blueprint_build_authorization",
+                "repo": "ao-blueprint",
+                "path": "../ao-blueprint/examples/blueprints/valid/bounded-governed-rsi-control-surface-readback/build-authorization.json",
+                "schema_version": "ao.blueprint.build-authorization.v0.1",
+                "status": "ready",
+                "sha256": "5dd0d6576377ed500cfbd32a76efe0a159c9ff426cf810659d8b43e31a0f66a1",
+                "role": "authorization",
+            },
+            {
+                "label": "forge_retained_chain_binding_readback",
+                "repo": "ao-forge",
+                "path": "../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/ao-stack-rsi-chain-binding-readback-retention-proof.json",
+                "schema_version": "ao.forge.goal-run-retained-evidence.v0.1",
+                "status": "retained",
+                "sha256": "a39a334b375b8ccd96a1173c24588854fcde9e7a9a5f48ab01668670e46527b2",
+                "role": "retained_proof",
+            },
+            {
+                "label": "ao2_improvement_evidence_gate",
+                "repo": "ao2",
+                "path": "../ao2/target/rsi-improvement-evidence-gate/latest/summary.json",
+                "schema_version": "ao2.rsi-improvement-evidence-gate.v1",
+                "status": "passed",
+                "sha256": "ba7a755f1b5fbfaf22d4d5bef6a6a3751ca2c3448bf4e4503bee774ccb643d7c",
+                "role": "execution_evidence",
+            },
+            {
+                "label": "ao2_improvement_trend",
+                "repo": "ao2",
+                "path": "../ao2/target/rsi-improvement-trend/latest/summary.json",
+                "schema_version": "ao2.rsi-improvement-trend.v1",
+                "status": "passed",
+                "sha256": "aec2c426a02b508508ffa099411e93f6dde9d7c0a76a7a81d875a3092b0ca29d",
+                "role": "execution_evidence",
+            },
+            {
+                "label": "control_plane_control_surface_readback",
+                "repo": "ao2-control-plane",
+                "path": "../ao2-control-plane/target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json",
+                "schema_version": "ao2.cp-ao2-rsi-control-surface-readback.v1",
+                "status": "passed",
+                "sha256": "114c23ea1b77e7183fd9076e396ddf4a41344cbb262fb17a5e01717e175b10f8",
+                "role": "observer_readback",
+            },
+        ],
+        "trust_boundary": {
+            "foundry_mutates_repositories": False,
+            "foundry_approves_claims": False,
+            "control_plane_observer_only": True,
+            "provider_credentials_allowed": False,
+            "publishes_full_autonomous_rsi_claim": False,
+        },
+        "next_actions": [
+            "retain this packet as the Foundry portfolio readback for the bounded governed RSI loop",
+        ],
+    }
+    payload.update(overrides)
+    return payload
+
+
 def run_script(tmp_path: Path, **overrides) -> tuple[subprocess.CompletedProcess, dict]:
     inputs = {
         "blueprint": overrides.get("blueprint", blueprint_authorization()),
@@ -238,6 +332,52 @@ def run_script(tmp_path: Path, **overrides) -> tuple[subprocess.CompletedProcess
             str(paths["blueprint"]),
             "--foundry-chain-json",
             str(paths["foundry"]),
+            "--forge-goal-run-json",
+            str(paths["forge"]),
+            "--ao2-cross-repo-summary-json",
+            str(paths["ao2"]),
+            "--control-surface-readback-json",
+            str(paths["control"]),
+            "--out-json",
+            str(out_json),
+        ],
+        cwd=REPO_ROOT,
+        env=os.environ.copy(),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    parsed = json.loads(out_json.read_text(encoding="utf-8")) if out_json.exists() else {}
+    return result, parsed
+
+
+def run_script_with_foundry_packet(tmp_path: Path, packet: dict) -> tuple[subprocess.CompletedProcess, dict]:
+    packet_path = tmp_path / "foundry-control-surface-packet.json"
+    packet_path.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    inputs = {
+        "blueprint": blueprint_authorization(),
+        "foundry": foundry_chain(),
+        "forge": forge_goal_run(),
+        "ao2": ao2_cross_repo_summary(),
+        "control": control_surface_readback(),
+    }
+    paths = {}
+    for name, payload in inputs.items():
+        path = tmp_path / f"{name}.json"
+        path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        paths[name] = path
+    out_json = tmp_path / "chain-readback-summary.json"
+
+    result = subprocess.run(
+        [
+            "python3",
+            str(SCRIPT),
+            "--blueprint-authorization-json",
+            str(paths["blueprint"]),
+            "--foundry-chain-json",
+            str(paths["foundry"]),
+            "--foundry-control-surface-packet-json",
+            str(packet_path),
             "--forge-goal-run-json",
             str(paths["forge"]),
             "--ao2-cross-repo-summary-json",
@@ -289,6 +429,45 @@ def test_ao_stack_rsi_chain_binding_readback_accepts_observer_only_chain(tmp_pat
         "provider_api_keys_allowed": False,
         "credential_material_included": False,
     }
+
+
+def test_ao_stack_rsi_chain_binding_readback_consumes_foundry_control_surface_packet(tmp_path):
+    result, summary = run_script_with_foundry_packet(tmp_path, foundry_control_surface_packet())
+
+    assert result.returncode == 0, result.stderr
+    assert summary["status"] == "passed"
+    assert summary["producer_schema_versions"]["foundry_control_surface_packet"] == "ao.foundry.rsi-control-surface-packet.v0.1"
+    stages = {stage["stage"]: stage for stage in summary["chain_binding"]}
+    assert stages["foundry_control_surface_packet"] == {
+        "stage": "foundry_control_surface_packet",
+        "source": "ao-foundry",
+        "schema_version": "ao.foundry.rsi-control-surface-packet.v0.1",
+        "status": "ready",
+        "loop_goal": "bounded_governed_rsi_control_surface_readback",
+        "bounded_governed_rsi": "supported",
+        "full_autonomous_self_mutating_rsi": "denied",
+        "publishes_full_autonomous_rsi_claim": False,
+        "control_plane_observer_only": True,
+    }
+
+
+def test_ao_stack_rsi_chain_binding_readback_blocks_foundry_control_surface_packet_authority_drift(tmp_path):
+    packet = foundry_control_surface_packet()
+    packet["claim_boundaries"]["full_autonomous_self_mutating_rsi"]["decision"] = "allowed"
+    packet["trust_boundary"]["publishes_full_autonomous_rsi_claim"] = True
+
+    result, summary = run_script_with_foundry_packet(tmp_path, packet)
+
+    assert result.returncode != 0
+    assert summary["status"] == "blocked"
+    assert {
+        "gap_kind": "foundry_control_surface_packet_authority_drift",
+        "severity": "rsi_chain_binding_blocker",
+        "details": [
+            "full_autonomous_self_mutating_rsi.decision must be denied",
+            "trust_boundary.publishes_full_autonomous_rsi_claim must be false",
+        ],
+    } in summary["gaps"]
 
 
 def test_ao_stack_rsi_chain_binding_readback_blocks_blueprint_authority_drift(tmp_path):
@@ -366,6 +545,8 @@ def test_ao_stack_rsi_chain_binding_readback_is_documented_executable_and_in_ci(
         "ao.forge.goal-run.v0.1",
         "ao2.rsi-cross-repo-e2e.v1",
         "ao2.cp-ao2-rsi-control-surface-readback.v1",
+        "ao.foundry.rsi-control-surface-packet.v0.1",
+        "foundry_control_surface_packet",
         "full_autonomous_self_mutating_rsi",
         "control_plane_approves_rsi_claims",
         "provider_api_keys_allowed",

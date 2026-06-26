@@ -14,6 +14,7 @@ from typing import Any
 SCHEMA_VERSION = "ao2.cp-ao-stack-rsi-chain-binding-readback.v1"
 BLUEPRINT_SCHEMA = "ao.blueprint.build-authorization.v0.1"
 FOUNDRY_CHAIN_SCHEMA = "ao.forge.goal-run-retained-evidence.v0.1"
+FOUNDRY_CONTROL_SURFACE_PACKET_SCHEMA = "ao.foundry.rsi-control-surface-packet.v0.1"
 FORGE_GOAL_RUN_SCHEMA = "ao.forge.goal-run.v0.1"
 AO2_CROSS_REPO_SCHEMA = "ao2.rsi-cross-repo-e2e.v1"
 CONTROL_SURFACE_SCHEMA = "ao2.cp-ao2-rsi-control-surface-readback.v1"
@@ -123,6 +124,83 @@ def validate_foundry(foundry_chain: dict[str, Any], gaps: list[dict[str, Any]]) 
         "required_outputs": sorted(required),
         "mutates_repositories": False,
         "claim_level": "bounded_governed_rsi",
+    }
+
+
+def validate_foundry_control_surface_packet(packet: dict[str, Any], gaps: list[dict[str, Any]]) -> dict[str, Any]:
+    details = []
+    if packet.get("schema_version") != FOUNDRY_CONTROL_SURFACE_PACKET_SCHEMA:
+        details.append(f"schema_version must be {FOUNDRY_CONTROL_SURFACE_PACKET_SCHEMA}")
+    if packet.get("status") != "ready":
+        details.append("status must be ready")
+    if packet.get("loop_goal") != CONTROL_SURFACE_GOAL:
+        details.append(f"loop_goal must be {CONTROL_SURFACE_GOAL}")
+    if packet.get("chain") != ["ao-blueprint", "ao-foundry", "ao-forge", "ao-covenant", "ao2", "ao2-control-plane"]:
+        details.append("chain must be blueprint->foundry->forge->covenant->ao2->control-plane")
+
+    boundaries = nested_dict(packet.get("claim_boundaries"))
+    bounded = nested_dict(boundaries.get("bounded_governed_rsi"))
+    if bounded.get("decision") != "allowed":
+        details.append("bounded_governed_rsi.decision must be allowed")
+    if bounded.get("status") != "supported":
+        details.append("bounded_governed_rsi.status must be supported")
+
+    full = nested_dict(boundaries.get("full_autonomous_self_mutating_rsi"))
+    if full.get("decision") != "denied":
+        details.append("full_autonomous_self_mutating_rsi.decision must be denied")
+    if full.get("status") != "boundary_enforced":
+        details.append("full_autonomous_self_mutating_rsi.status must be boundary_enforced")
+    if full.get("publish_authority") is not False:
+        details.append("full_autonomous_self_mutating_rsi.publish_authority must be false")
+
+    score = nested_dict(boundaries.get("improvement_score"))
+    if score.get("interpretation") != "evidence_coverage_not_publication_authority":
+        details.append("improvement_score.interpretation must be evidence_coverage_not_publication_authority")
+    if score.get("target_exceeded") is not True:
+        details.append("improvement_score.target_exceeded must be true")
+
+    links = packet.get("evidence_links")
+    link_map = {item.get("label"): item for item in links if isinstance(links, list) and isinstance(item, dict)}
+    required_links = {
+        "blueprint_build_authorization": "authorization",
+        "forge_retained_chain_binding_readback": "retained_proof",
+        "ao2_improvement_evidence_gate": "execution_evidence",
+        "ao2_improvement_trend": "execution_evidence",
+        "control_plane_control_surface_readback": "observer_readback",
+    }
+    for label, role in required_links.items():
+        link = link_map.get(label)
+        if not link:
+            details.append(f"evidence_links.{label} must be present")
+            continue
+        if link.get("role") != role:
+            details.append(f"evidence_links.{label}.role must be {role}")
+        if not isinstance(link.get("sha256"), str) or len(link.get("sha256", "")) != 64:
+            details.append(f"evidence_links.{label}.sha256 must be a 64-character digest")
+
+    trust = nested_dict(packet.get("trust_boundary"))
+    expected = {
+        "foundry_mutates_repositories": False,
+        "foundry_approves_claims": False,
+        "control_plane_observer_only": True,
+        "provider_credentials_allowed": False,
+        "publishes_full_autonomous_rsi_claim": False,
+    }
+    for key, expected_value in expected.items():
+        if trust.get(key) is not expected_value:
+            details.append(f"trust_boundary.{key} must be {str(expected_value).lower()}")
+
+    add_gap(gaps, "foundry_control_surface_packet_authority_drift", details)
+    return {
+        "stage": "foundry_control_surface_packet",
+        "source": "ao-foundry",
+        "schema_version": packet.get("schema_version"),
+        "status": packet.get("status"),
+        "loop_goal": packet.get("loop_goal"),
+        "bounded_governed_rsi": bounded.get("status"),
+        "full_autonomous_self_mutating_rsi": full.get("decision"),
+        "publishes_full_autonomous_rsi_claim": trust.get("publishes_full_autonomous_rsi_claim"),
+        "control_plane_observer_only": trust.get("control_plane_observer_only"),
     }
 
 
@@ -311,6 +389,7 @@ def validate_control_surface(control: dict[str, Any], gaps: list[dict[str, Any]]
 def build_summary(
     blueprint: dict[str, Any],
     foundry_chain: dict[str, Any],
+    foundry_control_surface_packet: dict[str, Any] | None,
     forge_goal_run: dict[str, Any],
     ao2_summary: dict[str, Any],
     control_surface: dict[str, Any],
@@ -320,24 +399,33 @@ def build_summary(
     chain = [
         validate_blueprint(blueprint, gaps),
         validate_foundry(foundry_chain, gaps),
-        validate_forge(forge_goal_run, gaps),
-        validate_covenant(ao2_summary, gaps),
-        validate_ao2(ao2_summary, gaps),
-        validate_control_surface(control_surface, gaps),
     ]
+    if foundry_control_surface_packet is not None:
+        chain.append(validate_foundry_control_surface_packet(foundry_control_surface_packet, gaps))
+    chain.extend(
+        [
+            validate_forge(forge_goal_run, gaps),
+            validate_covenant(ao2_summary, gaps),
+            validate_ao2(ao2_summary, gaps),
+            validate_control_surface(control_surface, gaps),
+        ]
+    )
     status = "passed" if not gaps else "blocked"
+    producer_schema_versions = {
+        "blueprint_authorization": blueprint.get("schema"),
+        "foundry_chain": foundry_chain.get("schema_version"),
+        "forge_goal_run": forge_goal_run.get("schema_version"),
+        "ao2_cross_repo_e2e": ao2_summary.get("schema_version"),
+        "control_surface_readback": control_surface.get("schema_version"),
+    }
+    if foundry_control_surface_packet is not None:
+        producer_schema_versions["foundry_control_surface_packet"] = foundry_control_surface_packet.get("schema_version")
     return {
         "schema_version": SCHEMA_VERSION,
         "status": status,
         "checked_at_utc": datetime.now(timezone.utc).isoformat(),
         "producer_paths": {name: str(path) for name, path in paths.items()},
-        "producer_schema_versions": {
-            "blueprint_authorization": blueprint.get("schema"),
-            "foundry_chain": foundry_chain.get("schema_version"),
-            "forge_goal_run": forge_goal_run.get("schema_version"),
-            "ao2_cross_repo_e2e": ao2_summary.get("schema_version"),
-            "control_surface_readback": control_surface.get("schema_version"),
-        },
+        "producer_schema_versions": producer_schema_versions,
         "chain_binding": chain,
         "operator_interpretation": {
             "bounded_governed_rsi": "supported_by_bound_chain",
@@ -366,6 +454,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--blueprint-authorization-json", required=True, type=Path)
     parser.add_argument("--foundry-chain-json", required=True, type=Path)
+    parser.add_argument("--foundry-control-surface-packet-json", type=Path)
     parser.add_argument("--forge-goal-run-json", required=True, type=Path)
     parser.add_argument("--ao2-cross-repo-summary-json", required=True, type=Path)
     parser.add_argument("--control-surface-readback-json", required=True, type=Path)
@@ -382,9 +471,14 @@ def main() -> int:
         "ao2_cross_repo_e2e": args.ao2_cross_repo_summary_json,
         "control_surface_readback": args.control_surface_readback_json,
     }
+    foundry_control_surface_packet = None
+    if args.foundry_control_surface_packet_json:
+        paths["foundry_control_surface_packet"] = args.foundry_control_surface_packet_json
+        foundry_control_surface_packet = read_json(args.foundry_control_surface_packet_json)
     summary = build_summary(
         read_json(args.blueprint_authorization_json),
         read_json(args.foundry_chain_json),
+        foundry_control_surface_packet,
         read_json(args.forge_goal_run_json),
         read_json(args.ao2_cross_repo_summary_json),
         read_json(args.control_surface_readback_json),
