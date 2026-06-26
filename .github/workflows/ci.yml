@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p target/ci-artifacts/python-guards
           set +e
-          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q \
+          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q \
             2>&1 | tee target/ci-artifacts/python-guards/pytest.log
           status="${PIPESTATUS[0]}"
           set -e
@@ -95,7 +95,7 @@ jobs:
           payload = {
               "schema_version": "ao2.cp-python-guard-ci-artifacts.v1",
               "status": "passed" if status == 0 else "failed",
-              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q",
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q",
               "log": str(out / "pytest.log"),
           }
           (out / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -456,6 +456,113 @@ jobs:
         with:
           name: ao2-control-plane-ao2-rsi-control-surface-readback
           path: ao2-control-plane/target/ao2-rsi-control-surface-readback
+          if-no-files-found: error
+
+  ao-stack-rsi-chain-binding-readback:
+    name: AO stack RSI chain-binding readback
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ao2-control-plane
+        uses: actions/checkout@v6.0.3
+        with:
+          path: ao2-control-plane
+      - name: Checkout AO2
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao2
+          path: ao2
+      - name: Checkout AO Covenant
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-covenant
+          path: ao-covenant
+      - name: Checkout AO Blueprint
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-blueprint
+          path: ao-blueprint
+      - name: Checkout AO Foundry
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-foundry
+          path: ao-foundry
+      - name: Checkout AO Forge
+        uses: actions/checkout@v6.0.3
+        with:
+          repository: uesugitorachiyo/ao-forge
+          path: ao-forge
+      - name: Setup Go for AO Covenant
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ao-covenant/go.mod
+      - name: Generate AO Blueprint authorization
+        shell: bash
+        working-directory: ao-blueprint
+        run: |
+          mkdir -p ../ao2-control-plane/target/ao-stack-rsi-chain-binding-readback/producers
+          go run ./cmd/blueprint authorize \
+            --pack examples/blueprints/valid/ao-blueprint-self \
+            --out ../ao2-control-plane/target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json
+      - name: Generate AO2 RSI cross-repo evidence
+        shell: bash
+        working-directory: ao2
+        run: |
+          AO2_CONTROL_PLANE_REPO=../ao2-control-plane AO_COVENANT_REPO=../ao-covenant npm run rsi:cross-repo-e2e
+          npm run rsi:improvement-evidence-gate
+          npm run rsi:improvement-trend
+          test -f target/rsi-cross-repo-e2e/latest/summary.json
+          test -f target/rsi-improvement-evidence-gate/latest/summary.json
+          test -f target/rsi-improvement-trend/latest/summary.json
+      - name: Generate control-surface readback
+        shell: bash
+        working-directory: ao2-control-plane
+        run: |
+          mkdir -p target/ao-stack-rsi-chain-binding-readback/producers
+          scripts/verify_ao2_rsi_control_surface_readback.py \
+            --gate-summary-json ../ao2/target/rsi-improvement-evidence-gate/latest/summary.json \
+            --trend-summary-json ../ao2/target/rsi-improvement-trend/latest/summary.json \
+            --out-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json
+      - name: Verify AO stack RSI chain-binding readback
+        shell: bash
+        working-directory: ao2-control-plane
+        run: |
+          scripts/verify_ao_stack_rsi_chain_binding_readback.py \
+            --blueprint-authorization-json target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json \
+            --foundry-chain-json ../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/bounded-rsi-improvement-chain-retention-proof.json \
+            --forge-goal-run-json ../ao-forge/examples/goals/ao2-retained-evidence.goal-run.json \
+            --ao2-cross-repo-summary-json ../ao2/target/rsi-cross-repo-e2e/latest/summary.json \
+            --control-surface-readback-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json \
+            --out-json target/ao-stack-rsi-chain-binding-readback/summary.json \
+            | tee target/ao-stack-rsi-chain-binding-readback/verify.log
+          grep -q 'control_plane_ao_stack_rsi_chain_binding_readback=passed' target/ao-stack-rsi-chain-binding-readback/verify.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path("target/ao-stack-rsi-chain-binding-readback/summary.json").read_text(encoding="utf-8"))
+          assert summary["schema_version"] == "ao2.cp-ao-stack-rsi-chain-binding-readback.v1", summary
+          assert summary["status"] == "passed", summary
+          assert [stage["stage"] for stage in summary["chain_binding"]] == [
+              "blueprint_authorization",
+              "foundry_candidate_gate",
+              "forge_goal_run",
+              "covenant_claim_decision",
+              "ao2_execution_evidence",
+              "control_plane_readback",
+          ], summary
+          assert summary["claim_boundary"]["full_autonomous_self_mutating_rsi"] == "denied", summary
+          trust_boundary = summary["trust_boundary"]
+          assert trust_boundary["control_plane_approves_rsi_claims"] is False, summary
+          assert trust_boundary["control_plane_executes_ao_work"] is False, summary
+          assert trust_boundary["control_plane_mutates_repositories"] is False, summary
+          assert trust_boundary["control_plane_publishes_claims"] is False, summary
+          assert trust_boundary["provider_api_keys_allowed"] is False, summary
+          PY
+      - name: Upload AO stack RSI chain-binding readback
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ao2-control-plane-ao-stack-rsi-chain-binding-readback
+          path: ao2-control-plane/target/ao-stack-rsi-chain-binding-readback
           if-no-files-found: error
 
   release-support-fixture-parity:

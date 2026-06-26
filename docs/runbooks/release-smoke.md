@@ -416,6 +416,48 @@ it does not approve RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate
 GitHub repositories, write observer storage, publish claims, or allow provider
 API keys.
 
+## AO stack RSI chain-binding readback
+
+Use `scripts/verify_ao_stack_rsi_chain_binding_readback.py` to verify the
+operator-facing bounded governed RSI chain without moving authority into the
+control plane. The chain is:
+Blueprint authorization -> Foundry candidate/gate -> Forge GoalRun -> Covenant
+claim decision -> AO2 evidence -> control-plane readback.
+
+Generate the producer evidence first. Blueprint emits the build authorization,
+AO2 emits the cross-repo E2E summary, and the previous control-surface verifier
+emits the control-plane readback consumed by this chain verifier:
+
+```sh
+(cd ../ao-blueprint && go run ./cmd/blueprint authorize --pack examples/blueprints/valid/ao-blueprint-self --out ../ao2-control-plane/target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json)
+(cd ../ao2 && AO2_CONTROL_PLANE_REPO=../ao2-control-plane AO_COVENANT_REPO=../ao-covenant npm run rsi:cross-repo-e2e)
+(cd ../ao2 && npm run rsi:improvement-evidence-gate)
+(cd ../ao2 && npm run rsi:improvement-trend)
+scripts/verify_ao2_rsi_control_surface_readback.py \
+  --gate-summary-json ../ao2/target/rsi-improvement-evidence-gate/latest/summary.json \
+  --trend-summary-json ../ao2/target/rsi-improvement-trend/latest/summary.json \
+  --out-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json
+scripts/verify_ao_stack_rsi_chain_binding_readback.py \
+  --blueprint-authorization-json target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json \
+  --foundry-chain-json ../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/bounded-rsi-improvement-chain-retention-proof.json \
+  --forge-goal-run-json ../ao-forge/examples/goals/ao2-retained-evidence.goal-run.json \
+  --ao2-cross-repo-summary-json ../ao2/target/rsi-cross-repo-e2e/latest/summary.json \
+  --control-surface-readback-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json \
+  --out-json target/ao-stack-rsi-chain-binding-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao_stack_rsi_chain_binding_readback=passed`. The summary schema
+is `ao2.cp-ao-stack-rsi-chain-binding-readback.v1`. Pull-request CI runs the
+same readback job with explicit `Checkout AO Blueprint`, `Checkout AO Foundry`,
+`Checkout AO Forge`, `Checkout AO Covenant`, `Checkout AO2`, and
+`npm run rsi:cross-repo-e2e` steps, and uploads
+`ao2-control-plane-ao-stack-rsi-chain-binding-readback`. The script and CI
+wiring are guarded by `tests/test_ao_stack_rsi_chain_binding_readback.py`.
+This is read-only evidence: it does not approve RSI claims, execute AO work,
+mutate repositories, publish claims, authorize Blueprint self-change, or allow
+provider API keys.
+
 ## AO2 dual-repo public approval closure readback
 
 Use `scripts/verify_ao2_dual_repo_public_approval_closure.py` to verify that
