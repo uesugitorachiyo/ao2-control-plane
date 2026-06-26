@@ -400,6 +400,37 @@ CI job uses explicit `Checkout AO2`, `Checkout AO Covenant`,
 claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
 write observer storage, publish claims, or allow provider API keys.
 
+CI also runs `AO stack RSI chain-binding readback`, which checks out AO
+Blueprint, AO Foundry, AO Forge, AO Covenant, AO2, and this control plane, then
+emits `ao2.cp-ao-stack-rsi-chain-binding-readback.v1`. This is the
+operator-facing readback for the bounded governed RSI chain:
+Blueprint authorization -> Foundry candidate/gate -> Forge GoalRun -> Covenant
+claim decision -> AO2 evidence -> control-plane readback. The verifier requires
+Blueprint build authorization to be ready for AO Foundry, Foundry RSI candidate
+and improvement-gate evidence to stay non-mutating, Forge GoalRun retained
+evidence to bind the chain, Covenant to keep
+`full_autonomous_self_mutating_rsi` denied, AO2 cross-repo evidence to pass, and
+the control-plane readback to remain observer-only.
+
+```bash
+scripts/verify_ao_stack_rsi_chain_binding_readback.py \
+  --blueprint-authorization-json target/ao-stack-rsi-chain-binding-readback/producers/blueprint-build-authorization.json \
+  --foundry-chain-json ../ao-forge/docs/evidence/goals/ao2-weekend-hardening/20260619T180000Z-verification/bounded-rsi-improvement-chain-retention-proof.json \
+  --forge-goal-run-json ../ao-forge/examples/goals/ao2-retained-evidence.goal-run.json \
+  --ao2-cross-repo-summary-json ../ao2/target/rsi-cross-repo-e2e/latest/summary.json \
+  --control-surface-readback-json target/ao-stack-rsi-chain-binding-readback/producers/control-surface-readback.json \
+  --out-json target/ao-stack-rsi-chain-binding-readback/summary.json
+```
+
+Expected output includes
+`control_plane_ao_stack_rsi_chain_binding_readback=passed`. The script is
+guarded by `tests/test_ao_stack_rsi_chain_binding_readback.py`. The CI job uses
+explicit `Checkout AO Blueprint`, `Checkout AO Foundry`, `Checkout AO Forge`,
+`Checkout AO Covenant`, `Checkout AO2`, and `npm run rsi:cross-repo-e2e` steps
+and uploads `ao2-control-plane-ao-stack-rsi-chain-binding-readback`. It does
+not approve RSI claims, execute AO work, mutate repositories, publish claims,
+authorize Blueprint self-change, or allow provider API keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
