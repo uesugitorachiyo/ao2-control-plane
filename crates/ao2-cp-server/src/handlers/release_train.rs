@@ -92,6 +92,8 @@ pub async fn release_train_readback() -> Result<Response, AppError> {
   <section>
     <h2>Release Readiness Artifact Consumer Contract</h2>
     <p>Status: <strong>{contract_status}</strong>. Detail: {contract_detail}</p>
+    <p>AO2 release-readiness consumer dashboard: <code>{consumer_dashboard}</code></p>
+    <p>Dashboard schema: <code>{consumer_dashboard_schema}</code></p>
   </section>
   <section>
     <h2>Checks</h2>
@@ -113,6 +115,10 @@ pub async fn release_train_readback() -> Result<Response, AppError> {
             escape_html(json_str(&publish_guards, "tag_push_publish_deploy").unwrap_or("missing")),
         contract_status = escape_html(json_str(&contract, "status").unwrap_or("missing")),
         contract_detail = escape_html(json_str(&contract, "check_detail").unwrap_or("missing")),
+        consumer_dashboard =
+            escape_html(json_str(&contract, "dashboard_artifact").unwrap_or("missing")),
+        consumer_dashboard_schema =
+            escape_html(json_str(&contract, "dashboard_schema_version").unwrap_or("missing")),
         rows = rows
     );
 

@@ -2,11 +2,20 @@ import json
 import os
 import stat
 import subprocess
+import importlib.util
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = REPO_ROOT / "scripts" / "verify_ao2_stable_promotion_evidence_index.py"
+
+
+def load_script_module():
+    spec = importlib.util.spec_from_file_location("stable_promotion_readback", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
 
 
 def stable_index_summary(**overrides):
@@ -140,6 +149,48 @@ def test_ao2_stable_promotion_evidence_index_readback_blocks_trust_boundary_drif
             "severity": "release_blocker",
             "details": ["mutates_releases must be false"],
         }
+    ]
+
+
+def test_latest_successful_run_queries_workflow_specific_runs(monkeypatch):
+    module = load_script_module()
+    endpoints = []
+
+    def fake_gh_api(endpoint: str):
+        endpoints.append(endpoint)
+        if endpoint == "repos/uesugitorachiyo/ao2/actions/workflows?per_page=100":
+            return {
+                "workflows": [
+                    {"id": 123, "name": "Stable Promotion Evidence Index"},
+                    {"id": 456, "name": "Unrelated CI"},
+                ]
+            }
+        if endpoint.startswith("repos/uesugitorachiyo/ao2/actions/workflows/123/runs?"):
+            return {
+                "workflow_runs": [
+                    {
+                        "id": 789,
+                        "name": "Stable Promotion Evidence Index",
+                        "head_branch": "main",
+                        "status": "completed",
+                        "conclusion": "success",
+                    }
+                ]
+            }
+        raise AssertionError(f"unexpected endpoint: {endpoint}")
+
+    monkeypatch.setattr(module, "gh_api", fake_gh_api)
+
+    run = module.latest_successful_run(
+        "uesugitorachiyo/ao2",
+        "main",
+        "Stable Promotion Evidence Index",
+    )
+
+    assert run["id"] == 789
+    assert endpoints == [
+        "repos/uesugitorachiyo/ao2/actions/workflows?per_page=100",
+        "repos/uesugitorachiyo/ao2/actions/workflows/123/runs?branch=main&status=success&per_page=50",
     ]
 
 
