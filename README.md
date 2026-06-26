@@ -370,6 +370,36 @@ approve RSI claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub
 repositories, write observer storage, publish claims, or allow provider API
 keys.
 
+CI also runs `AO2 RSI control-surface readback`, which checks out AO2 and AO
+Covenant, runs `npm run rsi:cross-repo-e2e` to generate the prerequisite
+claim-denial evidence chain, then runs `npm run rsi:improvement-evidence-gate`
+and `npm run rsi:improvement-trend`, and emits
+`ao2.cp-ao2-rsi-control-surface-readback.v1`. This is the control-plane
+readback for AO2's operator-facing RSI distinction between bounded governed RSI
+and denied full autonomous self-mutating RSI. The verifier requires
+`bounded_governed_rsi` to be supported and passing,
+`full_autonomous_self_mutating_rsi` to remain denied with
+`publish_authority=false`, and `improvement_score.target_exceeded=true` to be
+interpreted as `workflow_hardening_coverage_not_publication_authority`.
+The command prints `control_plane_ao2_rsi_control_surface_readback=passed` only
+when the control-plane summary cannot be mistaken for full autonomous RSI
+publication approval:
+
+```bash
+scripts/verify_ao2_rsi_control_surface_readback.py \
+  --gate-summary-json ../ao2/target/rsi-improvement-evidence-gate/latest/summary.json \
+  --trend-summary-json ../ao2/target/rsi-improvement-trend/latest/summary.json \
+  --out-json target/ao2-rsi-control-surface-readback/summary.json
+```
+
+The script is guarded by `tests/test_ao2_rsi_control_surface_readback.py`. The
+CI job uses explicit `Checkout AO2`, `Checkout AO Covenant`,
+`npm run rsi:cross-repo-e2e`, `npm run rsi:improvement-evidence-gate`, and
+`npm run rsi:improvement-trend` steps and uploads
+`ao2-control-plane-ao2-rsi-control-surface-readback`. It does not approve RSI
+claims, mutate AO2 artifacts, apply AO2 patches, mutate GitHub repositories,
+write observer storage, publish claims, or allow provider API keys.
+
 CI also runs `AO2 dual-repo public approval closure readback`, which downloads
 AO2's latest successful `ao2-dual-repo-public-approval-closure` artifact from
 the `Dual Repo Public Approval Closure` workflow and emits
