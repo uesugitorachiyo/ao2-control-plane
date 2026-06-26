@@ -703,7 +703,10 @@ setting `AO2_CP_RELEASE_TRAIN_SUMMARY` to AO2's generated
 `ao2.cp-release-train-readback.v1` observer metadata, and
 `/api/v1/release/train` renders a read-only operator dashboard. Both surfaces
 redact local absolute paths and do not publish, approve, persist, or mutate AO2
-release evidence.
+release evidence. When the AO2 summary includes the release-readiness consumer
+`dashboard.html` artifact reference, the dashboard surfaces that artifact path
+and schema so operators can jump from control-plane release-train readback to
+AO2 RSI eligibility evidence without parsing raw JSON.
 
 AO2 release evidence bundles can be observed by setting
 `AO2_CP_OPERATOR_RELEASE_EVIDENCE_SUMMARY` to AO2's generated

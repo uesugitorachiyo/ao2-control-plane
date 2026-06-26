@@ -41,7 +41,10 @@ fn write_release_train_summary(dir: &tempfile::TempDir) -> std::path::PathBuf {
                 "status": "passed",
                 "required_check": "ci_release_readiness_artifact_consumer_job",
                 "release_readiness_status": "passed",
-                "check_detail": "downloads ao2-release-readiness and validates schema/status/core cross-OS checks"
+                "check_detail": "downloads ao2-release-readiness and validates schema/status/core cross-OS checks",
+                "dashboard": "/private/ao2/target/release-readiness-consumer/dashboard.html",
+                "dashboard_artifact": "ao2-release-readiness-consumer/dashboard.html",
+                "dashboard_schema_version": "ao2.release-readiness-artifact-consumer.v1"
             },
             "checks": [
                 {"name": "release_evidence_closure", "status": "passed", "exit_code": 0},
@@ -115,6 +118,19 @@ async fn release_train_readback_json_and_dashboard_are_read_only_observer_surfac
         "passed"
     );
     assert_eq!(
+        body["release_train"]["release_readiness_artifact_consumer_contract"]["dashboard"],
+        "[redacted-local-path]"
+    );
+    assert_eq!(
+        body["release_train"]["release_readiness_artifact_consumer_contract"]["dashboard_artifact"],
+        "ao2-release-readiness-consumer/dashboard.html"
+    );
+    assert_eq!(
+        body["release_train"]["release_readiness_artifact_consumer_contract"]
+            ["dashboard_schema_version"],
+        "ao2.release-readiness-artifact-consumer.v1"
+    );
+    assert_eq!(
         body["release_train"]["publish_guards"]["refuses_publish_side_effects_by_default"],
         true
     );
@@ -134,6 +150,9 @@ async fn release_train_readback_json_and_dashboard_are_read_only_observer_surfac
     assert!(html.contains("AO2 Release Train Readback"));
     assert!(html.contains("ao2.public-release-train-drill.v1"));
     assert!(html.contains("ci_release_readiness_artifact_consumer_job"));
+    assert!(html.contains("AO2 release-readiness consumer dashboard"));
+    assert!(html.contains("ao2-release-readiness-consumer/dashboard.html"));
+    assert!(html.contains("ao2.release-readiness-artifact-consumer.v1"));
     assert!(html.contains("release_readiness_static"));
     assert!(html.contains("read-only-observer"));
     assert!(html.contains("not executed by this drill"));

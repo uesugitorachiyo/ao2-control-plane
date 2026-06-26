@@ -49,9 +49,19 @@ def gh_api(endpoint: str) -> dict[str, Any]:
     return json.loads(result.stdout)
 
 
+def workflow_id(repo: str, workflow: str) -> int:
+    response = gh_api(f"repos/{repo}/actions/workflows?per_page=100")
+    for item in response.get("workflows", []):
+        if item.get("name") == workflow:
+            return int(item["id"])
+    raise SystemExit(f"workflow {workflow!r} not found in repo {repo!r}")
+
+
 def latest_successful_run(repo: str, branch: str, workflow: str) -> dict[str, Any]:
+    workflow = str(workflow)
+    workflow_identifier = workflow_id(repo, workflow)
     query = urlencode({"branch": branch, "status": "success", "per_page": "50"})
-    response = gh_api(f"repos/{repo}/actions/runs?{query}")
+    response = gh_api(f"repos/{repo}/actions/workflows/{workflow_identifier}/runs?{query}")
     for run in response.get("workflow_runs", []):
         if (
             run.get("name") == workflow
