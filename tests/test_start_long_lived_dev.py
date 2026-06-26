@@ -44,7 +44,7 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
 
     for target_label in ["linux-x86_64", "macos-aarch64", "windows-x86_64"]:
         assert f"target_label: {target_label}" in ci
-        assert f"dist/ao2-control-plane-0.1.13-{target_label}.tar.gz" in ci
+        assert f"dist/ao2-control-plane-0.1.14-{target_label}.tar.gz" in ci
 
     for needle in [
         "Upload release archive artifact",

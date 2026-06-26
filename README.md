@@ -535,7 +535,7 @@ targets on every pull request and `main` push. Open
 
 `Release Promotion` in `.github/workflows/release-promotion.yml` is the
 governed path for preparing the next control-plane release. It is manual and
-uses `dry_run=true` by default for `v0.1.13`, building and smoking release
+uses `dry_run=true` by default for `v0.1.14`, building and smoking release
 archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
 the `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
 archive build starts, release promotion requires the latest successful
