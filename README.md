@@ -1,6 +1,6 @@
 # ao2-control-plane
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.13)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14)
 
 Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
 
@@ -116,8 +116,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.13 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.13-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.14 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.14-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -128,8 +128,8 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.13 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.13-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.14 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.14-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
@@ -146,17 +146,17 @@ macOS, and Windows.
 ## Install From Public Release
 
 The current public release is
-[`v0.1.13`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.13).
+[`v0.1.14`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14).
 It publishes Linux, macOS, and Windows archives plus token-free promotion
 summary evidence. Download and verify it with:
 
 ```bash
 mkdir -p dist-release
-gh release download v0.1.13 --repo uesugitorachiyo/ao2-control-plane \
-  --pattern ao2-control-plane-0.1.13-macos-aarch64.tar.gz \
+gh release download v0.1.14 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.14-macos-aarch64.tar.gz \
   --pattern SHA256SUMS \
   --dir dist-release
-(cd dist-release && grep 'ao2-control-plane-0.1.13-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+(cd dist-release && grep 'ao2-control-plane-0.1.14-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
 Or run the repository verifier, which downloads all published prerelease assets
@@ -217,7 +217,7 @@ AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
-AO2 stable release (`v0.4.80`) and control-plane release (`v0.1.13`) as one
+AO2 stable release (`v0.4.81`) and control-plane release (`v0.1.14`) as one
 public release pair. Those stable defaults are read from
 `docs/release/release-train.json`, which also records the next candidate train
 (`v0.4.81` / `v0.1.14`). The verifier reads GitHub release metadata and
@@ -519,10 +519,10 @@ the published checksum manifest instead of a handwritten table:
 
 ```bash
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.13 \
-  --tag v0.1.13 \
+  --version 0.1.14 \
+  --tag v0.1.14 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.13-notes.md
+  --output docs/releases/v0.1.14-notes.md
 ```
 
 The CI workflow also produces release-ready archive artifacts for all supported

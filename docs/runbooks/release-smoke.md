@@ -120,10 +120,10 @@ hashes by hand:
 
 ```sh
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.13 \
-  --tag v0.1.13 \
+  --version 0.1.14 \
+  --tag v0.1.14 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.13-notes.md
+  --output docs/releases/v0.1.14-notes.md
 ```
 
 Expected output is `control_plane_release_asset_parity=passed` for a complete
@@ -155,8 +155,8 @@ scripts/public_release_pair_verify.py \
 
 Expected output includes
 `control_plane_public_release_pair_verification=passed`. The summary schema is
-`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.80`,
-control-plane `v0.1.13`, their common Linux x86_64, macOS aarch64, and Windows
+`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.81`,
+control-plane `v0.1.14`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
 promotion summary evidence, checksum coverage for `summary.json`, and a
 read-only trust boundary. Use `--strict` in release-promotion or stable-channel
@@ -198,7 +198,7 @@ python3 scripts/verify_post_release_baseline.py \
   --branch main \
   --workflow "Post Release Verification" \
   --head-sha "$(git rev-parse origin/main)" \
-  --out-json target/release-promotion/v0.1.13/post-release-baseline.json
+  --out-json target/release-promotion/v0.1.14/post-release-baseline.json
 ```
 
 Expected output is `post_release_verification_baseline=passed`. This check
@@ -1078,7 +1078,7 @@ test in the workspace.
 ## 7. Comparing two release candidates offline (Lane NN)
 
 When two operators each hold a different release-candidate support
-bundle (e.g., `0.4.79` and `0.4.80`) and want to know whether the
+bundle (e.g., `0.4.79` and `0.4.81`) and want to know whether the
 verdict surface has drifted between them, run the offline verifier
 with `--compare-against` (Python) or `-CompareAgainst` (PowerShell).
 This is a read-only operation; the verifiers never reach the network.
