@@ -5,6 +5,29 @@ use std::process::Command;
 
 mod common;
 
+fn production_source(source: &str) -> &str {
+    match source.find("\n#[cfg(test)]\n") {
+        Some(idx) => &source[..idx],
+        None => source,
+    }
+}
+
+fn read_release_publication_module_production(root: &Path) -> String {
+    let handler =
+        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
+            .expect("release_publication.rs present");
+    let view = fs::read_to_string(
+        root.join("crates/ao2-cp-server/src/handlers/release_publication/view.rs"),
+    )
+    .expect("release_publication/view.rs present");
+
+    format!(
+        "{}\n{}",
+        production_source(&handler),
+        production_source(&view)
+    )
+}
+
 #[test]
 fn package_script_creates_installable_control_plane_archive() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -7883,15 +7906,7 @@ fn install_heredocs_permission_step_parity_lane_mmmm() {
 #[test]
 fn release_publication_html_css_class_parity_lane_nnnn() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let src =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane NNNN: release_publication.rs present");
-
-    // Strip the test module.
-    let production = match src.find("\n#[cfg(test)]\n") {
-        Some(idx) => &src[..idx],
-        None => src.as_str(),
-    };
+    let production = read_release_publication_module_production(&root);
 
     // Extract every CSS rule `.<word>{` from the source. The `<style>`
     // blocks are embedded inside `format!(...)` so braces are doubled
@@ -8004,14 +8019,7 @@ fn release_publication_html_css_class_parity_lane_nnnn() {
 #[test]
 fn release_publication_html_title_h1_parity_lane_oooo() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let src =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane OOOO: release_publication.rs present");
-
-    let production = match src.find("\n#[cfg(test)]\n") {
-        Some(idx) => &src[..idx],
-        None => src.as_str(),
-    };
+    let production = read_release_publication_module_production(&root);
 
     // Extract every `<title>...</title>` literal.
     let mut titles: Vec<String> = Vec::new();
@@ -8264,18 +8272,9 @@ fn release_smoke_section_6_rows_are_unique_lane_pppp() {
 #[test]
 fn release_publication_html_footer_link_parity_lane_qqqq() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let source =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane QQQQ: release_publication.rs present");
+    let prod = read_release_publication_module_production(&root);
     let server = fs::read_to_string(root.join("crates/ao2-cp-server/src/server.rs"))
         .expect("Lane QQQQ: server.rs present");
-
-    // Strip `#[cfg(test)]` tail — test-only HTML literals do not ship
-    // in production responses.
-    let prod = match source.find("#[cfg(test)]") {
-        Some(idx) => &source[..idx],
-        None => &source[..],
-    };
 
     // Collect every route path declared in server.rs. The current
     // shape splits the `.route(` call across multiple lines:
@@ -9586,17 +9585,9 @@ fn aggregator_json_keys_bind_to_handler_reads_lane_xxxx() {
 #[test]
 fn html_render_fns_bind_to_route_registration_lane_yyyy() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let release_publication =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane YYYY: release_publication.rs present");
+    let production_src = read_release_publication_module_production(&root);
     let server_rs = fs::read_to_string(root.join("crates/ao2-cp-server/src/server.rs"))
         .expect("Lane YYYY: server.rs present");
-
-    // Strip #[cfg(test)] tail.
-    let production_src = match release_publication.find("\n#[cfg(test)]\n") {
-        Some(idx) => &release_publication[..idx],
-        None => release_publication.as_str(),
-    };
 
     // Find every page-end marker.
     let marker = "</main></body></html>";
@@ -9608,16 +9599,18 @@ fn html_render_fns_bind_to_route_registration_lane_yyyy() {
         // or `pub fn <name>(`.
         let prefix = &production_src[..abs];
         let async_idx = prefix.rfind("pub async fn ");
-        let sync_idx = prefix.rfind("pub fn ");
-        let (start, keyword_len) = match (async_idx, sync_idx) {
-            (Some(a), Some(s)) if a > s => (a, "pub async fn ".len()),
-            (Some(_), Some(s)) => (s, "pub fn ".len()),
-            (Some(a), None) => (a, "pub async fn ".len()),
-            (None, Some(s)) => (s, "pub fn ".len()),
-            (None, None) => {
-                cursor = abs + marker.len();
-                continue;
-            }
+        let public_sync_idx = prefix.rfind("pub fn ");
+        let module_sync_idx = prefix.rfind("pub(super) fn ");
+        let candidates = [
+            async_idx.map(|idx| (idx, "pub async fn ".len())),
+            public_sync_idx.map(|idx| (idx, "pub fn ".len())),
+            module_sync_idx.map(|idx| (idx, "pub(super) fn ".len())),
+        ];
+        let Some((start, keyword_len)) =
+            candidates.into_iter().flatten().max_by_key(|(idx, _)| *idx)
+        else {
+            cursor = abs + marker.len();
+            continue;
         };
         let id_start = start + keyword_len;
         // Identifier ends at `(` or `<` (for generic fns).
@@ -9648,9 +9641,10 @@ fn html_render_fns_bind_to_route_registration_lane_yyyy() {
     // Each render fn must appear in server.rs.
     for fn_name in render_fns.iter() {
         let needle = format!("release_publication::{fn_name}");
+        let delegated_render_needle = format!("{fn_name}(");
         assert!(
-            server_rs.contains(&needle),
-            "Lane YYYY: release_publication.rs renders HTML via `{fn_name}` but server.rs has no `release_publication::{fn_name}` route registration. An HTML page rendered but never served via a route is dead code; a route renamed without the matching fn rename leaves an orphan render."
+            server_rs.contains(&needle) || production_src.matches(&delegated_render_needle).count() >= 2,
+            "Lane YYYY: release_publication module renders HTML via `{fn_name}` but server.rs has no `release_publication::{fn_name}` route registration and the function is not delegated from another production handler. An HTML page rendered but never served via a route is dead code; a route renamed without the matching fn rename leaves an orphan render."
         );
     }
 }
@@ -10392,15 +10386,7 @@ fn handler_module_declarations_bind_to_real_files_lane_eeeee() {
 #[test]
 fn release_publication_html_doctype_and_charset_parity_lane_fffff() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let src =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane FFFFF: release_publication.rs present");
-
-    // Strip #[cfg(test)] tail.
-    let production_src = match src.find("\n#[cfg(test)]\n") {
-        Some(idx) => &src[..idx],
-        None => src.as_str(),
-    };
+    let production_src = read_release_publication_module_production(&root);
 
     let marker = "</main></body></html>";
     let mut page_count = 0usize;
@@ -12107,9 +12093,7 @@ fn smoke_three_os_default_version_matches_workspace_version_lane_uuuuu() {
 #[test]
 fn html_render_fns_carry_read_only_observer_disclaimer_lane_vvvvv() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let publication =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane VVVVV: release_publication.rs present");
+    let publication = read_release_publication_module_production(&root);
 
     // Find every format! template that opens with `"<!doctype html>`.
     // We look for the marker `"<!doctype html>` (the opening quote
