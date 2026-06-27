@@ -71,15 +71,15 @@
     "source": "docs/release/release-train.json",
     "stable": {
       "ao2": {
-        "tag": "v0.4.80",
-        "version": "0.4.80"
+        "tag": "v0.4.81",
+        "version": "0.4.81"
       },
       "ao2_control_plane": {
-        "tag": "v0.1.13",
-        "version": "0.1.13"
+        "tag": "v0.1.14",
+        "version": "0.1.14"
       },
-      "promotion_confirm": "promote-stable-v0.4.80-v0.1.13",
-      "public_operator_confirm": "public-release-reviewed-v0.4.80-v0.1.13"
+      "promotion_confirm": "promote-stable-v0.4.81-v0.1.14",
+      "public_operator_confirm": "public-release-reviewed-v0.4.81-v0.1.14"
     }
   },
   "release_readiness_artifact_consumer_contract": {

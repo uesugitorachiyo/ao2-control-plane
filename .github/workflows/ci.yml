@@ -668,7 +668,7 @@ jobs:
           summary = json.loads(Path("target/release-asset-parity-audit/summary.json").read_text(encoding="utf-8"))
           assert summary["schema_version"] == "ao2.cp-release-asset-parity-audit.v1", summary
           assert summary["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
-          assert summary["release_tag"] == "v0.1.13", summary
+          assert summary["release_tag"] == "v0.1.14", summary
           assert summary["status"] in {"passed", "attention"}, summary
           trust_boundary = summary["trust_boundary"]
           assert trust_boundary["control_plane_approves_release"] is False, summary
@@ -710,9 +710,9 @@ jobs:
           assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1", summary
           assert summary["status"] in {"passed", "attention"}, summary
           assert summary["ao2"]["release_repo"] == "uesugitorachiyo/ao2", summary
-          assert summary["ao2"]["release_tag"] == "v0.4.80", summary
+          assert summary["ao2"]["release_tag"] == "v0.4.81", summary
           assert summary["control_plane"]["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
-          assert summary["control_plane"]["release_tag"] == "v0.1.13", summary
+          assert summary["control_plane"]["release_tag"] == "v0.1.14", summary
           assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"], summary
           trust_boundary = summary["trust_boundary"]
           assert trust_boundary["control_plane_approves_release"] is False, summary
