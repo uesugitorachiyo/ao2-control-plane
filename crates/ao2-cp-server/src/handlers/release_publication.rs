@@ -17,6 +17,10 @@ use crate::handlers::caching;
 use crate::server::AppState;
 use crate::signing::{sha256_hex, verify_rsa_sha256_signature};
 
+mod view;
+
+use view::{escape_html, json_scalar, json_str, json_str_obj};
+
 const RELEASE_PUBLICATION_SCHEMA: &str = "ao2.release-publication-summary.v1";
 const RELEASE_PUBLICATION_DASHBOARD_SCHEMA: &str = "ao2.cp-release-publication-dashboard.v1";
 const RELEASE_COCKPIT_SCHEMA: &str = "ao2.cp-release-cockpit.v1";
@@ -4709,38 +4713,6 @@ fn validate_sha(sha: &str) -> Result<(), AppError> {
         return Err(AppError::BadRequest("invalid sha256".into()));
     }
     Ok(())
-}
-
-fn json_str<'a>(value: &'a serde_json::Value, key: &str) -> Option<&'a str> {
-    value.get(key).and_then(serde_json::Value::as_str)
-}
-
-fn json_str_obj<'a>(
-    value: &'a serde_json::Map<String, serde_json::Value>,
-    key: &str,
-) -> Option<&'a str> {
-    value.get(key).and_then(serde_json::Value::as_str)
-}
-
-fn json_scalar(value: &serde_json::Value) -> String {
-    if let Some(s) = value.as_str() {
-        s.to_string()
-    } else if let Some(b) = value.as_bool() {
-        b.to_string()
-    } else if let Some(n) = value.as_i64() {
-        n.to_string()
-    } else {
-        value.to_string()
-    }
-}
-
-fn escape_html(input: &str) -> String {
-    input
-        .replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
 }
 
 #[cfg(test)]
