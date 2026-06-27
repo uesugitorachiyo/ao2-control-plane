@@ -149,6 +149,7 @@ def test_release_promotion_publish_step_is_explicitly_guarded():
         "--latest",
         "gh release upload \"${{ inputs.tag }}\"",
         "target/release-promotion/${{ inputs.tag }}/release-notes.md",
+        '"$root/post-release-baseline.json"',
     ]:
         assert needle in workflow
 
