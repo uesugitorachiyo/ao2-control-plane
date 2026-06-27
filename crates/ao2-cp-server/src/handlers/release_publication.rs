@@ -24,7 +24,7 @@ mod view;
 use evaluator_decision::{
     get_release_evaluator_decision_by_sha_cached, get_release_evaluator_decision_signature_by_sha,
     latest_release_evaluator_decision_entry_value, release_evaluator_decision_dashboard_value,
-    verify_release_evaluator_decision_signature,
+    validate_release_evaluator_decision, verify_release_evaluator_decision_signature,
 };
 use release_surfaces::{
     hosted_release_smoke_value, install_verification_readiness_observed,
@@ -3108,116 +3108,6 @@ fn validate_release_publication(publication: &serde_json::Value) -> Result<(), A
                 )));
             }
         }
-    }
-    Ok(())
-}
-
-fn validate_release_evaluator_decision(decision: &serde_json::Value) -> Result<(), AppError> {
-    let schema = decision
-        .get("schema")
-        .or_else(|| decision.get("schema_version"))
-        .and_then(serde_json::Value::as_str)
-        .unwrap_or("");
-    if schema != RELEASE_EVALUATOR_DECISION_SCHEMA {
-        return Err(AppError::SchemaUnknown(format!(
-            "expected schema {RELEASE_EVALUATOR_DECISION_SCHEMA}, got {schema}"
-        )));
-    }
-    for key in ["status", "decision", "next_action"] {
-        if decision
-            .get(key)
-            .and_then(serde_json::Value::as_str)
-            .filter(|value| !value.trim().is_empty())
-            .is_none()
-        {
-            return Err(AppError::SchemaInvalid(format!(
-                "release evaluator decision missing {key}"
-            )));
-        }
-    }
-    let release = decision
-        .get("release")
-        .and_then(serde_json::Value::as_object)
-        .ok_or_else(|| {
-            AppError::SchemaInvalid("release evaluator decision missing release".into())
-        })?;
-    for key in ["version", "release_tag", "sha256"] {
-        if release
-            .get(key)
-            .and_then(serde_json::Value::as_str)
-            .filter(|value| !value.trim().is_empty())
-            .is_none()
-        {
-            return Err(AppError::SchemaInvalid(format!(
-                "release evaluator decision release missing {key}"
-            )));
-        }
-    }
-    let blockers = decision
-        .get("blockers")
-        .and_then(serde_json::Value::as_array)
-        .ok_or_else(|| {
-            AppError::SchemaInvalid("release evaluator decision missing blockers array".into())
-        })?;
-    let checks = decision
-        .get("checks")
-        .and_then(serde_json::Value::as_array)
-        .ok_or_else(|| {
-            AppError::SchemaInvalid("release evaluator decision missing checks array".into())
-        })?;
-    if checks.is_empty() {
-        return Err(AppError::SchemaInvalid(
-            "release evaluator decision checks must not be empty".into(),
-        ));
-    }
-    let trust_boundary = decision
-        .get("trust_boundary")
-        .and_then(serde_json::Value::as_object)
-        .ok_or_else(|| {
-            AppError::SchemaInvalid("release evaluator decision missing trust_boundary".into())
-        })?;
-    if trust_boundary
-        .get("control_plane_role")
-        .and_then(serde_json::Value::as_str)
-        != Some("read_only_observer")
-    {
-        return Err(AppError::SchemaInvalid(
-            "release evaluator decision trust_boundary.control_plane_role must be read_only_observer"
-                .into(),
-        ));
-    }
-    if trust_boundary
-        .get("mutates_ao_artifacts")
-        .and_then(serde_json::Value::as_bool)
-        != Some(false)
-    {
-        return Err(AppError::SchemaInvalid(
-            "release evaluator decision must not let the control plane mutate AO artifacts".into(),
-        ));
-    }
-    if trust_boundary
-        .get("control_plane_approves_release")
-        .and_then(serde_json::Value::as_bool)
-        != Some(false)
-    {
-        return Err(AppError::SchemaInvalid(
-            "release evaluator decision must keep release approval outside the control plane"
-                .into(),
-        ));
-    }
-    if trust_boundary
-        .get("release_acceptance_owner")
-        .and_then(serde_json::Value::as_str)
-        != Some("factory-v3 evaluator-closer")
-    {
-        return Err(AppError::SchemaInvalid(
-            "release evaluator decision owner must be factory-v3 evaluator-closer".into(),
-        ));
-    }
-    if json_str(decision, "status") == Some("accepted") && !blockers.is_empty() {
-        return Err(AppError::SchemaInvalid(
-            "accepted release evaluator decision must not contain blockers".into(),
-        ));
     }
     Ok(())
 }
