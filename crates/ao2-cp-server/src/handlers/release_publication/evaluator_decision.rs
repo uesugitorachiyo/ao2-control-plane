@@ -1,17 +1,83 @@
-use ao2_cp_storage::bundle::BundleKind;
+use ao2_cp_schema::canonical::sha256_of_canonical;
+use ao2_cp_storage::{bundle::BundleKind, index::IndexEntry};
 use axum::{
-    http::{header, StatusCode},
+    http::{header, HeaderMap, StatusCode},
     response::{IntoResponse, Response},
 };
 
 use crate::error::AppError;
+use crate::handlers::caching;
 use crate::server::AppState;
 use crate::signing::{sha256_hex, verify_rsa_sha256_signature};
 
 use super::{
-    latest_release_evaluator_decision_entry_value, trust_boundary, validate_sha, view::json_str,
-    RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA, RELEASE_EVALUATOR_DECISION_SIGNATURE_SCHEMA,
+    trust_boundary, validate_sha, view::json_str, RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA,
+    RELEASE_EVALUATOR_DECISION_SCHEMA, RELEASE_EVALUATOR_DECISION_SIGNATURE_SCHEMA,
 };
+
+pub(super) async fn latest_release_evaluator_decision_entry_value(
+    state: &AppState,
+) -> Result<Option<(IndexEntry, serde_json::Value)>, AppError> {
+    let mut entries = release_evaluator_decision_entries(state).await?;
+    entries.sort_by_key(|entry| std::cmp::Reverse(entry.ingested_at));
+    let Some(entry) = entries.into_iter().next() else {
+        return Ok(None);
+    };
+    let value = read_release_evaluator_decision_value(state, &entry.sha256).await?;
+    Ok(Some((entry, value)))
+}
+
+async fn release_evaluator_decision_entries(state: &AppState) -> Result<Vec<IndexEntry>, AppError> {
+    let mut entries = state
+        .storage
+        .index
+        .read_all()
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    entries.retain(|entry| entry.schema == RELEASE_EVALUATOR_DECISION_SCHEMA);
+    Ok(entries)
+}
+
+async fn read_release_evaluator_decision_value(
+    state: &AppState,
+    sha: &str,
+) -> Result<serde_json::Value, AppError> {
+    let bytes = state
+        .storage
+        .bundles
+        .read(BundleKind::ReleaseEvaluatorDecision, sha)
+        .await
+        .map_err(|_| AppError::NotFound)?;
+    serde_json::from_slice(&bytes).map_err(|e| AppError::Internal(e.to_string()))
+}
+
+pub(super) async fn get_release_evaluator_decision_by_sha_cached(
+    state: &AppState,
+    sha: &str,
+    headers: &HeaderMap,
+) -> Result<Response, AppError> {
+    caching::validate_sha(sha)?;
+    let etag = caching::format_etag(sha);
+    let bytes = state
+        .storage
+        .bundles
+        .read(BundleKind::ReleaseEvaluatorDecision, sha)
+        .await
+        .map_err(|_| AppError::NotFound)?;
+    if caching::etag_matches(headers, &etag) {
+        return Ok(caching::not_modified_response(&etag));
+    }
+    let value: serde_json::Value =
+        serde_json::from_slice(&bytes).map_err(|e| AppError::Internal(e.to_string()))?;
+    let actual = sha256_of_canonical(&value).map_err(|e| AppError::Internal(e.to_string()))?;
+    if actual != sha {
+        return Err(AppError::BundleTampered {
+            expected: sha.to_string(),
+            actual,
+        });
+    }
+    Ok(caching::cacheable_json_response(&etag, bytes))
+}
 
 pub(super) async fn get_release_evaluator_decision_signature_by_sha(
     state: &AppState,

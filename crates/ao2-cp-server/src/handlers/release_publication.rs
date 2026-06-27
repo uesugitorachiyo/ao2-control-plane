@@ -22,7 +22,8 @@ mod support_bundle;
 mod view;
 
 use evaluator_decision::{
-    get_release_evaluator_decision_signature_by_sha, release_evaluator_decision_dashboard_value,
+    get_release_evaluator_decision_by_sha_cached, get_release_evaluator_decision_signature_by_sha,
+    latest_release_evaluator_decision_entry_value, release_evaluator_decision_dashboard_value,
     verify_release_evaluator_decision_signature,
 };
 use release_surfaces::{
@@ -2320,18 +2321,6 @@ async fn latest_release_publication_entry_value(
     Ok(Some((entry, value)))
 }
 
-async fn latest_release_evaluator_decision_entry_value(
-    state: &AppState,
-) -> Result<Option<(IndexEntry, serde_json::Value)>, AppError> {
-    let mut entries = release_evaluator_decision_entries(state).await?;
-    entries.sort_by_key(|entry| std::cmp::Reverse(entry.ingested_at));
-    let Some(entry) = entries.into_iter().next() else {
-        return Ok(None);
-    };
-    let value = read_release_evaluator_decision_value(state, &entry.sha256).await?;
-    Ok(Some((entry, value)))
-}
-
 async fn release_publication_entries(state: &AppState) -> Result<Vec<IndexEntry>, AppError> {
     let mut entries = state
         .storage
@@ -2340,17 +2329,6 @@ async fn release_publication_entries(state: &AppState) -> Result<Vec<IndexEntry>
         .await
         .map_err(|e| AppError::Internal(e.to_string()))?;
     entries.retain(|entry| entry.schema == RELEASE_PUBLICATION_SCHEMA);
-    Ok(entries)
-}
-
-async fn release_evaluator_decision_entries(state: &AppState) -> Result<Vec<IndexEntry>, AppError> {
-    let mut entries = state
-        .storage
-        .index
-        .read_all()
-        .await
-        .map_err(|e| AppError::Internal(e.to_string()))?;
-    entries.retain(|entry| entry.schema == RELEASE_EVALUATOR_DECISION_SCHEMA);
     Ok(entries)
 }
 
@@ -3022,19 +3000,6 @@ async fn read_release_publication_value(
     serde_json::from_slice(&bytes).map_err(|e| AppError::Internal(e.to_string()))
 }
 
-async fn read_release_evaluator_decision_value(
-    state: &AppState,
-    sha: &str,
-) -> Result<serde_json::Value, AppError> {
-    let bytes = state
-        .storage
-        .bundles
-        .read(BundleKind::ReleaseEvaluatorDecision, sha)
-        .await
-        .map_err(|_| AppError::NotFound)?;
-    serde_json::from_slice(&bytes).map_err(|e| AppError::Internal(e.to_string()))
-}
-
 async fn get_release_publication_by_sha_cached(
     state: &AppState,
     sha: &str,
@@ -3046,34 +3011,6 @@ async fn get_release_publication_by_sha_cached(
         .storage
         .bundles
         .read(BundleKind::ReleasePublication, sha)
-        .await
-        .map_err(|_| AppError::NotFound)?;
-    if caching::etag_matches(headers, &etag) {
-        return Ok(caching::not_modified_response(&etag));
-    }
-    let value: serde_json::Value =
-        serde_json::from_slice(&bytes).map_err(|e| AppError::Internal(e.to_string()))?;
-    let actual = sha256_of_canonical(&value).map_err(|e| AppError::Internal(e.to_string()))?;
-    if actual != sha {
-        return Err(AppError::BundleTampered {
-            expected: sha.to_string(),
-            actual,
-        });
-    }
-    Ok(caching::cacheable_json_response(&etag, bytes))
-}
-
-async fn get_release_evaluator_decision_by_sha_cached(
-    state: &AppState,
-    sha: &str,
-    headers: &HeaderMap,
-) -> Result<Response, AppError> {
-    caching::validate_sha(sha)?;
-    let etag = caching::format_etag(sha);
-    let bytes = state
-        .storage
-        .bundles
-        .read(BundleKind::ReleaseEvaluatorDecision, sha)
         .await
         .map_err(|_| AppError::NotFound)?;
     if caching::etag_matches(headers, &etag) {
