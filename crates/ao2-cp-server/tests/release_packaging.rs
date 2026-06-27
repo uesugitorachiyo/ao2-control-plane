@@ -20,11 +20,16 @@ fn read_release_publication_module_production(root: &Path) -> String {
         root.join("crates/ao2-cp-server/src/handlers/release_publication/view.rs"),
     )
     .expect("release_publication/view.rs present");
+    let support_bundle = fs::read_to_string(
+        root.join("crates/ao2-cp-server/src/handlers/release_publication/support_bundle.rs"),
+    )
+    .expect("release_publication/support_bundle.rs present");
 
     format!(
-        "{}\n{}",
+        "{}\n{}\n{}",
         production_source(&handler),
-        production_source(&view)
+        production_source(&view),
+        production_source(&support_bundle)
     )
 }
 
@@ -7043,9 +7048,7 @@ fn install_heredocs_perform_checksum_before_copy_lane_eeee() {
 #[test]
 fn support_bundle_surface_ids_bind_to_json_literal_emission_lane_ffff() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let release_publication =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane FFFF: release_publication.rs present");
+    let release_publication = read_release_publication_module_production(&root);
 
     let const_opener = "const SUPPORT_BUNDLE_REQUIRED_SURFACE_IDS:";
     let const_start = release_publication
@@ -7140,16 +7143,7 @@ fn offline_release_support_verifiers_require_hosted_release_smoke_surface() {
 #[test]
 fn release_schema_consts_bind_to_schema_version_emission_lane_hhhh() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let release_publication =
-        fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))
-            .expect("Lane HHHH: release_publication.rs present");
-
-    // Strip the test module so dead consts aren't kept alive by sentinel
-    // references inside #[cfg(test)] code paths.
-    let production_src = match release_publication.find("\n#[cfg(test)]\n") {
-        Some(idx) => &release_publication[..idx],
-        None => release_publication.as_str(),
-    };
+    let production_src = read_release_publication_module_production(&root);
 
     // Parse every `const <NAME>: &str = "<value>";` declaration where NAME
     // ends in `_SCHEMA`. Two forms appear in the file: single-line
