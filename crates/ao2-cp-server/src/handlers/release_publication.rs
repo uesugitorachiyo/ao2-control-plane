@@ -22,7 +22,7 @@ mod support_bundle;
 mod view;
 
 use evaluator_decision::{
-    get_release_evaluator_decision_signature_by_sha, release_evaluator_decision_signature_value,
+    get_release_evaluator_decision_signature_by_sha, release_evaluator_decision_dashboard_value,
     verify_release_evaluator_decision_signature,
 };
 use release_surfaces::{
@@ -3091,79 +3091,6 @@ async fn get_release_evaluator_decision_by_sha_cached(
     Ok(caching::cacheable_json_response(&etag, bytes))
 }
 
-async fn release_evaluator_decision_dashboard_value(
-    state: &AppState,
-) -> Result<serde_json::Value, AppError> {
-    let Some((entry, decision)) = latest_release_evaluator_decision_entry_value(state).await?
-    else {
-        return Ok(serde_json::json!({
-            "schema_version": RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA,
-            "state": "missing",
-            "next_action": "publish the Factory v3 evaluator-closer release decision artifact",
-            "latest": null,
-            "blockers": [],
-            "trust_boundary": trust_boundary(),
-            "links": release_evaluator_decision_links(),
-        }));
-    };
-    let decision_value = json_str(&decision, "decision").unwrap_or("missing");
-    let status = json_str(&decision, "status").unwrap_or("missing");
-    let blockers = decision
-        .get("blockers")
-        .cloned()
-        .unwrap_or_else(|| serde_json::json!([]));
-    let state_value = if status == "accepted" && decision_value == "accept_phase1_release_candidate"
-    {
-        "accepted"
-    } else if status == "rejected" || decision_value == "reject_phase1_release_candidate" {
-        "rejected"
-    } else {
-        "attention"
-    };
-    let signature = release_evaluator_decision_signature_value(state, &entry.sha256).await?;
-    let signature_verified = signature
-        .as_ref()
-        .and_then(|value| value.get("signature"))
-        .and_then(|value| value.get("signature_verified"))
-        .and_then(serde_json::Value::as_bool)
-        .unwrap_or(false);
-    // Whether the decision was signed by a pinned trust-anchor key.
-    // Defaults to false: a cryptographically-valid signature from an
-    // unpinned key is observer-only metadata, not an authoritative
-    // release acceptance.
-    let release_authoritative = signature
-        .as_ref()
-        .and_then(|value| value.get("signature"))
-        .and_then(|value| value.get("trust_policy"))
-        .and_then(|value| value.get("release_authoritative"))
-        .and_then(serde_json::Value::as_bool)
-        .unwrap_or(false);
-    Ok(serde_json::json!({
-        "schema_version": RELEASE_EVALUATOR_DECISION_DASHBOARD_SCHEMA,
-        "state": state_value,
-        "next_action": if state_value == "accepted" {
-            "observe final release publication and install/download health"
-        } else {
-            "resolve evaluator decision blockers before release-line handoff"
-        },
-        "latest": {
-            "sha256": entry.sha256,
-            "ingested_at": entry.ingested_at,
-            "status": status,
-            "decision": decision_value,
-            "release": decision.get("release").cloned().unwrap_or_else(|| serde_json::json!({})),
-            "raw_url": format!("/api/v1/release/evaluator-decision/{}", entry.sha256),
-            "signature_url": format!("/api/v1/release/evaluator-decision/{}/signature", entry.sha256),
-            "signature_verified": signature_verified,
-            "release_authoritative": release_authoritative,
-        },
-        "blockers": blockers,
-        "evidence": decision.get("evidence").cloned().unwrap_or_else(|| serde_json::json!({})),
-        "trust_boundary": trust_boundary(),
-        "links": release_evaluator_decision_links(),
-    }))
-}
-
 fn validate_release_publication(publication: &serde_json::Value) -> Result<(), AppError> {
     let schema = publication
         .get("schema")
@@ -3377,16 +3304,6 @@ fn release_publication_links() -> serde_json::Value {
         "latest_release_publication": "/api/v1/release/publication/latest",
         "phase1_promotion_dashboard": "/api/v1/phase1/promotion/dashboard",
         "storage_dashboard": "/api/v1/storage/dashboard",
-    })
-}
-
-fn release_evaluator_decision_links() -> serde_json::Value {
-    serde_json::json!({
-        "dashboard": "/api/v1/release/evaluator-decision/dashboard",
-        "dashboard_json": "/api/v1/release/evaluator-decision/dashboard.json",
-        "latest_release_evaluator_decision": "/api/v1/release/evaluator-decision/latest",
-        "release_cockpit": "/api/v1/release/cockpit",
-        "release_readiness": "/api/v1/release/readiness",
     })
 }
 
