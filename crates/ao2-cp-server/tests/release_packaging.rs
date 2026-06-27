@@ -28,13 +28,18 @@ fn read_release_publication_module_production(root: &Path) -> String {
         root.join("crates/ao2-cp-server/src/handlers/release_publication/release_surfaces.rs"),
     )
     .expect("release_publication/release_surfaces.rs present");
+    let evaluator_decision = fs::read_to_string(
+        root.join("crates/ao2-cp-server/src/handlers/release_publication/evaluator_decision.rs"),
+    )
+    .expect("release_publication/evaluator_decision.rs present");
 
     format!(
-        "{}\n{}\n{}\n{}",
+        "{}\n{}\n{}\n{}\n{}",
         production_source(&handler),
         production_source(&view),
         production_source(&support_bundle),
-        production_source(&release_surfaces)
+        production_source(&release_surfaces),
+        production_source(&evaluator_decision)
     )
 }
 
