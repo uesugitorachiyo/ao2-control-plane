@@ -998,3 +998,49 @@ def test_backup_restore_drill_negative_only_includes_malformed_restore_corpus(tm
         "non_string_manifest_schema",
         "unsafe_path_member",
     }
+
+
+def test_backup_restore_drill_negative_only_emits_acceptance_checklist(tmp_path):
+    report_path = tmp_path / "dr-restore-acceptance-checklist.json"
+    result = subprocess.run(
+        [
+            "python3",
+            str(REPO_ROOT / "scripts" / "cp_dr_restore_drill.py"),
+            "--negative-only",
+            "--work-dir",
+            str(tmp_path / "work"),
+            "--out",
+            str(report_path),
+        ],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    checklist = payload["restore_acceptance_checklist"]
+    assert checklist["schema_version"] == "ao2.cp-dr-restore-acceptance-checklist.v1"
+    assert checklist["status"] == "passed"
+    assert checklist["source_recommendation_rank"] == 25
+    assert checklist["source_recommendation_task"] == "Create backup restore acceptance checklist fixture"
+    assert checklist["observer_only"] is True
+    assert checklist["provider_calls_allowed"] is False
+    assert checklist["credential_use_allowed"] is False
+    assert checklist["release_or_publish_allowed"] is False
+    assert checklist["direct_main_mutation"] is False
+    assert checklist["rsi_remains_denied"] is True
+    gates = {item["name"]: item for item in checklist["gates"]}
+    assert set(gates) == {
+        "negative_restore_rejections",
+        "archive_compatibility_matrix",
+        "malformed_restore_corpus",
+        "token_redaction_boundary",
+        "observer_role_boundary",
+    }
+    assert {item["status"] for item in gates.values()} == {"passed"}
+    assert gates["negative_restore_rejections"]["evidence_ref"] == "negative_scenarios"
+    assert gates["archive_compatibility_matrix"]["evidence_ref"] == "compatibility_matrix"
+    assert gates["malformed_restore_corpus"]["evidence_ref"] == "malformed_restore_corpus"
