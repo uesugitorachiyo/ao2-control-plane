@@ -153,6 +153,56 @@ pub async fn storage_report(
     Ok(Json(report))
 }
 
+pub async fn storage_evidence_migration_report(
+    State(state): State<Arc<AppState>>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let entries = state
+        .storage
+        .index
+        .read_all()
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let planned_migrations: Vec<serde_json::Value> = entries
+        .iter()
+        .map(|entry| {
+            json!({
+                "sha256": entry.sha256,
+                "schema": entry.schema,
+                "status": entry.status,
+                "size_bytes": entry.size_bytes,
+                "ingested_at": entry.ingested_at,
+                "source_index": "index.jsonl",
+                "target_index": "index.v2.jsonl",
+                "migration_action": "copy_index_entry_to_shadow_index",
+                "mutates_evidence": false
+            })
+        })
+        .collect();
+
+    Ok(Json(json!({
+        "schema_version": "ao2.cp-evidence-migration-dry-run-report.v1",
+        "status": "ready",
+        "dry_run": true,
+        "source_index": "index.jsonl",
+        "target_index": "index.v2.jsonl",
+        "index_entries_seen": entries.len(),
+        "planned_migration_count": planned_migrations.len(),
+        "planned_migrations": planned_migrations,
+        "migration_steps": [
+            "read append-only index.jsonl",
+            "validate each resident evidence digest remains content-addressed",
+            "write a shadow index only in a future separately authorized migration",
+            "compare source and target counts before any activation"
+        ],
+        "mutates_evidence": false,
+        "provider_calls_allowed": false,
+        "credential_use_allowed": false,
+        "release_or_publish_allowed": false,
+        "claims_authority_advance": false,
+        "rsi_remains_denied": true
+    })))
+}
+
 pub async fn storage_support_bundle(
     State(state): State<Arc<AppState>>,
     Query(q): Query<StorageRetentionQuery>,
