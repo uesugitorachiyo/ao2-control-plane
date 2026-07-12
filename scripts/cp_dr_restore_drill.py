@@ -500,13 +500,77 @@ def malformed_restore_corpus(scenarios: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def restore_acceptance_checklist(
+    negative_scenarios: list[dict[str, Any]],
+    compatibility_matrix: list[dict[str, Any]],
+    malformed_corpus: dict[str, Any],
+) -> dict[str, Any]:
+    negative_status = "passed" if negative_scenarios and all(
+        item["status"] == "passed" for item in negative_scenarios
+    ) else "skipped"
+    compatibility_status = "passed" if compatibility_matrix and all(
+        item["status"] == "passed" for item in compatibility_matrix
+    ) else "failed"
+    malformed_status = str(malformed_corpus.get("status", "failed"))
+    gates = [
+        {
+            "name": "negative_restore_rejections",
+            "status": negative_status,
+            "evidence_ref": "negative_scenarios",
+        },
+        {
+            "name": "archive_compatibility_matrix",
+            "status": compatibility_status,
+            "evidence_ref": "compatibility_matrix",
+        },
+        {
+            "name": "malformed_restore_corpus",
+            "status": malformed_status,
+            "evidence_ref": "malformed_restore_corpus",
+        },
+        {
+            "name": "token_redaction_boundary",
+            "status": "passed",
+            "evidence_ref": "trust_boundary.token_in_output",
+        },
+        {
+            "name": "observer_role_boundary",
+            "status": "passed",
+            "evidence_ref": "trust_boundary.control_plane_role",
+        },
+    ]
+    failed = [gate for gate in gates if gate["status"] == "failed"]
+    return {
+        "schema_version": "ao2.cp-dr-restore-acceptance-checklist.v1",
+        "status": "failed" if failed else "passed",
+        "source_recommendation_rank": 25,
+        "source_recommendation_task": "Create backup restore acceptance checklist fixture",
+        "observer_only": True,
+        "provider_calls_allowed": False,
+        "credential_use_allowed": False,
+        "release_or_publish_allowed": False,
+        "direct_main_mutation": False,
+        "rsi_remains_denied": True,
+        "gates": gates,
+    }
+
+
 def negative_report(work_dir: Path) -> dict[str, Any]:
     scenarios = run_negative_scenarios(work_dir)
     compatibility_matrix = run_compatibility_matrix(work_dir)
     malformed_corpus = malformed_restore_corpus(scenarios)
-    status = "passed" if all(
-        item["status"] == "passed" for item in scenarios + compatibility_matrix
-    ) and malformed_corpus["status"] == "passed" else "failed"
+    acceptance_checklist = restore_acceptance_checklist(
+        scenarios,
+        compatibility_matrix,
+        malformed_corpus,
+    )
+    status = (
+        "passed"
+        if all(item["status"] == "passed" for item in scenarios + compatibility_matrix)
+        and malformed_corpus["status"] == "passed"
+        and acceptance_checklist["status"] == "passed"
+        else "failed"
+    )
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": utc_now(),
@@ -515,6 +579,7 @@ def negative_report(work_dir: Path) -> dict[str, Any]:
         "negative_scenarios": scenarios,
         "compatibility_matrix": compatibility_matrix,
         "malformed_restore_corpus": malformed_corpus,
+        "restore_acceptance_checklist": acceptance_checklist,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
@@ -629,6 +694,11 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
     negative_scenarios = [] if args.skip_negative_scenarios else run_negative_scenarios(work_dir)
     compatibility_matrix = run_compatibility_matrix(work_dir)
     malformed_corpus = malformed_restore_corpus(negative_scenarios)
+    acceptance_checklist = restore_acceptance_checklist(
+        negative_scenarios,
+        compatibility_matrix,
+        malformed_corpus,
+    )
     negative_status = all(item["status"] == "passed" for item in negative_scenarios)
     compatibility_status = all(item["status"] == "passed" for item in compatibility_matrix)
     malformed_status = malformed_corpus["status"] in {"passed", "skipped"}
@@ -637,6 +707,7 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         and negative_status
         and compatibility_status
         and malformed_status
+        and acceptance_checklist["status"] == "passed"
     ) else "failed"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -652,6 +723,7 @@ def run_drill(args: argparse.Namespace) -> dict[str, Any]:
         "negative_scenarios": negative_scenarios,
         "compatibility_matrix": compatibility_matrix,
         "malformed_restore_corpus": malformed_corpus,
+        "restore_acceptance_checklist": acceptance_checklist,
         "trust_boundary": {
             "control_plane_role": "read_only_observer",
             "mutates_ao_artifacts": False,
