@@ -118,6 +118,19 @@ removes only old `ao2-control-plane` bundle files and matching signature
 sidecars, then rewrites the local `index.jsonl` to remove the pruned observer
 copies. It does not reach into AO2 repositories or mutate AO2 run evidence.
 
+For migration planning, the control plane also exposes an authenticated dry-run
+report:
+
+```bash
+curl -H "Authorization: Bearer $AO2_CP_API_TOKEN" \
+  "http://127.0.0.1:8744/api/v1/storage/evidence-migration/report"
+```
+
+The report uses `ao2.cp-evidence-migration-dry-run-report.v1`, reads the
+append-only `index.jsonl`, and previews shadow-index migration work without
+writing a target index, mutating stored evidence, calling providers, using
+credentials, or granting release/publish authority.
+
 ## Provider Registry Observer
 
 The control plane can store AO2 provider/plugin registry snapshots as

@@ -1376,6 +1376,15 @@ pub const ROUTES: &[RouteMetadata] = &[
     },
     RouteMetadata {
         method: "GET",
+        path: "/api/v1/storage/evidence-migration/report",
+        category: "storage-observer",
+        owner: "ao2-control-plane observer",
+        download: false,
+        portable: true,
+        mutates_observer_storage: false,
+    },
+    RouteMetadata {
+        method: "GET",
         path: "/api/v1/storage/dashboard",
         category: "storage-observer",
         owner: "ao2-control-plane observer",

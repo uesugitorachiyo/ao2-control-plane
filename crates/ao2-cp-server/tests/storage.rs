@@ -128,6 +128,60 @@ async fn storage_report_is_authenticated_and_dry_run_only() {
 }
 
 #[tokio::test]
+async fn storage_evidence_migration_report_is_authenticated_and_dry_run_only() {
+    let (base, dir) = spawn_server().await;
+    let old_sha = "a".repeat(64);
+    let new_sha = "b".repeat(64);
+    seed_memory_export(&dir, &old_sha, 120).await;
+    seed_memory_export(&dir, &new_sha, 10).await;
+    let client = reqwest::Client::new();
+
+    let unauthorized = client
+        .get(format!("{base}/api/v1/storage/evidence-migration/report"))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(unauthorized.status(), 401);
+
+    let report = client
+        .get(format!("{base}/api/v1/storage/evidence-migration/report"))
+        .header("authorization", test_auth_header())
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(report.status(), 200);
+    let body: serde_json::Value = report.json().await.unwrap();
+    assert_eq!(
+        body["schema_version"],
+        "ao2.cp-evidence-migration-dry-run-report.v1"
+    );
+    assert_eq!(body["status"], "ready");
+    assert_eq!(body["dry_run"], true);
+    assert_eq!(body["source_index"], "index.jsonl");
+    assert_eq!(body["target_index"], "index.v2.jsonl");
+    assert_eq!(body["index_entries_seen"], 2);
+    assert_eq!(body["planned_migration_count"], 2);
+    assert_eq!(body["mutates_evidence"], false);
+    assert_eq!(body["provider_calls_allowed"], false);
+    assert_eq!(body["credential_use_allowed"], false);
+    assert_eq!(body["release_or_publish_allowed"], false);
+    assert_eq!(body["claims_authority_advance"], false);
+    assert_eq!(body["rsi_remains_denied"], true);
+    assert_eq!(body["planned_migrations"][0]["sha256"], old_sha);
+    assert_eq!(body["planned_migrations"][1]["sha256"], new_sha);
+    assert!(dir
+        .path()
+        .join("memory-export")
+        .join(format!("{old_sha}.json"))
+        .exists());
+    assert!(dir
+        .path()
+        .join("memory-export")
+        .join(format!("{new_sha}.json"))
+        .exists());
+}
+
+#[tokio::test]
 async fn storage_support_bundle_manifest_is_authenticated_read_only_and_token_free() {
     let (base, dir) = spawn_server().await;
     let old_sha = "3".repeat(64);

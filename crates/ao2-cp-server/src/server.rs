@@ -698,6 +698,10 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         )
         .route("/storage/report", get(handlers::storage::storage_report))
         .route(
+            "/storage/evidence-migration/report",
+            get(handlers::storage::storage_evidence_migration_report),
+        )
+        .route(
             "/storage/dashboard",
             get(handlers::storage::storage_dashboard),
         )
