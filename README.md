@@ -1,39 +1,5 @@
 # ao2-control-plane
 
-## Role
-
-AO2 Control Plane owns observer-only evidence ingest, indexed storage,
-verification, metrics, and read APIs. See [AO Architecture](https://github.com/uesugitorachiyo/ao-architecture)
-and the [canonical AO2 Control Plane component page](https://github.com/uesugitorachiyo/ao-architecture/blob/main/components/ao2-control-plane.md).
-
-## Maturity
-
-Late beta for single-node operation. Storage and observer APIs are `implemented`
-and `executable-tested`; migration, backup, and restore paths are
-`clean-room-rehearsed`.
-
-## Install
-
-```sh
-cargo build --workspace
-```
-
-## Quickstart
-
-```sh
-cargo run -p ao2-cp-server -- --help
-```
-
-## Safety
-
-Stored evidence never becomes approval, execution, release, or activation
-authority. This preflight does not inspect or change credentials or widen access.
-
-## External Beta
-
-External beta has not launched. No promotion is requested. RSI remains denied.
-Backup and migration evidence remains bounded rehearsal evidence.
-
 [![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14)
 
 Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
