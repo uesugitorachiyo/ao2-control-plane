@@ -38,6 +38,8 @@ if [[ ! -f "$AO2_CP_RELEASE_PUBLICATION" ]]; then
   exit 1
 fi
 
+mkdir -p "$AO2_CP_SMOKE_ROOT"
+AO2_CP_SMOKE_ROOT="$(cd "$AO2_CP_SMOKE_ROOT" && pwd)"
 extract="$AO2_CP_SMOKE_ROOT/extract"
 install_dir="$AO2_CP_SMOKE_ROOT/bin"
 data_dir="$AO2_CP_SMOKE_ROOT/data"

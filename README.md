@@ -94,8 +94,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.14 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.14-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.15 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.15-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -106,16 +106,22 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.14 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.14-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.15 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.15-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
 
-The archive contains `bin/ao2-cp-server` or `bin/ao2-cp-server.exe`, `install.sh`,
-`install.ps1`, `SHA256SUMS`, and `RELEASE-MANIFEST.json`. The manifest records
-the server binary SHA-256 plus the Python and PowerShell offline support-bundle
-verifier paths, SHA-256 values, and token-free commands. The smoke installs
+The archive contains both server and GC binaries; checked-in Unix and PowerShell
+install, rollback, and uninstall scripts; `ao2-control-plane.cdx.json` in
+CycloneDX 1.5 format; `SHA256SUMS`; and `RELEASE-MANIFEST.json`. Installation
+verifies both binaries before writes, stages on the destination filesystem,
+preserves both prior binaries, and emits an
+`ao2-control-plane.install-receipt.v1` receipt. Uninstall removes owned
+binaries and sidecars while preserving data and configuration by default. The
+manifest records the full lifecycle and SBOM contract plus the offline
+support-bundle verifier paths, SHA-256 values, and token-free commands. Every
+archive file except `SHA256SUMS` itself has a checksum entry. The smoke installs
 from the archive, starts the installed server, posts provider-pilot acceptance
 fixtures, and verifies the acceptance dashboard source-class counts. CI runs
 format, clippy, tests, packaging, and installed release smokes across Ubuntu,
@@ -564,18 +570,20 @@ Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
 `cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww`)
 spawn 500 concurrent HTTP requests and exhaust the default file-descriptor
-soft limit on Linux (1024) and macOS (256). Raise the soft limit before
-running the full workspace test suite on those platforms:
+soft limit on Linux (1024) and macOS (256). Use the supported full-suite
+launcher on every development platform:
 
 ```bash
-ulimit -n 65536 && cargo test --workspace
+python3 scripts/run-workspace-tests.py
 ```
 
 Failure mode without the raise is `Os { code: 24, kind: Uncategorized,
-message: "Too many open files" }` (EMFILE). Both Linux (hard cap
-1,048,576) and macOS (hard cap unlimited for most users) allow the soft
-limit raise without sudo. CI applies this same `ulimit` step automatically
-in `.github/workflows/ci.yml`. Windows does not need the raise.
+message: "Too many open files" }` (EMFILE). On POSIX, the launcher raises
+`RLIMIT_NOFILE` to at least 4096 before executing
+`cargo test --workspace --all-targets`; if the hard limit is below 4096, it
+fails with an actionable message instead of starting a predictably broken test
+run. On Windows it performs no resource-limit operation. CI routes its Unix
+full test through this launcher. The N=50/200/500 load tests are unchanged.
 
 ### Cross-OS smoke
 
