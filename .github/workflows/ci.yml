@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p target/ci-artifacts/python-guards
           set +e
-          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q \
+          PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py tests/test_release_qualification.py -q \
             2>&1 | tee target/ci-artifacts/python-guards/pytest.log
           status="${PIPESTATUS[0]}"
           set -e
@@ -95,7 +95,7 @@ jobs:
           payload = {
               "schema_version": "ao2.cp-python-guard-ci-artifacts.v1",
               "status": "passed" if status == 0 else "failed",
-              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q",
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tests/test_ao2_rsi_live_self_change_rehearsal_readback.py tests/test_ao2_rsi_control_surface_readback.py tests/test_ao_stack_rsi_chain_binding_readback.py tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py tests/test_release_qualification.py -q",
               "log": str(out / "pytest.log"),
           }
           (out / "summary.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -951,17 +951,16 @@ jobs:
       - uses: actions/checkout@v6.0.3
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      # Two release_publication tests spawn 500-concurrent HTTP bursts that
-      # exhaust the default file-descriptor soft limit on Linux (1024) and macOS
-      # (256). Raising the soft limit to 65536 stays well under both runner
-      # hard caps and does not need sudo. See README "Running tests" section.
+      # The launcher raises RLIMIT_NOFILE to at least 4096 on POSIX before the
+      # N=50/200/500 release-publication load tests and fails with hard-limit
+      # guidance when that is impossible. See README "Running tests".
       - name: Test (Unix)
         if: runner.os != 'Windows'
         shell: bash
-        run: ulimit -n 65536 && cargo test --workspace
+        run: python3 scripts/run-workspace-tests.py
       - name: Test (Windows)
         if: runner.os == 'Windows'
-        run: cargo test --workspace
+        run: cargo test --workspace --all-targets
 
   risky-pr-golden-bridge-smoke:
     name: Risky PR golden bridge smoke (${{ matrix.name }})
@@ -1204,19 +1203,19 @@ jobs:
             os: ubuntu-latest
             target_label: linux-x86_64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.14-linux-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.15-linux-x86_64.tar.gz
             shell: bash
           - name: macos-aarch64
             os: macos-latest
             target_label: macos-aarch64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.14-macos-aarch64.tar.gz
+            archive: dist/ao2-control-plane-0.1.15-macos-aarch64.tar.gz
             shell: bash
           - name: windows-x86_64
             os: windows-latest
             target_label: windows-x86_64
             binary: target/release/ao2-cp-server.exe
-            archive: dist/ao2-control-plane-0.1.14-windows-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.15-windows-x86_64.tar.gz
             shell: pwsh
     steps:
       - uses: actions/checkout@v6.0.3
@@ -1229,7 +1228,7 @@ jobs:
         run: |
           scripts/package-local.sh \
             --out-dir dist \
-            --version 0.1.14 \
+            --version 0.1.15 \
             --binary "${{ matrix.binary }}" \
             --target-label "${{ matrix.target_label }}"
       - name: Check release archive license files

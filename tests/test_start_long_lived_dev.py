@@ -44,7 +44,7 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
 
     for target_label in ["linux-x86_64", "macos-aarch64", "windows-x86_64"]:
         assert f"target_label: {target_label}" in ci
-        assert f"dist/ao2-control-plane-0.1.14-{target_label}.tar.gz" in ci
+        assert f"dist/ao2-control-plane-0.1.15-{target_label}.tar.gz" in ci
 
     for needle in [
         "Upload release archive artifact",
@@ -794,7 +794,7 @@ def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
 
     assert "Python guard tests" in ci
     assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest" in ci
-    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py -q" in ci
+    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py tests/test_release_qualification.py -q" in ci
     assert "AO2_CP_LONG_LIVED_SMOKE_LIVE" in script
     assert "live_restart_readiness" in script
     assert "/readyz" in script

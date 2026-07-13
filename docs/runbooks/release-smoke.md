@@ -78,6 +78,27 @@ hosted artifact as the control-plane counterpart to AO2's release-publication
 closure evidence when checking whether both repositories have public,
 downloadable, checksum-valid release assets.
 
+### Archive lifecycle qualification
+
+Release archives ship checked-in `install`, `rollback`, and `uninstall` scripts
+for Unix and PowerShell. Install verifies both `ao2-cp-server` and `ao2-cp-gc`
+against `SHA256SUMS` before any destination write, stages both binaries on the
+destination filesystem, and preserves both previous binaries as sidecars. A
+failure restores the pair; a successful transaction writes
+`ao2-control-plane.install-receipt.json` with schema
+`ao2-control-plane.install-receipt.v1`. Run the packaged rollback script to
+restore the pair from that receipt. Run the packaged uninstall script to remove
+owned binaries and sidecars; data and configuration are preserved by default.
+
+The archive also ships `ao2-control-plane.cdx.json`, a deterministic CycloneDX
+1.5 SBOM generated directly from `Cargo.lock`. `RELEASE-MANIFEST.json` records
+the SBOM and lifecycle contract, and `SHA256SUMS` covers every archive file
+except the checksum file itself. For local qualification, build both binaries,
+run `scripts/package-local.sh`, extract the archive into a temporary directory,
+then exercise install, update, and rollback with `AO2_CP_INSTALL_DIR` pointed at
+a separate temporary destination. Do not use a live service installation for
+this rehearsal.
+
 `Post Release Verification` in
 `.github/workflows/post-release-verification.yml` can be dispatched manually and
 also runs weekly. It runs the same read-only release verifier on Ubuntu, macOS,

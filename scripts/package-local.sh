@@ -2,7 +2,7 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-VERSION="0.1.14"
+VERSION="0.1.15"
 OUT_DIR="$ROOT/dist"
 BINARY="$ROOT/target/release/ao2-cp-server"
 TARGET_LABEL=""
@@ -54,6 +54,15 @@ if [ ! -f "$BINARY" ]; then
   exit 1
 fi
 
+compiled_version=$(
+  "$BINARY" --version 2>/dev/null | tr -d '\r' || true
+)
+expected_version="ao2-cp-server $VERSION"
+if [ "$compiled_version" != "$expected_version" ]; then
+  echo "compiled binary version '$compiled_version' does not match requested package version '$expected_version'" >&2
+  exit 1
+fi
+
 case "$TARGET_LABEL" in
   *windows*) BINARY_NAME="ao2-cp-server.exe" ;;
   *) BINARY_NAME="ao2-cp-server" ;;
@@ -99,42 +108,40 @@ cp "$ROOT/scripts/verify_release_support_bundle.py" "$STAGE/verify_release_suppo
 cp "$ROOT/scripts/Verify-ReleaseSupportBundle.ps1" "$STAGE/Verify-ReleaseSupportBundle.ps1"
 cp "$ROOT/scripts/fetch_release_support_handoff.py" "$STAGE/fetch_release_support_handoff.py"
 cp "$ROOT/scripts/Fetch-ReleaseSupportHandoff.ps1" "$STAGE/Fetch-ReleaseSupportHandoff.ps1"
+cp "$ROOT/scripts/release/install.sh" "$STAGE/install.sh"
+cp "$ROOT/scripts/release/install.ps1" "$STAGE/install.ps1"
+cp "$ROOT/scripts/release/rollback.sh" "$STAGE/rollback.sh"
+cp "$ROOT/scripts/release/rollback.ps1" "$STAGE/rollback.ps1"
+cp "$ROOT/scripts/release/uninstall.sh" "$STAGE/uninstall.sh"
+cp "$ROOT/scripts/release/uninstall.ps1" "$STAGE/uninstall.ps1"
 cp "$ROOT/LICENSE" "$STAGE/LICENSE"
 cp "$ROOT/NOTICE" "$STAGE/NOTICE"
+python3 "$ROOT/scripts/generate_cargo_lock_sbom.py" \
+  --lockfile "$ROOT/Cargo.lock" \
+  --output "$STAGE/ao2-control-plane.cdx.json"
 chmod 755 "$STAGE/bin/$BINARY_NAME" 2>/dev/null || true
 chmod 755 "$STAGE/bin/$GC_BINARY_NAME" 2>/dev/null || true
 chmod 755 "$STAGE/verify_release_support_bundle.py" 2>/dev/null || true
 chmod 755 "$STAGE/fetch_release_support_handoff.py" 2>/dev/null || true
+chmod 755 "$STAGE/install.sh" "$STAGE/rollback.sh" "$STAGE/uninstall.sh"
 
-if command -v sha256sum >/dev/null 2>&1; then
-  binary_sha=$(sha256sum "$STAGE/bin/$BINARY_NAME" | awk '{ print $1 }')
-  gc_binary_sha=$(sha256sum "$STAGE/bin/$GC_BINARY_NAME" | awk '{ print $1 }')
-  py_verifier_sha=$(sha256sum "$STAGE/verify_release_support_bundle.py" | awk '{ print $1 }')
-  ps_verifier_sha=$(sha256sum "$STAGE/Verify-ReleaseSupportBundle.ps1" | awk '{ print $1 }')
-  fetch_handoff_sha=$(sha256sum "$STAGE/fetch_release_support_handoff.py" | awk '{ print $1 }')
-  ps_fetch_handoff_sha=$(sha256sum "$STAGE/Fetch-ReleaseSupportHandoff.ps1" | awk '{ print $1 }')
-  license_sha=$(sha256sum "$STAGE/LICENSE" | awk '{ print $1 }')
-  notice_sha=$(sha256sum "$STAGE/NOTICE" | awk '{ print $1 }')
-else
-  binary_sha=$(shasum -a 256 "$STAGE/bin/$BINARY_NAME" | awk '{ print $1 }')
-  gc_binary_sha=$(shasum -a 256 "$STAGE/bin/$GC_BINARY_NAME" | awk '{ print $1 }')
-  py_verifier_sha=$(shasum -a 256 "$STAGE/verify_release_support_bundle.py" | awk '{ print $1 }')
-  ps_verifier_sha=$(shasum -a 256 "$STAGE/Verify-ReleaseSupportBundle.ps1" | awk '{ print $1 }')
-  fetch_handoff_sha=$(shasum -a 256 "$STAGE/fetch_release_support_handoff.py" | awk '{ print $1 }')
-  ps_fetch_handoff_sha=$(shasum -a 256 "$STAGE/Fetch-ReleaseSupportHandoff.ps1" | awk '{ print $1 }')
-  license_sha=$(shasum -a 256 "$STAGE/LICENSE" | awk '{ print $1 }')
-  notice_sha=$(shasum -a 256 "$STAGE/NOTICE" | awk '{ print $1 }')
-fi
-printf "%s  bin/%s\n" "$binary_sha" "$BINARY_NAME" > "$STAGE/SHA256SUMS"
-printf "%s  bin/%s\n" "$gc_binary_sha" "$GC_BINARY_NAME" >> "$STAGE/SHA256SUMS"
-printf "%s  verify_release_support_bundle.py\n" "$py_verifier_sha" >> "$STAGE/SHA256SUMS"
-printf "%s  Verify-ReleaseSupportBundle.ps1\n" "$ps_verifier_sha" >> "$STAGE/SHA256SUMS"
-printf "%s  fetch_release_support_handoff.py\n" "$fetch_handoff_sha" >> "$STAGE/SHA256SUMS"
-printf "%s  Fetch-ReleaseSupportHandoff.ps1\n" "$ps_fetch_handoff_sha" >> "$STAGE/SHA256SUMS"
-printf "%s  LICENSE\n" "$license_sha" >> "$STAGE/SHA256SUMS"
-printf "%s  NOTICE\n" "$notice_sha" >> "$STAGE/SHA256SUMS"
+sha256_file() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{ print $1 }'
+  else
+    shasum -a 256 "$1" | awk '{ print $1 }'
+  fi
+}
 
-python3 - "$STAGE/RELEASE-MANIFEST.json" "$VERSION" "$TARGET_LABEL" "$BINARY_NAME" "$binary_sha" "$py_verifier_sha" "$ps_verifier_sha" "$fetch_handoff_sha" "$ps_fetch_handoff_sha" "$GC_BINARY_NAME" "$gc_binary_sha" <<'PY'
+binary_sha=$(sha256_file "$STAGE/bin/$BINARY_NAME")
+gc_binary_sha=$(sha256_file "$STAGE/bin/$GC_BINARY_NAME")
+py_verifier_sha=$(sha256_file "$STAGE/verify_release_support_bundle.py")
+ps_verifier_sha=$(sha256_file "$STAGE/Verify-ReleaseSupportBundle.ps1")
+fetch_handoff_sha=$(sha256_file "$STAGE/fetch_release_support_handoff.py")
+ps_fetch_handoff_sha=$(sha256_file "$STAGE/Fetch-ReleaseSupportHandoff.ps1")
+sbom_sha=$(sha256_file "$STAGE/ao2-control-plane.cdx.json")
+
+python3 - "$STAGE/RELEASE-MANIFEST.json" "$VERSION" "$TARGET_LABEL" "$BINARY_NAME" "$binary_sha" "$py_verifier_sha" "$ps_verifier_sha" "$fetch_handoff_sha" "$ps_fetch_handoff_sha" "$GC_BINARY_NAME" "$gc_binary_sha" "$sbom_sha" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -149,6 +156,26 @@ manifest = {
     "binary_sha256": sys.argv[5],
     "legal_files": ["LICENSE", "NOTICE"],
     "server": "ao2-cp-server",
+    "sbom": {
+        "path": "ao2-control-plane.cdx.json",
+        "format": "CycloneDX",
+        "spec_version": "1.5",
+        "sha256": sys.argv[12],
+        "source": "Cargo.lock",
+    },
+    "lifecycle": {
+        "receipt_schema": "ao2-control-plane.install-receipt.v1",
+        "scripts": {
+            "install.sh": "install.sh",
+            "install.ps1": "install.ps1",
+            "rollback.sh": "rollback.sh",
+            "rollback.ps1": "rollback.ps1",
+            "uninstall.sh": "uninstall.sh",
+            "uninstall.ps1": "uninstall.ps1",
+        },
+        "transaction_scope": ["ao2-cp-server", "ao2-cp-gc"],
+        "uninstall_preserves_data_and_config_by_default": True,
+    },
     "operator_tools": {
         "gc": {
             "binary": sys.argv[10],
@@ -214,111 +241,6 @@ manifest = {
 Path(sys.argv[1]).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
-cat > "$STAGE/install.sh" <<'SH'
-#!/usr/bin/env sh
-set -eu
-
-cd "$(dirname -- "$0")"
-
-INSTALL_DIR="${AO2_CP_INSTALL_DIR:-${AO2_INSTALL_DIR:-$HOME/.local/bin}}"
-BINARY_NAME="ao2-cp-server"
-mkdir -p "$INSTALL_DIR"
-
-expected=$(awk '$2 == "bin/ao2-cp-server" { print $1 }' SHA256SUMS)
-if [ -z "$expected" ]; then
-  echo "missing checksum for bin/ao2-cp-server" >&2
-  exit 1
-fi
-if command -v sha256sum >/dev/null 2>&1; then
-  actual=$(sha256sum "bin/$BINARY_NAME" | awk '{ print $1 }')
-else
-  actual=$(shasum -a 256 "bin/$BINARY_NAME" | awk '{ print $1 }')
-fi
-if [ "$actual" != "$expected" ]; then
-  echo "checksum mismatch for bin/$BINARY_NAME" >&2
-  exit 1
-fi
-
-cp "bin/$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
-chmod 755 "$INSTALL_DIR/$BINARY_NAME"
-printf "ao2_control_plane_installed=%s\n" "$INSTALL_DIR/$BINARY_NAME"
-
-# ao2-cp-gc — operator-facing retention pruner.
-GC_BINARY_NAME="ao2-cp-gc"
-gc_expected=$(awk '$2 == "bin/ao2-cp-gc" { print $1 }' SHA256SUMS)
-if [ -z "$gc_expected" ]; then
-  echo "missing checksum for bin/ao2-cp-gc" >&2
-  exit 1
-fi
-if command -v sha256sum >/dev/null 2>&1; then
-  gc_actual=$(sha256sum "bin/$GC_BINARY_NAME" | awk '{ print $1 }')
-else
-  gc_actual=$(shasum -a 256 "bin/$GC_BINARY_NAME" | awk '{ print $1 }')
-fi
-if [ "$gc_actual" != "$gc_expected" ]; then
-  echo "checksum mismatch for bin/$GC_BINARY_NAME" >&2
-  exit 1
-fi
-
-cp "bin/$GC_BINARY_NAME" "$INSTALL_DIR/$GC_BINARY_NAME"
-chmod 755 "$INSTALL_DIR/$GC_BINARY_NAME"
-printf "ao2_control_plane_gc_installed=%s\n" "$INSTALL_DIR/$GC_BINARY_NAME"
-SH
-chmod 755 "$STAGE/install.sh"
-
-cat > "$STAGE/install.ps1" <<'PS1'
-$ErrorActionPreference = "Stop"
-
-Set-Location -LiteralPath $PSScriptRoot
-
-$InstallDir = if ($env:AO2_CP_INSTALL_DIR) {
-    $env:AO2_CP_INSTALL_DIR
-} elseif ($env:AO2_INSTALL_DIR) {
-    $env:AO2_INSTALL_DIR
-} else {
-    Join-Path $env:USERPROFILE ".local\bin"
-}
-$BinaryName = "ao2-cp-server.exe"
-$Source = Join-Path "bin" $BinaryName
-
-if (!(Test-Path $Source)) {
-    throw "missing packaged binary: $Source"
-}
-
-$Expected = (Get-Content SHA256SUMS | Where-Object { $_ -match "bin/ao2-cp-server.exe$" } | ForEach-Object { ($_ -split "\s+")[0] } | Select-Object -First 1)
-if (!$Expected) {
-    throw "missing checksum for bin/ao2-cp-server.exe"
-}
-$Actual = (Get-FileHash -Algorithm SHA256 $Source).Hash.ToLowerInvariant()
-if ($Actual -ne $Expected.ToLowerInvariant()) {
-    throw "checksum mismatch for bin/ao2-cp-server.exe"
-}
-
-New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-Copy-Item -Force $Source (Join-Path $InstallDir $BinaryName)
-Write-Output "ao2_control_plane_installed=$(Join-Path $InstallDir $BinaryName)"
-
-# ao2-cp-gc — operator-facing retention pruner.
-$GcBinaryName = "ao2-cp-gc.exe"
-$GcSource = Join-Path "bin" $GcBinaryName
-
-if (!(Test-Path $GcSource)) {
-    throw "missing packaged binary: $GcSource"
-}
-
-$GcExpected = (Get-Content SHA256SUMS | Where-Object { $_ -match "bin/ao2-cp-gc.exe$" } | ForEach-Object { ($_ -split "\s+")[0] } | Select-Object -First 1)
-if (!$GcExpected) {
-    throw "missing checksum for bin/ao2-cp-gc.exe"
-}
-$GcActual = (Get-FileHash -Algorithm SHA256 $GcSource).Hash.ToLowerInvariant()
-if ($GcActual -ne $GcExpected.ToLowerInvariant()) {
-    throw "checksum mismatch for bin/ao2-cp-gc.exe"
-}
-
-Copy-Item -Force $GcSource (Join-Path $InstallDir $GcBinaryName)
-Write-Output "ao2_control_plane_gc_installed=$(Join-Path $InstallDir $GcBinaryName)"
-PS1
-
 cat > "$STAGE/README.txt" <<'TXT'
 ao2-control-plane release archive
 
@@ -331,6 +253,16 @@ Unix install:
 Windows install:
   $env:AO2_CP_INSTALL_DIR="$env:USERPROFILE\.local\bin"
   powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+Rollback the most recent install/update transaction with `rollback.sh` or
+`rollback.ps1`. Uninstall with `uninstall.sh` or `uninstall.ps1`; uninstall
+removes installer-owned binaries and sidecars while preserving data and config.
+The machine-readable transaction journal is
+`ao2-control-plane.install-receipt.json` with schema
+`ao2-control-plane.install-receipt.v1`.
+
+Software bill of materials:
+  ao2-control-plane.cdx.json (CycloneDX 1.5, generated from Cargo.lock)
 
 Offline release support-bundle fetch and verification:
   export AO2_CP_AUTH_VALUE="Bearer $AO2_CP_API_TOKEN"
@@ -535,8 +467,14 @@ Audit-log rotation budget (Lanes UU, VV, XX, ZZ)
     pointer).
 TXT
 
+: > "$STAGE/SHA256SUMS"
+(cd "$STAGE" && find . -type f ! -name SHA256SUMS | LC_ALL=C sort) | while IFS= read -r relative; do
+  name=${relative#./}
+  printf "%s  %s\n" "$(sha256_file "$STAGE/$name")" "$name" >> "$STAGE/SHA256SUMS"
+done
+
 ARCHIVE="$OUT_DIR/ao2-control-plane-$VERSION-$TARGET_LABEL.tar.gz"
-(cd "$STAGE" && tar -czf "$ARCHIVE" bin install.sh install.ps1 verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt LICENSE NOTICE)
+(cd "$STAGE" && tar -czf "$ARCHIVE" bin install.sh install.ps1 rollback.sh rollback.ps1 uninstall.sh uninstall.ps1 ao2-control-plane.cdx.json verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt LICENSE NOTICE)
 if command -v sha256sum >/dev/null 2>&1; then
   archive_sha=$(sha256sum "$ARCHIVE" | awk '{ print $1 }')
 else
