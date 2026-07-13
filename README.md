@@ -1,6 +1,6 @@
 # ao2-control-plane
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15)
 
 AO2 Control Plane is the observer service for completed AO2 evidence. It verifies signed bundles, stores content-addressed records, and exposes authenticated read APIs and dashboards without participating in execution. Use it when operators need durable evidence history, integrity checks, searchable readback, backup and restore, or a browser view of completed runs.
 
@@ -130,17 +130,17 @@ macOS, and Windows.
 ## Install From Public Release
 
 The current public release is
-[`v0.1.14`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14).
+[`v0.1.15`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15).
 It publishes Linux, macOS, and Windows archives plus token-free promotion
 summary evidence. Download and verify it with:
 
 ```bash
 mkdir -p dist-release
-gh release download v0.1.14 --repo uesugitorachiyo/ao2-control-plane \
-  --pattern ao2-control-plane-0.1.14-macos-aarch64.tar.gz \
+gh release download v0.1.15 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.15-macos-aarch64.tar.gz \
   --pattern SHA256SUMS \
   --dir dist-release
-(cd dist-release && grep 'ao2-control-plane-0.1.14-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+(cd dist-release && grep 'ao2-control-plane-0.1.15-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
 Or run the repository verifier, which downloads all published prerelease assets
