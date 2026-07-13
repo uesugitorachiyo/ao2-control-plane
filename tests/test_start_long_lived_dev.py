@@ -57,15 +57,15 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
         assert needle in ci
 
 
-def test_readme_links_current_prerelease_and_release_archive_artifacts():
+def test_readme_links_current_release_and_release_archive_artifacts():
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
     for needle in [
-        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14",
+        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
         "img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane",
-        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14",
-        "gh release download v0.1.14 --repo uesugitorachiyo/ao2-control-plane",
-        "ao2-control-plane-0.1.14-macos-aarch64.tar.gz",
+        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
+        "gh release download v0.1.15 --repo uesugitorachiyo/ao2-control-plane",
+        "ao2-control-plane-0.1.15-macos-aarch64.tar.gz",
         "https://github.com/uesugitorachiyo/ao2-control-plane/actions",
         "ao2-control-plane-release-archive-linux-x86_64",
         "ao2-control-plane-release-archive-macos-aarch64",
