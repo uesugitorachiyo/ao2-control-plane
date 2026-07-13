@@ -2,17 +2,21 @@
 
 [![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.14)
 
-Optional server layer for AO2 evidence ingest. Receives signed acceptance bundles, control-plane bundles, AO2 memory exports, and signed AO2 evidence packs from local `ao2` CLIs, stores them as content-addressed flat files, and exposes authenticated read APIs.
+AO2 Control Plane is the observer service for completed AO2 evidence. It verifies signed bundles, stores content-addressed records, and exposes authenticated read APIs and dashboards without participating in execution. Use it when operators need durable evidence history, integrity checks, searchable readback, backup and restore, or a browser view of completed runs.
 
-This server is an observer: it does not approve AO2 runs, execute providers, or own evaluator closure.
+## How it fits in AO
 
-## AO Stack Architecture
+- **Primary responsibility:** Observer-only evidence storage and read APIs.
+- **Inputs:** Signed AO2 evidence packs, acceptance bundles, control-plane bundles, and AO2 memory exports.
+- **Outputs:** Verified content-addressed records, authenticated APIs, dashboards, audit logs, and retention or recovery reports.
+- **Upstream:** AO2.
+- **Downstream:** AO Command and operators inspecting completed run evidence.
 
-This repository is part of the AO agent orchestration stack. Start with the
-central architecture guide at
-[uesugitorachiyo/ao-architecture](https://github.com/uesugitorachiyo/ao-architecture);
-the ao2-control-plane-specific architecture page is
-[ao2-control-plane](https://github.com/uesugitorachiyo/ao-architecture/tree/main/ao2-control-plane).
+See the
+[AO Architecture guide](https://github.com/uesugitorachiyo/ao-architecture)
+and the
+[AO2 Control Plane component page](https://github.com/uesugitorachiyo/ao-architecture/blob/main/components/ao2-control-plane.md)
+for the cross-repository flow.
 
 ## Successor Boundary
 
@@ -63,32 +67,6 @@ local run directories:
 - Which gates need attention?
 - Is the stored evidence still digest-valid?
 - Can the evidence archive be restored and verified later?
-
-## Operations Cockpit Direction
-
-The current UI is intentionally read-only. The next product direction is an
-AO2 operations cockpit built from real evidence rather than manually maintained
-task cards.
-
-The intended cockpit surfaces are:
-
-- a live run timeline for AO2 and Pulse activity;
-- an overnight Pulse report summarizing completed iterations, failures,
-  generated tasks, and publish attempts;
-- a gate-attention inbox for failed, rejected, unsigned, unverified, or missing
-  evidence;
-- a release-readiness board for AO2 and `ao2-control-plane` CI, smoke, artifact,
-  and ship/no-ship status;
-- an evidence-backed process board where cards come from AO2 packets, run
-  summaries, and gate results.
-
-This is different from a generic Kanban board: the useful unit is not a manual
-task note, but a card backed by evidence that can be opened, verified, and
-audited.
-
-## License
-
-`ao2-control-plane` is licensed under `Apache-2.0`. See `LICENSE`.
 
 ## Quickstart
 
