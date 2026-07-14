@@ -54,7 +54,7 @@ versions before downloading individual GitHub Actions artifacts.
 ## Control-plane release publication closure
 
 Use `scripts/release-download-verify.sh` to verify the public
-`ao2-control-plane` prerelease without mutating GitHub releases or AO2
+`ao2-control-plane` release without mutating GitHub releases or AO2
 artifacts. The script downloads the configured release tag, verifies every asset
 listed in `SHA256SUMS`, and can emit a token-free closure summary:
 
@@ -141,10 +141,10 @@ hashes by hand:
 
 ```sh
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.14 \
-  --tag v0.1.14 \
+  --version 0.1.15 \
+  --tag v0.1.15 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.14-notes.md
+  --output docs/releases/v0.1.15-notes.md
 ```
 
 Expected output is `control_plane_release_asset_parity=passed` for a complete
@@ -177,7 +177,7 @@ scripts/public_release_pair_verify.py \
 Expected output includes
 `control_plane_public_release_pair_verification=passed`. The summary schema is
 `ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.81`,
-control-plane `v0.1.14`, their common Linux x86_64, macOS aarch64, and Windows
+control-plane `v0.1.15`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
 promotion summary evidence, checksum coverage for `summary.json`, and a
 read-only trust boundary. Use `--strict` in release-promotion or stable-channel
@@ -219,7 +219,7 @@ python3 scripts/verify_post_release_baseline.py \
   --branch main \
   --workflow "Post Release Verification" \
   --head-sha "$(git rev-parse origin/main)" \
-  --out-json target/release-promotion/v0.1.14/post-release-baseline.json
+  --out-json target/release-promotion/v0.1.15/post-release-baseline.json
 ```
 
 Expected output is `post_release_verification_baseline=passed`. This check

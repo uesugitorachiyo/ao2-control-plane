@@ -66,7 +66,7 @@ def ao2_assets():
 
 
 def control_plane_assets():
-    version = "0.1.14"
+    version = "0.1.15"
     return [
         "SHA256SUMS",
         f"ao2-control-plane-{version}-linux-x86_64.tar.gz",
@@ -83,13 +83,13 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
     assert manifest["stable"]["ao2"] == {"tag": "v0.4.81", "version": "0.4.81"}
     assert manifest["stable"]["ao2_control_plane"] == {
-        "tag": "v0.1.14",
-        "version": "0.1.14",
+        "tag": "v0.1.15",
+        "version": "0.1.15",
     }
     assert manifest["next_patch"]["ao2"] == {"tag": "v0.4.81", "version": "0.4.81"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
-        "tag": "v0.1.14",
-        "version": "0.1.14",
+        "tag": "v0.1.15",
+        "version": "0.1.15",
     }
 
     spec = importlib.util.spec_from_file_location("public_release_pair_verify", SCRIPT)
@@ -121,8 +121,8 @@ def run_pair_verify(tmp_path, *, ao2_release_assets=None, cp_checksum_assets=Non
     write_release_view(
         cp_view,
         "uesugitorachiyo/ao2-control-plane",
-        "v0.1.14",
-        "ao2-control-plane v0.1.14",
+        "v0.1.15",
+        "ao2-control-plane v0.1.15",
         cp_release_assets,
     )
     write_checksums(cp_checksums, cp_checksum_assets)
@@ -165,7 +165,7 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1"
     assert summary["status"] == "passed"
     assert summary["ao2"]["release_tag"] == "v0.4.81"
-    assert summary["control_plane"]["release_tag"] == "v0.1.14"
+    assert summary["control_plane"]["release_tag"] == "v0.1.15"
     assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
     assert summary["ao2"]["extra_platforms"] == ["linux-aarch64"]
     assert summary["gaps"] == []
@@ -227,7 +227,7 @@ def test_public_release_pair_verify_is_documented_executable_and_in_ci():
     for needle in [
         "ao2.cp-public-release-pair-verification.v1",
         "ao2-release-provenance.json.sig",
-        "ao2-control-plane-0.1.14-windows-x86_64.tar.gz",
+        "ao2-control-plane-0.1.15-windows-x86_64.tar.gz",
         "control_plane_approves_release",
         "mutates_github_releases",
         "credential_material_included",

@@ -18,7 +18,7 @@ RELEASE_TRAIN_MANIFEST = REPO_ROOT / "docs/release/release-train.json"
 DEFAULT_OUTPUT_ROOT = Path("target/public-release-pair-verification")
 PLATFORM_ORDER = ["linux-x86_64", "linux-aarch64", "macos-aarch64", "windows-x86_64"]
 # Current default control-plane Windows archive contract:
-# ao2-control-plane-0.1.14-windows-x86_64.tar.gz
+# ao2-control-plane-0.1.15-windows-x86_64.tar.gz
 
 
 def load_release_train_manifest(path: Path = RELEASE_TRAIN_MANIFEST) -> dict:

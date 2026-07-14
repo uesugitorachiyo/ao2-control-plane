@@ -10,16 +10,17 @@ def workflow_text():
     return WORKFLOW.read_text(encoding="utf-8")
 
 
-def test_release_promotion_workflow_is_manual_dry_run_by_default():
+def test_release_promotion_workflow_requires_explicit_version_and_tag_and_defaults_to_dry_run():
     workflow = workflow_text()
 
     for needle in [
         "name: Release Promotion",
         "workflow_dispatch:",
         "version:",
-            "default: 0.1.14",
+        "description: ao2-control-plane package version to promote.",
         "tag:",
-            "default: v0.1.14",
+        "description: GitHub release tag to prepare or publish.",
+        "required: true",
         "dry_run:",
         "default: true",
         "permissions:",
@@ -30,6 +31,10 @@ def test_release_promotion_workflow_is_manual_dry_run_by_default():
     ]:
         assert needle in workflow
 
+    version_input = workflow.split("      version:\n", 1)[1].split("      tag:\n", 1)[0]
+    tag_input = workflow.split("      tag:\n", 1)[1].split("      dry_run:\n", 1)[0]
+    assert "default:" not in version_input
+    assert "default:" not in tag_input
     assert "actions/download-artifact@v7.0.1" not in workflow
 
 
@@ -171,7 +176,7 @@ def test_release_promotion_is_documented_and_guarded_in_ci():
         "ao2-control-plane-release-promotion-plan",
         "ao2.cp-release-promotion-plan.v1",
         "dry_run",
-        "v0.1.14",
+        "explicit version and tag inputs",
         "Linux x86_64, macOS aarch64, and Windows x86_64",
         "Post Release Verification",
         "ao2.cp-post-release-verification-baseline.v1",
