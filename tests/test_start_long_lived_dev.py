@@ -75,7 +75,7 @@ def test_readme_links_current_release_and_release_archive_artifacts():
         assert needle in readme
 
 
-def test_release_download_verify_checks_public_prerelease_checksums():
+def test_release_download_verify_checks_public_release_checksums():
     script = REPO_ROOT / "scripts" / "release-download-verify.sh"
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
@@ -87,7 +87,7 @@ def test_release_download_verify_checks_public_prerelease_checksums():
         "AO2_CP_RELEASE_REPO",
         "uesugitorachiyo/ao2-control-plane",
         "AO2_CP_RELEASE_TAG",
-        "v0.1.14",
+        "v0.1.15",
         "gh release download",
         "SHA256SUMS",
         "ao2-control-plane-*.tar.gz",
@@ -106,7 +106,7 @@ def test_release_download_verify_checks_public_prerelease_checksums():
 def test_release_download_verify_can_emit_token_free_publication_closure_summary(tmp_path):
     release_dir = tmp_path / "release-download"
     release_dir.mkdir()
-    artifact = release_dir / "ao2-control-plane-0.1.14-linux-x86_64.tar.gz"
+    artifact = release_dir / "ao2-control-plane-0.1.15-linux-x86_64.tar.gz"
     artifact.write_text("fake archive bytes\n", encoding="utf-8")
     digest = subprocess.check_output(
         ["shasum", "-a", "256", artifact.name],
@@ -138,13 +138,13 @@ def test_release_download_verify_can_emit_token_free_publication_closure_summary
     assert payload["schema_version"] == "ao2.cp-release-publication-closure.v1"
     assert payload["status"] == "passed"
     assert payload["release_repo"] == "uesugitorachiyo/ao2-control-plane"
-    assert payload["release_tag"] == "v0.1.14"
+    assert payload["release_tag"] == "v0.1.15"
     assert payload["download_dir"] == str(release_dir)
     assert payload["checksum_manifest"] == str(release_dir / "SHA256SUMS")
     assert payload["checksum_verified"] is True
     assert {asset["name"] for asset in payload["assets"]} == {
         "SHA256SUMS",
-        "ao2-control-plane-0.1.14-linux-x86_64.tar.gz",
+        "ao2-control-plane-0.1.15-linux-x86_64.tar.gz",
     }
     for asset in payload["assets"]:
         assert re.fullmatch(r"[0-9a-f]{64}", asset["sha256"])
@@ -230,19 +230,19 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
     for needle in [
         "workflow_dispatch:",
         "release_tag:",
-        "default: v0.1.14",
+        "default: v0.1.15",
         "schedule:",
         'cron: "29 12 * * 2"',
         "contents: read",
         "cancel-in-progress: false",
         "AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane",
-        "AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.14' }}",
+        "AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.15' }}",
         "os: ubuntu-latest",
         "os: macos-latest",
         "os: windows-latest",
         "scripts/release-download-verify.sh",
         "AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/post-release-verification/${{ matrix.name }}/summary.json",
-        "EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.14' }}",
+        "EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.15' }}",
         "import os",
         'assert summary["release_tag"] == os.environ["EXPECTED_AO2_CP_RELEASE_TAG"], summary',
         "ao2-control-plane-post-release-verification-${{ matrix.name }}",

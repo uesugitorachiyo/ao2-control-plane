@@ -143,7 +143,7 @@ gh release download v0.1.15 --repo uesugitorachiyo/ao2-control-plane \
 (cd dist-release && grep 'ao2-control-plane-0.1.15-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
-Or run the repository verifier, which downloads all published prerelease assets
+Or run the repository verifier, which downloads all published release assets
 and verifies every file listed in `SHA256SUMS`:
 
 ```bash
@@ -201,10 +201,10 @@ AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
-AO2 stable release (`v0.4.81`) and control-plane release (`v0.1.14`) as one
+AO2 stable release (`v0.4.81`) and control-plane release (`v0.1.15`) as one
 public release pair. Those stable defaults are read from
 `docs/release/release-train.json`, which also records the next candidate train
-(`v0.4.81` / `v0.1.14`). The verifier reads GitHub release metadata and
+(`v0.4.81` / `v0.1.15`). The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
 summary evidence, and checksum coverage for the published control-plane
@@ -503,10 +503,10 @@ the published checksum manifest instead of a handwritten table:
 
 ```bash
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.14 \
-  --tag v0.1.14 \
+  --version 0.1.15 \
+  --tag v0.1.15 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.14-notes.md
+  --output docs/releases/v0.1.15-notes.md
 ```
 
 The CI workflow also produces release-ready archive artifacts for all supported
@@ -518,10 +518,11 @@ targets on every pull request and `main` push. Open
 - `ao2-control-plane-release-archive-windows-x86_64`
 
 `Release Promotion` in `.github/workflows/release-promotion.yml` is the
-governed path for preparing the next control-plane release. It is manual and
-uses `dry_run=true` by default for `v0.1.14`, building and smoking release
-archives for Linux x86_64, macOS aarch64, and Windows x86_64 before assembling
-the `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
+governed path for preparing the next control-plane release. It is manual,
+requires explicit version and tag inputs, and uses `dry_run=true` by default.
+It builds and smokes release archives for Linux x86_64, macOS aarch64, and
+Windows x86_64 before assembling the
+`ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
 archive build starts, release promotion requires the latest successful
 `Post Release Verification` run on `main` to expose all six baseline artifacts:
 the Ubuntu, macOS, and Windows post-release verifier outputs,

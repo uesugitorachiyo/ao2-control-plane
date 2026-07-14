@@ -7,7 +7,7 @@ on:
         description: "ao2-control-plane release tag to verify."
         required: false
         type: string
-        default: v0.1.14
+        default: v0.1.15
   schedule:
     - cron: "29 12 * * 2"
 
@@ -21,7 +21,7 @@ concurrency:
 
 env:
   AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane
-  AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.14' }}
+  AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.15' }}
 
 jobs:
   post-release-verification:
@@ -58,7 +58,7 @@ jobs:
       - name: Validate post release verification summary
         shell: bash
         env:
-          EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.14' }}
+          EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.15' }}
         run: |
           if command -v python3 >/dev/null 2>&1; then
             python_bin="python3"

@@ -99,7 +99,7 @@ def test_candidate_identity_advances_without_rewriting_stable_history():
         block = lockfile.split(f'name = "{crate}"', 1)[1].split("[[package]]", 1)[0]
         assert 'version = "0.1.15"' in block
     assert 'VERSION="0.1.15"' in package_script
-    assert '"tag": "v0.1.14"' in release_train
+    assert '"tag": "v0.1.15"' in release_train
 
 
 def test_package_rejects_version_substitution(tmp_path):

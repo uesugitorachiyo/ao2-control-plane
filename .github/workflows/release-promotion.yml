@@ -6,11 +6,9 @@ on:
       version:
         description: ao2-control-plane package version to promote.
         required: true
-        default: 0.1.14
       tag:
         description: GitHub release tag to prepare or publish.
         required: true
-        default: v0.1.14
       dry_run:
         description: Prepare release evidence only; set false to publish.
         required: true
