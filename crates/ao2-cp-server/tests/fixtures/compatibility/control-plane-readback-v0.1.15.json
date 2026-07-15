@@ -1,0 +1,60 @@
+{
+  "schema_version": "ao.compatibility.control-plane-readback-vector.v1",
+  "vector_id": "ao2-control-plane-v0.1.15-readback-to-ao-command-operator-status",
+  "edge": "ao2-control-plane.evidence_readback -> ao-command.operator_status",
+  "producer": {
+    "repository": "ao2-control-plane",
+    "version": "v0.1.15",
+    "release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
+    "tag_target": "f1702b387607566cac457458af9adb5871a5c412"
+  },
+  "consumer": {
+    "repository": "ao-command"
+  },
+  "control_plane_readback": {
+    "schema_version": "ao2-control-plane.current-release-readback.v1",
+    "status": "observed",
+    "source": "public_release_pair_and_architecture_matrix",
+    "current_public_release_pair": {
+      "ao2_version": "v0.5.1",
+      "ao2_release_url": "https://github.com/uesugitorachiyo/ao2/releases/tag/v0.5.1",
+      "ao2_tag_target": "80ec5321f42d4bab17d5e64fdae6aa099ba59d4a",
+      "control_plane_version": "v0.1.15",
+      "control_plane_release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
+      "control_plane_tag_target": "f1702b387607566cac457458af9adb5871a5c412"
+    },
+    "compatibility": {
+      "matrix_status": "proposed",
+      "tested_edge": "ao2.execution_receipt -> ao2-control-plane.evidence_event",
+      "canonical_vector_count": 1,
+      "consumer_test_count": 1,
+      "full_stack_compatibility_complete": false
+    },
+    "authority": {
+      "control_plane_approves_execution": false,
+      "mutates_ao2_artifacts": false,
+      "permits_release": false
+    }
+  },
+  "expected_command_operator_status": {
+    "schema_version": "ao-command.operator-status.v1",
+    "status": "current_release_pair_observed",
+    "source_readback_schema_version": "ao2-control-plane.current-release-readback.v1",
+    "current_public_release_pair": {
+      "ao2_version": "v0.5.1",
+      "control_plane_version": "v0.1.15"
+    },
+    "compatibility": {
+      "matrix_status": "proposed",
+      "tested_edge_count": 1,
+      "full_stack_compatibility_complete": false
+    },
+    "authority": {
+      "executes_work": false,
+      "approves_work": false,
+      "mutates_repositories": false,
+      "calls_providers": false,
+      "releases_or_deploys": false
+    }
+  }
+}
