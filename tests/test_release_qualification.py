@@ -86,7 +86,7 @@ def parse_checksums(text: str):
     return rows
 
 
-def test_candidate_identity_advances_without_rewriting_stable_history():
+def test_stable_release_train_points_to_published_patch():
     workspace = (REPO_ROOT / "Cargo.toml").read_text(encoding="utf-8")
     lockfile = (REPO_ROOT / "Cargo.lock").read_text(encoding="utf-8")
     package_script = PACKAGE_SCRIPT.read_text(encoding="utf-8")
@@ -101,8 +101,8 @@ def test_candidate_identity_advances_without_rewriting_stable_history():
     assert 'VERSION="0.1.16"' in package_script
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2_control_plane"] == {
-        "tag": "v0.1.15",
-        "version": "0.1.15",
+        "tag": "v0.1.16",
+        "version": "0.1.16",
     }
     assert release_train_json["next_patch"]["ao2_control_plane"] == {
         "tag": "v0.1.16",
