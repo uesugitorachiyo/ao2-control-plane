@@ -1,0 +1,35 @@
+{
+  "schema_version": "ao2.cp-github-issue-intake-observation.v0.1",
+  "status": "observed",
+  "observed_event": "github_issue_intake_classified",
+  "current_public_pair": {
+    "ao2": "v0.5.1",
+    "control_plane": "v0.1.16"
+  },
+  "issue_intake": {
+    "state": "intake_validated",
+    "canonical_url": "https://github.com/uesugitorachiyo/ao2/issues/123",
+    "command_policy_class": "safe_read_only_discovery",
+    "github_read_performed": false,
+    "github_write_performed": false
+  },
+  "terminal_states_observed": [
+    "intake_validated",
+    "invalid_url",
+    "unsupported_host",
+    "policy_blocked",
+    "security_sensitive"
+  ],
+  "denied_actions": {
+    "issue_write_performed": false,
+    "feature_generated_pr_opened": false,
+    "feature_generated_pr_merged": false,
+    "feature_generated_pr_ready_for_review": false,
+    "github_review_approval_submitted": false,
+    "maintainer_contacted": false,
+    "public_security_disclosed": false,
+    "release_published": false,
+    "rsi_authorized": false
+  },
+  "operator_next_action": "continue Month 1 read-only fixture validation; do not open or merge a feature-generated PR"
+}
