@@ -1,0 +1,31 @@
+{
+  "schema_version": "ao2.cp-github-issue-month3-repair-observation.v0.1",
+  "status": "observed",
+  "observed_event": "github_issue_isolated_repair_verified",
+  "source_evidence_schema": "ao2.github-issue-month3-repair-evidence.v0.1",
+  "current_public_pair": {
+    "ao2": "v0.5.1",
+    "control_plane": "v0.1.16"
+  },
+  "repair_state": {
+    "source_fixture": "deterministic_authentic_bug",
+    "pre_patch_failed_expected": true,
+    "post_patch_verified": true,
+    "rollback_exact_state_restored": true,
+    "replay_digest_match": true,
+    "resume_without_duplicate_edits": true,
+    "archive_public_safe": true
+  },
+  "operator_readback": {
+    "next_state": "month3_closed_after_implementation_prs_merge",
+    "feature_generated_draft_pr_opened": false,
+    "issue_write_performed": false
+  },
+  "denied_actions": {
+    "mutates_repositories": false,
+    "approves_work": false,
+    "provider_call_performed": false,
+    "release_selected": false,
+    "rsi_authorized": false
+  }
+}
