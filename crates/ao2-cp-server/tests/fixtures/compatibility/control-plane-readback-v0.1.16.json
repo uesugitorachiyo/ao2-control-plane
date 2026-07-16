@@ -1,12 +1,12 @@
 {
   "schema_version": "ao.compatibility.control-plane-readback-vector.v1",
-  "vector_id": "ao2-control-plane-v0.1.15-readback-to-ao-command-operator-status",
+  "vector_id": "ao2-control-plane-v0.1.16-readback-to-ao-command-operator-status",
   "edge": "ao2-control-plane.evidence_readback -> ao-command.operator_status",
   "producer": {
     "repository": "ao2-control-plane",
-    "version": "v0.1.15",
-    "release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
-    "tag_target": "f1702b387607566cac457458af9adb5871a5c412"
+    "version": "v0.1.16",
+    "release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16",
+    "tag_target": "f4f5fea9fefa1081cebcbabac550b0e08b9f0e3d"
   },
   "consumer": {
     "repository": "ao-command"
@@ -19,9 +19,9 @@
       "ao2_version": "v0.5.1",
       "ao2_release_url": "https://github.com/uesugitorachiyo/ao2/releases/tag/v0.5.1",
       "ao2_tag_target": "80ec5321f42d4bab17d5e64fdae6aa099ba59d4a",
-      "control_plane_version": "v0.1.15",
-      "control_plane_release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.15",
-      "control_plane_tag_target": "f1702b387607566cac457458af9adb5871a5c412"
+      "control_plane_version": "v0.1.16",
+      "control_plane_release_url": "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16",
+      "control_plane_tag_target": "f4f5fea9fefa1081cebcbabac550b0e08b9f0e3d"
     },
     "compatibility": {
       "matrix_status": "proposed",
@@ -42,7 +42,7 @@
     "source_readback_schema_version": "ao2-control-plane.current-release-readback.v1",
     "current_public_release_pair": {
       "ao2_version": "v0.5.1",
-      "control_plane_version": "v0.1.15"
+      "control_plane_version": "v0.1.16"
     },
     "compatibility": {
       "matrix_status": "proposed",

@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::path::PathBuf;
 
 const AO2_TAG_TARGET: &str = "80ec5321f42d4bab17d5e64fdae6aa099ba59d4a";
-const CP_TAG_TARGET: &str = "f1702b387607566cac457458af9adb5871a5c412";
+const CP_TAG_TARGET: &str = "f4f5fea9fefa1081cebcbabac550b0e08b9f0e3d";
 const MANIFEST_DIGEST: &str = "bd8103e7a038f47e1b4fef1a2a19ae65cc221675ea11149d39cfb679ae2a08fc";
 
 fn fixture_path(name: &str) -> PathBuf {
@@ -62,7 +62,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
         MANIFEST_DIGEST
     );
     assert_eq!(vector["consumer"]["repository"], "ao2-control-plane");
-    assert_eq!(vector["consumer"]["version"], "v0.1.15");
+    assert_eq!(vector["consumer"]["version"], "v0.1.16");
     assert_eq!(vector["consumer"]["tag_target"], CP_TAG_TARGET);
 
     let receipt = &vector["execution_receipt"];
@@ -105,7 +105,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
 
 #[test]
 fn produces_control_plane_readback_for_command_operator_status() {
-    let vector = load_json("control-plane-readback-v0.1.15.json");
+    let vector = load_json("control-plane-readback-v0.1.16.json");
     assert_public_safe(&vector);
 
     assert_eq!(
@@ -114,14 +114,14 @@ fn produces_control_plane_readback_for_command_operator_status() {
     );
     assert_eq!(
         vector["vector_id"],
-        "ao2-control-plane-v0.1.15-readback-to-ao-command-operator-status"
+        "ao2-control-plane-v0.1.16-readback-to-ao-command-operator-status"
     );
     assert_eq!(
         vector["edge"],
         "ao2-control-plane.evidence_readback -> ao-command.operator_status"
     );
     assert_eq!(vector["producer"]["repository"], "ao2-control-plane");
-    assert_eq!(vector["producer"]["version"], "v0.1.15");
+    assert_eq!(vector["producer"]["version"], "v0.1.16");
     assert_eq!(vector["producer"]["tag_target"], CP_TAG_TARGET);
     assert_eq!(vector["consumer"]["repository"], "ao-command");
 
@@ -142,7 +142,7 @@ fn produces_control_plane_readback_for_command_operator_status() {
     );
     assert_eq!(
         readback["current_public_release_pair"]["control_plane_version"],
-        "v0.1.15"
+        "v0.1.16"
     );
     assert_eq!(
         readback["current_public_release_pair"]["control_plane_tag_target"],
