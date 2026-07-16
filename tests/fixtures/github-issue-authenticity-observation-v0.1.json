@@ -1,0 +1,46 @@
+{
+  "schema_version": "ao2.cp-github-issue-authenticity-observation.v0.1",
+  "status": "observed",
+  "observed_event": "github_issue_authenticity_and_reproduction_classified",
+  "current_public_pair": {
+    "ao2": "v0.5.1",
+    "control_plane": "v0.1.16"
+  },
+  "truth_set": {
+    "fixture_count": 13,
+    "authentic_bug_count": 2,
+    "non_bug_count": 11,
+    "precision": 1.0,
+    "recall": 1.0
+  },
+  "terminal_states_observed": [
+    "authentic_bug_deterministic",
+    "authentic_bug_flaky_measured",
+    "environment_blocked",
+    "not_authentic_bug",
+    "docs_or_support_only",
+    "not_bug",
+    "duplicate_or_superseded",
+    "already_fixed",
+    "stale_base_blocked",
+    "cannot_reproduce",
+    "policy_blocked",
+    "security_routing_required",
+    "untrusted_instruction_ignored"
+  ],
+  "reproduction": {
+    "failing_pre_patch_reproduction_required": true,
+    "negative_controls_required": true,
+    "flaky_cases_require_repeated_runs": true,
+    "uncertainty_promoted_to_authentic_without_measurement": false
+  },
+  "denied_actions": {
+    "github_write_performed": false,
+    "issue_write_performed": false,
+    "feature_generated_pr_opened": false,
+    "maintainer_contacted": false,
+    "provider_call_performed": false,
+    "security_sensitive_public_repair_entered": false
+  },
+  "operator_next_action": "Proceed to isolated repair only for fixtures with failing pre-patch reproduction and authentic_bug_* terminal state."
+}
