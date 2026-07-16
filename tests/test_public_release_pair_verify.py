@@ -86,7 +86,7 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
         "tag": "v0.1.16",
         "version": "0.1.16",
     }
-    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.1", "version": "0.5.1"}
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.2", "version": "0.5.2"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
         "tag": "v0.1.16",
         "version": "0.1.16",
