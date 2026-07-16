@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-AO2_CP_ARCHIVE="${AO2_CP_ARCHIVE:-dist/ao2-control-plane-0.1.15-macos-aarch64.tar.gz}"
+AO2_CP_ARCHIVE="${AO2_CP_ARCHIVE:-dist/ao2-control-plane-0.1.16-macos-aarch64.tar.gz}"
 AO2_CP_SMOKE_ROOT="${AO2_CP_SMOKE_ROOT:-$ROOT/target/release-smoke/$(date +%Y%m%d%H%M%S)}"
 AO2_CP_SMOKE_JSON="${AO2_CP_SMOKE_JSON:-}"
 AO2_CP_RELEASE_PUBLICATION="${AO2_CP_RELEASE_PUBLICATION:-$ROOT/tests/fixtures/ao2-release-publication-v0.4.79.json}"

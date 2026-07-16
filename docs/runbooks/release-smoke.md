@@ -141,10 +141,10 @@ hashes by hand:
 
 ```sh
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.15 \
-  --tag v0.1.15 \
+  --version 0.1.16 \
+  --tag v0.1.16 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.15-notes.md
+  --output docs/releases/v0.1.16-notes.md
 ```
 
 Expected output is `control_plane_release_asset_parity=passed` for a complete
@@ -176,7 +176,7 @@ scripts/public_release_pair_verify.py \
 
 Expected output includes
 `control_plane_public_release_pair_verification=passed`. The summary schema is
-`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.4.81`,
+`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.5.1`,
 control-plane `v0.1.15`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
 promotion summary evidence, checksum coverage for `summary.json`, and a

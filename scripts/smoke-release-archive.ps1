@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
 Set-Location -LiteralPath $Root
 
-$Archive = if ($env:AO2_CP_ARCHIVE) { $env:AO2_CP_ARCHIVE } else { "dist/ao2-control-plane-0.1.15-windows-x86_64.tar.gz" }
+$Archive = if ($env:AO2_CP_ARCHIVE) { $env:AO2_CP_ARCHIVE } else { "dist/ao2-control-plane-0.1.16-windows-x86_64.tar.gz" }
 $SmokeRoot = if ($env:AO2_CP_SMOKE_ROOT) { $env:AO2_CP_SMOKE_ROOT } else { Join-Path $Root ("target/release-smoke/" + (Get-Date -Format "yyyyMMddHHmmss")) }
 $SmokeJson = if ($env:AO2_CP_SMOKE_JSON) { $env:AO2_CP_SMOKE_JSON } else { $null }
 $ReleasePublication = if ($env:AO2_CP_RELEASE_PUBLICATION) { $env:AO2_CP_RELEASE_PUBLICATION } else { Join-Path $Root "tests/fixtures/ao2-release-publication-v0.4.79.json" }

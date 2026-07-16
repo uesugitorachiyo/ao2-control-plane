@@ -94,8 +94,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.15 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.15-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.16 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.16-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -106,8 +106,8 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.15 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.15-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.16 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.16-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
@@ -201,10 +201,10 @@ AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
-AO2 stable release (`v0.4.81`) and control-plane release (`v0.1.15`) as one
+AO2 stable release (`v0.5.1`) and control-plane release (`v0.1.15`) as one
 public release pair. Those stable defaults are read from
 `docs/release/release-train.json`, which also records the next candidate train
-(`v0.4.81` / `v0.1.15`). The verifier reads GitHub release metadata and
+(`v0.5.1` / `v0.1.15`). The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
 summary evidence, and checksum coverage for the published control-plane
