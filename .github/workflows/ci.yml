@@ -710,7 +710,7 @@ jobs:
           assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1", summary
           assert summary["status"] in {"passed", "attention"}, summary
           assert summary["ao2"]["release_repo"] == "uesugitorachiyo/ao2", summary
-          assert summary["ao2"]["release_tag"] == "v0.5.0", summary
+          assert summary["ao2"]["release_tag"] == "v0.5.1", summary
           assert summary["control_plane"]["release_repo"] == "uesugitorachiyo/ao2-control-plane", summary
           assert summary["control_plane"]["release_tag"] == "v0.1.15", summary
           assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"], summary
@@ -1203,19 +1203,19 @@ jobs:
             os: ubuntu-latest
             target_label: linux-x86_64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.15-linux-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.16-linux-x86_64.tar.gz
             shell: bash
           - name: macos-aarch64
             os: macos-latest
             target_label: macos-aarch64
             binary: target/release/ao2-cp-server
-            archive: dist/ao2-control-plane-0.1.15-macos-aarch64.tar.gz
+            archive: dist/ao2-control-plane-0.1.16-macos-aarch64.tar.gz
             shell: bash
           - name: windows-x86_64
             os: windows-latest
             target_label: windows-x86_64
             binary: target/release/ao2-cp-server.exe
-            archive: dist/ao2-control-plane-0.1.15-windows-x86_64.tar.gz
+            archive: dist/ao2-control-plane-0.1.16-windows-x86_64.tar.gz
             shell: pwsh
     steps:
       - uses: actions/checkout@v6.0.3
@@ -1228,7 +1228,7 @@ jobs:
         run: |
           scripts/package-local.sh \
             --out-dir dist \
-            --version 0.1.15 \
+            --version 0.1.16 \
             --binary "${{ matrix.binary }}" \
             --target-label "${{ matrix.target_label }}"
       - name: Check release archive license files

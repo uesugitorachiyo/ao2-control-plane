@@ -46,7 +46,7 @@ def write_checksums(path, assets):
 
 
 def ao2_assets():
-    version = "0.5.0"
+    version = "0.5.1"
     archives = [
         f"ao2-{version}-linux-aarch64.tar.gz",
         f"ao2-{version}-linux-x86_64.tar.gz",
@@ -81,15 +81,15 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert manifest_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
-    assert manifest["stable"]["ao2"] == {"tag": "v0.5.0", "version": "0.5.0"}
+    assert manifest["stable"]["ao2"] == {"tag": "v0.5.1", "version": "0.5.1"}
     assert manifest["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.15",
         "version": "0.1.15",
     }
-    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.0", "version": "0.5.0"}
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.1", "version": "0.5.1"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
-        "tag": "v0.1.15",
-        "version": "0.1.15",
+        "tag": "v0.1.16",
+        "version": "0.1.16",
     }
 
     spec = importlib.util.spec_from_file_location("public_release_pair_verify", SCRIPT)
@@ -116,7 +116,7 @@ def run_pair_verify(tmp_path, *, ao2_release_assets=None, cp_checksum_assets=Non
     cp_checksums = tmp_path / "control-plane-SHA256SUMS"
     summary = tmp_path / "summary.json"
 
-    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.0", "AO2 v0.5.0 stable", ao2_release_assets)
+    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.1", "AO2 v0.5.1 stable", ao2_release_assets)
     write_checksums(ao2_checksums, ao2_release_assets)
     write_release_view(
         cp_view,
@@ -164,7 +164,7 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     assert "control_plane_public_release_pair_verification=passed" in result.stdout
     assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1"
     assert summary["status"] == "passed"
-    assert summary["ao2"]["release_tag"] == "v0.5.0"
+    assert summary["ao2"]["release_tag"] == "v0.5.1"
     assert summary["control_plane"]["release_tag"] == "v0.1.15"
     assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
     assert summary["ao2"]["extra_platforms"] == ["linux-aarch64"]
