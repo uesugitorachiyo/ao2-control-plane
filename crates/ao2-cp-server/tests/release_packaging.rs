@@ -43,14 +43,33 @@ fn read_release_publication_module_production(root: &Path) -> String {
     )
 }
 
+fn python_executable() -> &'static str {
+    if Command::new("python3").arg("--version").output().is_ok() {
+        "python3"
+    } else {
+        "python"
+    }
+}
+
+fn package_local_command(root: &Path) -> Command {
+    if Command::new("sh").arg("-c").arg("exit 0").output().is_ok() {
+        let mut command = Command::new("sh");
+        command.arg(root.join("scripts/package-local.sh"));
+        command
+    } else {
+        let mut command = Command::new(python_executable());
+        command.arg(root.join("scripts/package_local.py"));
+        command
+    }
+}
+
 #[test]
 fn package_script_creates_installable_control_plane_archive() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let server = env!("CARGO_BIN_EXE_ao2-cp-server");
     let out_dir = tempfile::tempdir().expect("out dir");
 
-    let output = Command::new("sh")
-        .arg(root.join("scripts/package-local.sh"))
+    let output = package_local_command(&root)
         .arg("--out-dir")
         .arg(out_dir.path())
         .arg("--version")
@@ -323,8 +342,7 @@ fn package_script_creates_windows_archive_with_exe_manifest_and_installer() {
     let server = env!("CARGO_BIN_EXE_ao2-cp-server");
     let out_dir = tempfile::tempdir().expect("out dir");
 
-    let output = Command::new("sh")
-        .arg(root.join("scripts/package-local.sh"))
+    let output = package_local_command(&root)
         .arg("--out-dir")
         .arg(out_dir.path())
         .arg("--version")
