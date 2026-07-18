@@ -242,6 +242,7 @@ fn package_script_creates_installable_control_plane_archive() {
         "tampering event, not at audit-log corruption",
         "evaluator-closer",
         "audit_log_rotation_stays_well_formed_under_concurrent_burst_lane_ww_rotation",
+        "audit_log_rotation_leaves_burst_headroom_lane_ccc",
         "audit_log_rotation_stays_well_formed_under_n200_burst_lane_bbb",
         "audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb",
         "Rejected Smoke",
@@ -2849,6 +2850,19 @@ fn release_smoke_runbook_references_actual_gate_ids_and_triage_paths() {
         release_publication_tests.contains(ww_rotation_test_name),
         "release_publication.rs tests must contain the Lane WW-rotation test referenced by section 9.9"
     );
+    let ccc_rotation_test_name = "audit_log_rotation_leaves_burst_headroom_lane_ccc";
+    assert!(
+        runbook.contains(ccc_rotation_test_name),
+        "runbook section 9.9 must point operators at the Lane CCC rotation-headroom test"
+    );
+    assert!(
+        release_publication_tests.contains(ccc_rotation_test_name),
+        "release_publication.rs tests must contain the Lane CCC rotation-headroom test referenced by section 9.9"
+    );
+    assert!(
+        runbook.contains("75% of the") && runbook.contains("hard cap"),
+        "runbook section 9.9 must document the Lane CCC 75% rotation target"
+    );
     // The on-call triage takeaway MUST appear verbatim so the on-call
     // operator reading the runbook at 3 AM knows the burst is a
     // tampering event, not corruption.
@@ -4217,6 +4231,10 @@ fn on_call_triage_surfaces_agree_on_load_bearing_literals_lane_hhh() {
         // pinned. Without the test reference, "the mutex protects the
         // append path" is just an assertion in prose.
         "audit_log_rotation_stays_well_formed_under_concurrent_burst_lane_ww_rotation",
+        // Lane CCC headroom regression — proof rotation does not
+        // rebuild to the hard cap and force one full-file rewrite per
+        // request during a burst.
+        "audit_log_rotation_leaves_burst_headroom_lane_ccc",
     ];
 
     for literal in doc_only_literals {

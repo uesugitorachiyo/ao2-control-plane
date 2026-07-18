@@ -1144,6 +1144,11 @@ const REJECTED_SMOKE_AUDIT_SCHEMA: &str = "ao2.cp-rejected-three-os-smoke.v1";
 // see every recent tampering attempt; small enough that the file
 // stays grep-friendly on every supported platform.
 const REJECTED_SMOKE_AUDIT_MAX_BYTES: usize = 1024 * 1024;
+// Lane CCC: rotate to a lower target than the hard cap. Rebuilding to
+// just under 1 MiB makes every following rejection in the same burst
+// rotate again; on Windows that serializes repeated 1 MiB read/rewrite
+// work under the writer lock.
+const REJECTED_SMOKE_AUDIT_ROTATE_TARGET_BYTES: usize = REJECTED_SMOKE_AUDIT_MAX_BYTES * 3 / 4;
 
 /// Lane WW-rotation: a process-global serializer for the rejected-
 /// smoke audit log writer. The Lane UU rotation path uses
@@ -1285,13 +1290,14 @@ async fn append_rejected_smoke_audit(state: &AppState, raw_body: &str, rejection
     // Lane UU rotation: the post-append file would exceed the cap.
     // Rebuild the file in memory: start with the new record, then
     // append existing records from newest-back-to-oldest until the
-    // cap is reached. Write the rebuilt content atomically (truncate
-    // + write) so a concurrent reader cannot observe a partially-
-    // rotated file.
+    // Lane CCC target is reached. The target is below the hard cap so
+    // a rejection burst has room for many ordinary appends before the
+    // next read/projection/write rotation.
     let mut kept: Vec<&str> = Vec::new();
     let mut kept_bytes: usize = line.len();
     // The new line is always retained — it is what the rotation was
     // triggered by. Older lines are then evaluated newest-first.
+    let rotate_target = REJECTED_SMOKE_AUDIT_ROTATE_TARGET_BYTES.max(line.len());
     for old_line in existing
         .lines()
         .filter(|l| !l.trim().is_empty())
@@ -1301,7 +1307,7 @@ async fn append_rejected_smoke_audit(state: &AppState, raw_body: &str, rejection
     {
         // +1 for the newline the line will be written with.
         let with_newline = old_line.len().saturating_add(1);
-        if kept_bytes.saturating_add(with_newline) > REJECTED_SMOKE_AUDIT_MAX_BYTES {
+        if kept_bytes.saturating_add(with_newline) > rotate_target {
             break;
         }
         kept.push(old_line);

@@ -1443,15 +1443,23 @@ summary reader path (`rejected_smoke_audit_summary`) stays
 lock-free because `tokio::fs::write` (truncate + write) is atomic
 relative to a fresh `read_to_string`: a reader either sees the
 pre-rotation file or the post-rotation file, never a partial.
+Lane CCC keeps the tail-latency bound meaningful during bursts:
+when rotation fires, the writer trims the audit log to 75% of the
+1 MiB hard cap instead of rebuilding to just under the cap. That
+leaves headroom for ordinary append-only writes after the first
+rotation, avoiding repeated full-file read/rewrite cycles under the
+mutex on Windows.
 
 The contract is pinned by
 `audit_log_rotation_stays_well_formed_under_concurrent_burst_lane_ww_rotation`
-in `crates/ao2-cp-server/tests/release_publication.rs`. The test
+and `audit_log_rotation_leaves_burst_headroom_lane_ccc` in
+`crates/ao2-cp-server/tests/release_publication.rs`. The burst test
 pre-fills the audit log to ~990 KiB, fires 50 concurrent tampered
 POSTs (each of which crosses the 1 MiB cap), and asserts four
 invariants: file size <= cap, every record is valid JSON, cockpit
 count matches on-disk line count, and at least one record
-survives.
+survives. The Lane CCC test pre-fills to the hard cap and asserts
+the post-rotation file size is at or below 75% of cap.
 
 What this means for triage: a tampering-burst alert points at a
 **tampering event**, not at audit-log corruption. The audit log

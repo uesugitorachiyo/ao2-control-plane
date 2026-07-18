@@ -449,6 +449,11 @@ Audit-log rotation budget (Lanes UU, VV, XX, ZZ)
     (truncate + write) is atomic relative to a fresh read.
     Worked example:
       audit_log_rotation_stays_well_formed_under_concurrent_burst_lane_ww_rotation
+    Rotation headroom regression (Lane CCC):
+      audit_log_rotation_leaves_burst_headroom_lane_ccc
+      trims the log to 75% of the 1 MiB hard cap after rotation
+      so a rejection burst does not force one full-file rewrite
+      per request.
     Higher-N regression coverage (Lane BBB):
       audit_log_rotation_stays_well_formed_under_n200_burst_lane_bbb
       audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb
