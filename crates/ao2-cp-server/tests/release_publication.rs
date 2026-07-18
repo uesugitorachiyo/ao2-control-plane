@@ -4978,6 +4978,10 @@ async fn audit_log_rotation_burst_invariants(n: usize, wall_clock_budget: std::t
         statuses.push(h.await.unwrap());
     }
     let elapsed = start.elapsed();
+    let mut status_counts = std::collections::BTreeMap::new();
+    for status in &statuses {
+        *status_counts.entry(*status).or_insert(0usize) += 1;
+    }
     assert!(
         elapsed <= wall_clock_budget,
         "rotation burst at N={n} exceeded wall-clock budget; got {elapsed:?}, budget {wall_clock_budget:?}. A future regression in REJECTED_SMOKE_AUDIT_WRITER_LOCK fairness or in tokio::fs::write performance would surface here before it becomes operator-visible."
@@ -4985,7 +4989,7 @@ async fn audit_log_rotation_burst_invariants(n: usize, wall_clock_budget: std::t
     assert_eq!(
         statuses.iter().filter(|s| **s == 422).count(),
         n,
-        "every concurrent rejection in the rotation burst at N={n} must 422"
+        "every concurrent rejection in the rotation burst at N={n} must 422; status_counts={status_counts:?}"
     );
 
     // (a) File size at or under cap.
