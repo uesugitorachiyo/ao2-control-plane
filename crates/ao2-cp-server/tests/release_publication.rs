@@ -4908,6 +4908,12 @@ async fn cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww
 // scales linearly with N. A budget regression at higher N would
 // surface lock-starvation issues or kernel-level contention that
 // the N=50 test would not catch.
+//
+// The request sender bounds simultaneous TCP connection attempts so
+// the test exercises the application-level rejected-smoke path rather
+// than platform-specific localhost accept-queue limits. Native Windows
+// can refuse a 500-connection same-instant test before the request
+// reaches the handler, which is not the audit-log contract under test.
 async fn audit_log_rotation_burst_invariants(n: usize, wall_clock_budget: std::time::Duration) {
     let (base, dir) = spawn_server().await;
     let audit_path = dir.path().join("rejected-three-os-smoke.jsonl");
@@ -4943,39 +4949,47 @@ async fn audit_log_rotation_burst_invariants(n: usize, wall_clock_budget: std::t
     // due to file-descriptor exhaustion on shorter CI runners.
     let client = std::sync::Arc::new(reqwest::Client::new());
     let start = std::time::Instant::now();
-    let mut handles = Vec::with_capacity(n);
-    for _ in 0..n {
-        let base_clone = base.clone();
-        let client_clone = client.clone();
-        handles.push(tokio::spawn(async move {
-            let tampered = serde_json::json!({
-                "schema": "ao2-control-plane.three-os-release-smoke.v1",
-                "version": "0.1.0",
-                "release_candidate_version": "0.4.79",
-                "status": "passed",
-                "source_commit": "fedcba9876543210fedcba9876543210fedcba98",
-                "source_dirty": true,
-                "targets": {
-                    "macos": {"status": "passed"},
-                    "ubuntu": {"status": "passed"},
-                    "windows": {"status": "passed"}
-                }
-            });
-            let resp = client_clone
-                .post(format!(
-                    "{base_clone}/api/v1/phase1/promotion/three-os-smoke"
-                ))
-                .header("authorization", "Bearer secret")
-                .body(tampered.to_string())
-                .send()
-                .await
-                .unwrap();
-            resp.status().as_u16()
-        }));
-    }
     let mut statuses = Vec::with_capacity(n);
-    for h in handles {
-        statuses.push(h.await.unwrap());
+    let mut request_errors = Vec::new();
+    let max_in_flight = n.min(128);
+    for batch_start in (0..n).step_by(max_in_flight) {
+        let batch_end = (batch_start + max_in_flight).min(n);
+        let mut handles = Vec::with_capacity(batch_end - batch_start);
+        for _ in batch_start..batch_end {
+            let base_clone = base.clone();
+            let client_clone = client.clone();
+            handles.push(tokio::spawn(async move {
+                let tampered = serde_json::json!({
+                    "schema": "ao2-control-plane.three-os-release-smoke.v1",
+                    "version": "0.1.0",
+                    "release_candidate_version": "0.4.79",
+                    "status": "passed",
+                    "source_commit": "fedcba9876543210fedcba9876543210fedcba98",
+                    "source_dirty": true,
+                    "targets": {
+                        "macos": {"status": "passed"},
+                        "ubuntu": {"status": "passed"},
+                        "windows": {"status": "passed"}
+                    }
+                });
+                let resp = client_clone
+                    .post(format!(
+                        "{base_clone}/api/v1/phase1/promotion/three-os-smoke"
+                    ))
+                    .header("authorization", "Bearer secret")
+                    .body(tampered.to_string())
+                    .send()
+                    .await
+                    .map_err(|e| e.to_string())?;
+                Ok::<u16, String>(resp.status().as_u16())
+            }));
+        }
+        for h in handles {
+            match h.await.unwrap() {
+                Ok(status) => statuses.push(status),
+                Err(err) => request_errors.push(err),
+            }
+        }
     }
     let elapsed = start.elapsed();
     let mut status_counts = std::collections::BTreeMap::new();
@@ -4986,10 +5000,15 @@ async fn audit_log_rotation_burst_invariants(n: usize, wall_clock_budget: std::t
         elapsed <= wall_clock_budget,
         "rotation burst at N={n} exceeded wall-clock budget; got {elapsed:?}, budget {wall_clock_budget:?}. A future regression in REJECTED_SMOKE_AUDIT_WRITER_LOCK fairness or in tokio::fs::write performance would surface here before it becomes operator-visible."
     );
+    assert!(
+        request_errors.is_empty(),
+        "rotation burst at N={n} must reach the handler without client transport errors; max_in_flight={max_in_flight}; first_errors={:?}",
+        request_errors.iter().take(5).collect::<Vec<_>>()
+    );
     assert_eq!(
         statuses.iter().filter(|s| **s == 422).count(),
         n,
-        "every concurrent rejection in the rotation burst at N={n} must 422; status_counts={status_counts:?}"
+        "every rejected smoke request in the rotation burst at N={n} must 422; max_in_flight={max_in_flight}; status_counts={status_counts:?}"
     );
 
     // (a) File size at or under cap.
