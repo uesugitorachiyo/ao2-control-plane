@@ -1264,11 +1264,16 @@ async fn append_rejected_smoke_audit(state: &AppState, raw_body: &str, rejection
         Err(_) => return,
     };
 
-    // Read the existing contents (if any) so we can compute the
-    // post-append size and decide whether to rotate. A missing file
-    // is normal on first append.
-    let existing = tokio::fs::read_to_string(&path).await.unwrap_or_default();
-    let projected_size = existing.len().saturating_add(line.len());
+    // Fast path: use metadata for the common append decision. Reading
+    // the full file under the writer lock on every rejection serialized
+    // large bursts behind repeated full-file reads on native Windows.
+    // The full read is only needed when the append would cross the cap
+    // and the rotation path must rebuild retained lines.
+    let existing_size = tokio::fs::metadata(&path)
+        .await
+        .map(|metadata| metadata.len() as usize)
+        .unwrap_or(0);
+    let projected_size = existing_size.saturating_add(line.len());
 
     if projected_size <= REJECTED_SMOKE_AUDIT_MAX_BYTES {
         // Common path: a plain append is enough; the file stays
@@ -1293,6 +1298,7 @@ async fn append_rejected_smoke_audit(state: &AppState, raw_body: &str, rejection
     // Lane CCC target is reached. The target is below the hard cap so
     // a rejection burst has room for many ordinary appends before the
     // next read/projection/write rotation.
+    let existing = tokio::fs::read_to_string(&path).await.unwrap_or_default();
     let mut kept: Vec<&str> = Vec::new();
     let mut kept_bytes: usize = line.len();
     // The new line is always retained — it is what the rotation was
