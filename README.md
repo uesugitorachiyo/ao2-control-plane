@@ -570,8 +570,11 @@ the redaction fixture/readback-test canary surface.
 Two release-publication integration tests
 (`audit_log_rotation_stays_well_formed_under_n500_burst_lane_bbb` and
 `cockpit_count_matches_audit_log_under_concurrent_rejection_load_lane_ww`)
-spawn 500 concurrent HTTP requests and exhaust the default file-descriptor
-soft limit on Linux (1024) and macOS (256). The companion
+exercise 500-request rejection bursts. The Lane BBB test bounds simultaneous
+TCP connects so it measures the audit-log append/rotation path rather than a
+platform-specific localhost accept queue; the Lane WW test still uses fully
+concurrent requests and can exhaust the default file-descriptor soft limit on
+Linux (1024) and macOS (256). The companion
 `audit_log_rotation_leaves_burst_headroom_lane_ccc` test pins that a rotation
 trims the audit log to 75% of the 1 MiB hard cap, leaving burst headroom so a
 single rejection wave does not force one full-file rewrite per request. Use the
