@@ -94,8 +94,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.16 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.16-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.17 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.17-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -106,8 +106,8 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.16 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.16-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.17 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.17-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
@@ -503,10 +503,10 @@ the published checksum manifest instead of a handwritten table:
 
 ```bash
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.16 \
-  --tag v0.1.16 \
+  --version 0.1.17 \
+  --tag v0.1.17 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.16-notes.md
+  --output docs/releases/v0.1.17-notes.md
 ```
 
 The CI workflow also produces release-ready archive artifacts for all supported

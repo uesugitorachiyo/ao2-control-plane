@@ -78,7 +78,7 @@ checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 
 [[package]]
 name = "ao2-cp-schema"
-version = "0.1.16"
+version = "0.1.17"
 dependencies = [
  "chrono",
  "hex",
@@ -92,7 +92,7 @@ dependencies = [
 
 [[package]]
 name = "ao2-cp-server"
-version = "0.1.16"
+version = "0.1.17"
 dependencies = [
  "anyhow",
  "ao2-cp-schema",
@@ -123,7 +123,7 @@ dependencies = [
 
 [[package]]
 name = "ao2-cp-storage"
-version = "0.1.16"
+version = "0.1.17"
 dependencies = [
  "anyhow",
  "ao2-cp-schema",
