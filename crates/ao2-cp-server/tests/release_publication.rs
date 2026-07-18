@@ -5048,6 +5048,68 @@ async fn audit_log_rotation_stays_well_formed_under_concurrent_burst_lane_ww_rot
     audit_log_rotation_burst_invariants(50, std::time::Duration::from_secs(10)).await;
 }
 
+// Lane CCC: after crossing the 1 MiB hard cap, rotation must leave
+// burst headroom instead of rebuilding the file to just under the cap.
+// Rebuilding to the cap makes every subsequent rejection in the same
+// burst rotate again, which is observable on Windows as serialized
+// 1 MiB read/rewrite work under REJECTED_SMOKE_AUDIT_WRITER_LOCK.
+#[tokio::test]
+async fn audit_log_rotation_leaves_burst_headroom_lane_ccc() {
+    let (base, dir) = spawn_server().await;
+    let audit_path = dir.path().join("rejected-three-os-smoke.jsonl");
+
+    let synthetic_record = |idx: usize| {
+        format!(
+            "{{\"schema\":\"ao2.cp-rejected-three-os-smoke.v1\",\"timestamp_utc\":\"2026-05-24T00:00:00+00:00\",\"rejection_reason\":\"synthetic-fill-{idx}\",\"body_sha256\":\"{}\",\"body_size_bytes\":42,\"posted_summary\":{{\"schema\":\"ao2-control-plane.three-os-release-smoke.v1\",\"status\":\"passed\",\"version\":\"0.1.0\",\"release_candidate_version\":\"0.4.79\",\"source_commit_short\":\"abcdef012345\",\"source_dirty\":false,\"candidate_correlation_parity\":null,\"surface_content_hash_parity\":null,\"target_statuses\":{{\"macos\":\"passed\",\"ubuntu\":\"passed\",\"windows\":\"passed\"}}}}}}",
+            "0".repeat(64),
+        )
+    };
+    let mut pre_fill = String::new();
+    let mut next_idx: usize = 0;
+    let prefill_target = 1024 * 1024 - 32;
+    loop {
+        let next = synthetic_record(next_idx);
+        if pre_fill.len() + next.len() + 1 > prefill_target {
+            break;
+        }
+        pre_fill.push_str(&next);
+        pre_fill.push('\n');
+        next_idx += 1;
+    }
+    if pre_fill.len() < prefill_target {
+        pre_fill.push_str(&" ".repeat(prefill_target - pre_fill.len()));
+    }
+    std::fs::write(&audit_path, &pre_fill).expect("write near-cap audit log");
+
+    let tampered = serde_json::json!({
+        "schema": "ao2-control-plane.three-os-release-smoke.v1",
+        "version": "0.1.0",
+        "release_candidate_version": "0.4.79",
+        "status": "passed",
+        "source_commit": "fedcba9876543210fedcba9876543210fedcba98",
+        "source_dirty": true,
+        "targets": {
+            "macos": {"status": "passed"},
+            "ubuntu": {"status": "passed"},
+            "windows": {"status": "passed"}
+        }
+    });
+    let resp = reqwest::Client::new()
+        .post(format!("{base}/api/v1/phase1/promotion/three-os-smoke"))
+        .header("authorization", "Bearer secret")
+        .body(tampered.to_string())
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(resp.status().as_u16(), 422);
+
+    let actual_size = std::fs::metadata(&audit_path).unwrap().len() as usize;
+    assert!(
+        actual_size <= 768 * 1024,
+        "rotation must leave burst headroom at or below 75% of the hard cap; got {actual_size}"
+    );
+}
+
 // Lane BBB: extend the Lane WW-rotation contract to N=200. This
 // exercises the mutex under 4x the contention without changing the
 // invariants. A budget regression here would surface lock-fairness
