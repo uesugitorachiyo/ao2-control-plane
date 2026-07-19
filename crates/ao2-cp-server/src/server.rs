@@ -227,6 +227,25 @@ pub fn build_router(state: Arc<AppState>) -> Router {
                 .head(handlers::ai_task_board::head_ai_task_board),
         )
         .route(
+            "/windows/qualification/progress",
+            post(handlers::windows_qualification_progress::post_windows_qualification_progress),
+        )
+        .route(
+            "/windows/qualification/progress/latest",
+            get(handlers::windows_qualification_progress::latest_windows_qualification_progress),
+        )
+        .route(
+            "/windows/qualification/progress/dashboard.json",
+            get(
+                handlers::windows_qualification_progress::windows_qualification_progress_dashboard_json,
+            ),
+        )
+        .route(
+            "/windows/qualification/progress/:sha",
+            get(handlers::windows_qualification_progress::get_windows_qualification_progress)
+                .head(handlers::windows_qualification_progress::head_windows_qualification_progress),
+        )
+        .route(
             "/evidence-pack",
             get(handlers::evidence_pack::list_evidence_packs),
         )
