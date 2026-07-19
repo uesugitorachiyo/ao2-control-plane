@@ -4,6 +4,7 @@ use ao2_cp_storage::{bundle::BundleKind, index::IndexEntry, Storage};
 use chrono::{Duration, Utc};
 use std::sync::Arc;
 use tempfile::tempdir;
+use tokio::io::AsyncWriteExt;
 
 const TEST_API_TOKEN: &str = "redacted-value";
 
@@ -80,6 +81,18 @@ async fn seed_index_entry(
         })
         .await
         .unwrap();
+}
+
+async fn append_raw_index_line(dir: &tempfile::TempDir, line: &str) {
+    let mut file = tokio::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(dir.path().join("index.jsonl"))
+        .await
+        .unwrap();
+    file.write_all(line.as_bytes()).await.unwrap();
+    file.write_all(b"\n").await.unwrap();
+    file.sync_data().await.unwrap();
 }
 
 async fn seed_verified_signature_sidecar(dir: &tempfile::TempDir, kind: BundleKind, sha: &str) {
@@ -650,6 +663,135 @@ async fn storage_support_bundle_phase1_readiness_tracks_latest_artifacts() {
     let serialized = serde_json::to_string(&body).unwrap();
     assert!(!serialized.contains("secret"));
     assert!(!serialized.contains("Bearer"));
+}
+
+#[tokio::test]
+async fn storage_dashboard_json_pages_latest_entries_by_status_without_full_index_expansion() {
+    let (base, dir) = spawn_server().await;
+    for (schema, provider, sha, status, age_seconds) in [
+        (
+            "ao2.memory-export.v1",
+            Some("codex"),
+            "a",
+            Some("accepted"),
+            40,
+        ),
+        (
+            "ao2.memory-export.v1",
+            Some("codex"),
+            "b",
+            Some("accepted"),
+            30,
+        ),
+        (
+            "ao2.memory-export.v1",
+            Some("codex"),
+            "c",
+            Some("accepted"),
+            20,
+        ),
+        (
+            "ao2.memory-export.v1",
+            Some("codex"),
+            "d",
+            Some("failed"),
+            10,
+        ),
+        (
+            "ao2.memory-export.v1",
+            Some("claude"),
+            "e",
+            Some("accepted"),
+            5,
+        ),
+    ] {
+        seed_index_entry(&dir, schema, provider, &sha.repeat(64), status, age_seconds).await;
+    }
+
+    let body: serde_json::Value = reqwest::Client::new()
+        .get(format!(
+            "{base}/api/v1/storage/dashboard.json?keep_latest=1&index_limit=2&index_offset=1&schema_prefix=ao2.memory-export&provider=codex&status=accepted"
+        ))
+        .header("authorization", test_auth_header())
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    assert_eq!(
+        body["latest_index_page"]["schema_version"],
+        "ao2.cp-storage-index-page.v1"
+    );
+    assert_eq!(body["latest_index_page"]["offset"], 1);
+    assert_eq!(body["latest_index_page"]["limit"], 2);
+    assert_eq!(body["latest_index_page"]["total_entries"], 3);
+    assert_eq!(body["latest_index_entries"].as_array().unwrap().len(), 2);
+    assert_eq!(body["latest_index_entries"][0]["sha256"], "b".repeat(64));
+    assert_eq!(body["latest_index_entries"][1]["sha256"], "a".repeat(64));
+    let serialized = serde_json::to_string(&body["latest_index_entries"]).unwrap();
+    assert!(!serialized.contains(&"c".repeat(64)));
+    assert!(!serialized.contains(&"d".repeat(64)));
+    assert!(!serialized.contains(&"e".repeat(64)));
+    assert!(!serde_json::to_string(&body)
+        .unwrap()
+        .contains(TEST_API_TOKEN));
+}
+
+#[tokio::test]
+async fn storage_dashboard_json_reports_resident_index_metrics_and_skipped_lines() {
+    let (base, dir) = spawn_server().await;
+    seed_index_entry(
+        &dir,
+        "ao2.memory-export.v1",
+        Some("codex"),
+        &"1".repeat(64),
+        Some("accepted"),
+        30,
+    )
+    .await;
+    seed_index_entry(
+        &dir,
+        "ao2.memory-export.v1",
+        Some("codex"),
+        &"2".repeat(64),
+        Some("accepted"),
+        20,
+    )
+    .await;
+    append_raw_index_line(&dir, "{not json").await;
+    append_raw_index_line(
+        &dir,
+        r#"{"ingested_at":"2026-07-19T00:00:00Z","schema":"ao2.memory-export.v1","provider":"codex","sha256":"not-a-sha","status":"accepted","size_bytes":2}"#,
+    )
+    .await;
+
+    let body: serde_json::Value = reqwest::Client::new()
+        .get(format!(
+            "{base}/api/v1/storage/dashboard.json?keep_latest=1&index_limit=1"
+        ))
+        .header("authorization", test_auth_header())
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    assert_eq!(
+        body["index_metrics"]["schema_version"],
+        "ao2.cp-storage-index-metrics.v1"
+    );
+    assert_eq!(body["index_metrics"]["resident_entries"], 2);
+    assert_eq!(body["index_metrics"]["resident_unique_sha256"], 2);
+    assert_eq!(body["index_metrics"]["malformed_lines_skipped"], 1);
+    assert_eq!(body["index_metrics"]["invalid_sha256_lines_skipped"], 1);
+    assert!(body["index_metrics"]["jsonl_bytes"].as_u64().unwrap() > 0);
+    assert_eq!(body["latest_index_entries"].as_array().unwrap().len(), 1);
+    assert!(!serde_json::to_string(&body)
+        .unwrap()
+        .contains(TEST_API_TOKEN));
 }
 
 #[tokio::test]
