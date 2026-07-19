@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use std::path::PathBuf;
+use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
 use tokio::fs::{File, OpenOptions};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
@@ -18,6 +20,34 @@ pub struct IndexEntry {
     pub size_bytes: u64,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct IndexPageRequest {
+    pub offset: usize,
+    pub limit: usize,
+    pub schema_prefix: Option<String>,
+    pub provider: Option<String>,
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IndexPage {
+    pub schema_version: String,
+    pub offset: usize,
+    pub limit: usize,
+    pub total_entries: usize,
+    pub entries: Vec<IndexEntry>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IndexMetrics {
+    pub schema_version: String,
+    pub resident_entries: usize,
+    pub resident_unique_sha256: usize,
+    pub jsonl_bytes: u64,
+    pub malformed_lines_skipped: usize,
+    pub invalid_sha256_lines_skipped: usize,
+}
+
 #[derive(Debug, Error)]
 pub enum IndexStoreError {
     #[error("io: {0}")]
@@ -30,30 +60,50 @@ pub enum IndexStoreError {
 
 pub struct IndexStore {
     path: PathBuf,
-    lock: Mutex<()>,
+    state: Mutex<IndexState>,
+}
+
+#[derive(Debug, Default)]
+struct IndexState {
+    loaded: bool,
+    entries: Vec<IndexEntry>,
+    jsonl_bytes: u64,
+    jsonl_modified_unix_nanos: Option<u128>,
+    malformed_lines_skipped: usize,
+    invalid_sha256_lines_skipped: usize,
 }
 
 impl IndexStore {
     pub fn new(path: PathBuf) -> Self {
         Self {
             path,
-            lock: Mutex::new(()),
+            state: Mutex::new(IndexState::default()),
         }
     }
 
     pub async fn append(&self, entry: IndexEntry) -> Result<(), IndexStoreError> {
-        let _guard = self.lock.lock().await;
-        self.append_inner(&entry).await
+        let mut state = self.state.lock().await;
+        self.ensure_loaded(&mut state).await?;
+        self.append_inner(&entry).await?;
+        state.entries.push(entry);
+        let fingerprint = file_fingerprint(&self.path).await?;
+        state.jsonl_bytes = fingerprint.len;
+        state.jsonl_modified_unix_nanos = fingerprint.modified_unix_nanos;
+        Ok(())
     }
 
     /// Returns true if newly appended, false if sha256 already present (no append).
     pub async fn append_if_absent(&self, entry: IndexEntry) -> Result<bool, IndexStoreError> {
-        let _guard = self.lock.lock().await;
-        let existing = self.read_all_inner().await?;
-        if existing.iter().any(|e| e.sha256 == entry.sha256) {
+        let mut state = self.state.lock().await;
+        self.ensure_loaded(&mut state).await?;
+        if state.entries.iter().any(|e| e.sha256 == entry.sha256) {
             return Ok(false);
         }
         self.append_inner(&entry).await?;
+        state.entries.push(entry);
+        let fingerprint = file_fingerprint(&self.path).await?;
+        state.jsonl_bytes = fingerprint.len;
+        state.jsonl_modified_unix_nanos = fingerprint.modified_unix_nanos;
         Ok(true)
     }
 
@@ -75,11 +125,75 @@ impl IndexStore {
     }
 
     pub async fn read_all(&self) -> Result<Vec<IndexEntry>, IndexStoreError> {
-        self.read_all_inner().await
+        let mut state = self.state.lock().await;
+        self.ensure_loaded(&mut state).await?;
+        Ok(state.entries.clone())
+    }
+
+    pub async fn read_page(&self, request: IndexPageRequest) -> Result<IndexPage, IndexStoreError> {
+        let mut state = self.state.lock().await;
+        self.ensure_loaded(&mut state).await?;
+        let mut filtered: Vec<IndexEntry> = state
+            .entries
+            .iter()
+            .filter(|entry| {
+                request
+                    .schema_prefix
+                    .as_deref()
+                    .is_none_or(|prefix| entry.schema.starts_with(prefix))
+                    && request
+                        .provider
+                        .as_deref()
+                        .is_none_or(|provider| entry.provider.as_deref() == Some(provider))
+                    && request
+                        .status
+                        .as_deref()
+                        .is_none_or(|status| entry.status.as_deref() == Some(status))
+            })
+            .cloned()
+            .collect();
+        filtered.sort_by(|left, right| {
+            right
+                .ingested_at
+                .cmp(&left.ingested_at)
+                .then_with(|| left.sha256.cmp(&right.sha256))
+        });
+        let total_entries = filtered.len();
+        let entries = filtered
+            .into_iter()
+            .skip(request.offset)
+            .take(request.limit)
+            .collect();
+        Ok(IndexPage {
+            schema_version: "ao2.cp-storage-index-page.v1".to_string(),
+            offset: request.offset,
+            limit: request.limit,
+            total_entries,
+            entries,
+        })
+    }
+
+    pub async fn metrics(&self) -> Result<IndexMetrics, IndexStoreError> {
+        let mut state = self.state.lock().await;
+        self.ensure_loaded(&mut state).await?;
+        let resident_unique_sha256 = state
+            .entries
+            .iter()
+            .map(|entry| entry.sha256.as_str())
+            .collect::<BTreeSet<_>>()
+            .len();
+        Ok(IndexMetrics {
+            schema_version: "ao2.cp-storage-index-metrics.v1".to_string(),
+            resident_entries: state.entries.len(),
+            resident_unique_sha256,
+            jsonl_bytes: state.jsonl_bytes,
+            malformed_lines_skipped: state.malformed_lines_skipped,
+            invalid_sha256_lines_skipped: state.invalid_sha256_lines_skipped,
+        })
     }
 
     pub async fn rewrite(&self, entries: &[IndexEntry]) -> Result<(), IndexStoreError> {
-        let _guard = self.lock.lock().await;
+        let mut state = self.state.lock().await;
         for entry in entries {
             validate_entry_sha256(entry)?;
         }
@@ -97,18 +211,54 @@ impl IndexStore {
             file.sync_data().await?;
         }
         tokio::fs::rename(tmp, &self.path).await?;
+        state.loaded = true;
+        state.entries = entries.to_vec();
+        let fingerprint = file_fingerprint(&self.path).await?;
+        state.jsonl_bytes = fingerprint.len;
+        state.jsonl_modified_unix_nanos = fingerprint.modified_unix_nanos;
+        state.malformed_lines_skipped = 0;
+        state.invalid_sha256_lines_skipped = 0;
         Ok(())
     }
 
-    async fn read_all_inner(&self) -> Result<Vec<IndexEntry>, IndexStoreError> {
+    async fn ensure_loaded(&self, state: &mut IndexState) -> Result<(), IndexStoreError> {
+        let fingerprint = file_fingerprint(&self.path).await?;
+        if state.loaded
+            && state.jsonl_bytes == fingerprint.len
+            && state.jsonl_modified_unix_nanos == fingerprint.modified_unix_nanos
+        {
+            return Ok(());
+        }
+        let load = self.load_from_disk().await?;
+        state.loaded = true;
+        state.entries = load.entries;
+        state.jsonl_bytes = load.jsonl_bytes;
+        state.jsonl_modified_unix_nanos = load.jsonl_modified_unix_nanos;
+        state.malformed_lines_skipped = load.malformed_lines_skipped;
+        state.invalid_sha256_lines_skipped = load.invalid_sha256_lines_skipped;
+        Ok(())
+    }
+
+    async fn load_from_disk(&self) -> Result<IndexLoad, IndexStoreError> {
+        let fingerprint = file_fingerprint(&self.path).await?;
         let file = match File::open(&self.path).await {
-            Ok(f) => f,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(vec![]),
+            Ok(file) => file,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(IndexLoad {
+                    entries: vec![],
+                    jsonl_bytes: 0,
+                    jsonl_modified_unix_nanos: None,
+                    malformed_lines_skipped: 0,
+                    invalid_sha256_lines_skipped: 0,
+                });
+            }
             Err(e) => return Err(e.into()),
         };
         let mut reader = BufReader::new(file).lines();
         let mut out = Vec::new();
         let mut line_no = 0usize;
+        let mut malformed_lines_skipped = 0usize;
+        let mut invalid_sha256_lines_skipped = 0usize;
         while let Some(line) = reader.next_line().await? {
             line_no += 1;
             if line.trim().is_empty() {
@@ -117,6 +267,7 @@ impl IndexStore {
             match serde_json::from_str::<IndexEntry>(&line) {
                 Ok(e) if is_valid_sha256_hex(&e.sha256) => out.push(e),
                 Ok(e) => {
+                    invalid_sha256_lines_skipped += 1;
                     tracing::warn!(
                         path = %self.path.display(),
                         line = line_no,
@@ -125,6 +276,7 @@ impl IndexStore {
                     );
                 }
                 Err(e) => {
+                    malformed_lines_skipped += 1;
                     tracing::warn!(
                         path = %self.path.display(),
                         line = line_no,
@@ -134,8 +286,23 @@ impl IndexStore {
                 }
             }
         }
-        Ok(out)
+        Ok(IndexLoad {
+            entries: out,
+            jsonl_bytes: fingerprint.len,
+            jsonl_modified_unix_nanos: fingerprint.modified_unix_nanos,
+            malformed_lines_skipped,
+            invalid_sha256_lines_skipped,
+        })
     }
+}
+
+#[derive(Debug)]
+struct IndexLoad {
+    entries: Vec<IndexEntry>,
+    jsonl_bytes: u64,
+    jsonl_modified_unix_nanos: Option<u128>,
+    malformed_lines_skipped: usize,
+    invalid_sha256_lines_skipped: usize,
 }
 
 fn validate_entry_sha256(entry: &IndexEntry) -> Result<(), IndexStoreError> {
@@ -148,4 +315,30 @@ fn validate_entry_sha256(entry: &IndexEntry) -> Result<(), IndexStoreError> {
 
 fn is_valid_sha256_hex(value: &str) -> bool {
     value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
+#[derive(Debug)]
+struct FileFingerprint {
+    len: u64,
+    modified_unix_nanos: Option<u128>,
+}
+
+async fn file_fingerprint(path: &PathBuf) -> Result<FileFingerprint, IndexStoreError> {
+    match tokio::fs::metadata(path).await {
+        Ok(metadata) => Ok(FileFingerprint {
+            len: metadata.len(),
+            modified_unix_nanos: metadata.modified().ok().and_then(system_time_unix_nanos),
+        }),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(FileFingerprint {
+            len: 0,
+            modified_unix_nanos: None,
+        }),
+        Err(e) => Err(e.into()),
+    }
+}
+
+fn system_time_unix_nanos(time: SystemTime) -> Option<u128> {
+    time.duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|duration| duration.as_nanos())
 }
