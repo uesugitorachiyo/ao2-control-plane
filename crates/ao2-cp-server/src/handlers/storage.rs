@@ -1,5 +1,8 @@
 use ao2_cp_schema::canonical::sha256_of_canonical;
-use ao2_cp_storage::RetentionPolicy;
+use ao2_cp_storage::{
+    index::{IndexMetrics, IndexPageRequest},
+    RetentionPolicy,
+};
 use axum::{
     extract::{Query, State},
     http::{header, StatusCode},
@@ -9,11 +12,17 @@ use axum::{
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use std::sync::OnceLock;
+use std::time::{Duration, Instant};
+use tokio::sync::Mutex;
 
 use crate::error::AppError;
 use crate::server::AppState;
 
 const STORAGE_DASHBOARD_SCHEMA: &str = "ao2.cp-storage-dashboard.v1";
+const DEFAULT_INDEX_LIMIT: usize = 50;
+const MAX_INDEX_LIMIT: usize = 100;
+const DASHBOARD_CACHE_TTL: Duration = Duration::from_secs(2);
 
 #[derive(Debug, Deserialize)]
 pub struct StorageRetentionQuery {
@@ -29,8 +38,28 @@ pub struct StoragePruneQuery {
     pub execute: bool,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct StorageDashboardQuery {
+    #[serde(default = "default_keep_latest")]
+    pub keep_latest: usize,
+    #[serde(default)]
+    pub index_offset: usize,
+    #[serde(default = "default_index_limit")]
+    pub index_limit: usize,
+    #[serde(default)]
+    pub schema_prefix: Option<String>,
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+}
+
 fn default_keep_latest() -> usize {
     25
+}
+
+fn default_index_limit() -> usize {
+    DEFAULT_INDEX_LIMIT
 }
 
 fn policy(keep_latest: usize) -> Result<RetentionPolicy, AppError> {
@@ -40,6 +69,30 @@ fn policy(keep_latest: usize) -> Result<RetentionPolicy, AppError> {
         ));
     }
     Ok(RetentionPolicy { keep_latest })
+}
+
+fn index_page_request(q: &StorageDashboardQuery) -> Result<IndexPageRequest, AppError> {
+    if q.index_limit == 0 {
+        return Err(AppError::BadRequest(
+            "index_limit must be greater than zero".to_string(),
+        ));
+    }
+    Ok(IndexPageRequest {
+        offset: q.index_offset,
+        limit: q.index_limit.min(MAX_INDEX_LIMIT),
+        schema_prefix: q.schema_prefix.as_deref().and_then(non_empty_query_value),
+        provider: q.provider.as_deref().and_then(non_empty_query_value),
+        status: q.status.as_deref().and_then(non_empty_query_value),
+    })
+}
+
+fn non_empty_query_value(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
 }
 
 /// Env var that must be explicitly enabled for the REMOTE prune endpoint to run
@@ -296,16 +349,16 @@ pub async fn storage_support_bundle_checksums(
 
 pub async fn storage_dashboard_json(
     State(state): State<Arc<AppState>>,
-    Query(q): Query<StorageRetentionQuery>,
+    Query(q): Query<StorageDashboardQuery>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    Ok(Json(storage_dashboard_value(&state, q.keep_latest).await?))
+    Ok(Json(storage_dashboard_value(&state, &q).await?))
 }
 
 pub async fn storage_dashboard(
     State(state): State<Arc<AppState>>,
-    Query(q): Query<StorageRetentionQuery>,
+    Query(q): Query<StorageDashboardQuery>,
 ) -> Result<Response, AppError> {
-    let dashboard = storage_dashboard_value(&state, q.keep_latest).await?;
+    let dashboard = storage_dashboard_value(&state, &q).await?;
     let report = dashboard
         .get("retention_report")
         .cloned()
@@ -636,15 +689,82 @@ pub async fn storage_prune(
 }
 
 async fn storage_dashboard_value(
-    state: &AppState,
-    keep_latest: usize,
+    state: &Arc<AppState>,
+    q: &StorageDashboardQuery,
 ) -> Result<serde_json::Value, AppError> {
+    let request = index_page_request(q)?;
+    let index_metrics = state
+        .storage
+        .index
+        .metrics()
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let (mut dashboard, cache_hit) =
+        cached_storage_dashboard_base(state, q.keep_latest, &index_metrics).await?;
+    let index_page = state
+        .storage
+        .index
+        .read_page(request)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let index_page_entries =
+        serde_json::to_value(&index_page.entries).map_err(|e| AppError::Internal(e.to_string()))?;
+    dashboard["latest_index_entries"] = index_page_entries;
+    dashboard["latest_index_page"] =
+        serde_json::to_value(index_page).map_err(|e| AppError::Internal(e.to_string()))?;
+    dashboard["index_metrics"] =
+        serde_json::to_value(index_metrics).map_err(|e| AppError::Internal(e.to_string()))?;
+    dashboard["dashboard_cache"] = serde_json::json!({
+        "schema_version": "ao2.cp-storage-dashboard-cache.v1",
+        "ttl_seconds": DASHBOARD_CACHE_TTL.as_secs(),
+        "status": if cache_hit { "hit" } else { "miss" }
+    });
+    Ok(dashboard)
+}
+
+#[derive(Clone)]
+struct DashboardCacheEntry {
+    state_key: usize,
+    keep_latest: usize,
+    jsonl_bytes: u64,
+    resident_entries: usize,
+    malformed_lines_skipped: usize,
+    invalid_sha256_lines_skipped: usize,
+    stored_at: Instant,
+    value: serde_json::Value,
+}
+
+static DASHBOARD_CACHE: OnceLock<Mutex<Vec<DashboardCacheEntry>>> = OnceLock::new();
+
+async fn cached_storage_dashboard_base(
+    state: &Arc<AppState>,
+    keep_latest: usize,
+    index_metrics: &IndexMetrics,
+) -> Result<(serde_json::Value, bool), AppError> {
+    let now = Instant::now();
+    let state_key = Arc::as_ptr(state) as usize;
+    let cache = DASHBOARD_CACHE.get_or_init(|| Mutex::new(Vec::new()));
+    {
+        let mut entries = cache.lock().await;
+        entries.retain(|entry| now.duration_since(entry.stored_at) <= DASHBOARD_CACHE_TTL);
+        if let Some(entry) = entries.iter().find(|entry| {
+            entry.state_key == state_key
+                && entry.keep_latest == keep_latest
+                && entry.jsonl_bytes == index_metrics.jsonl_bytes
+                && entry.resident_entries == index_metrics.resident_entries
+                && entry.malformed_lines_skipped == index_metrics.malformed_lines_skipped
+                && entry.invalid_sha256_lines_skipped == index_metrics.invalid_sha256_lines_skipped
+        }) {
+            return Ok((entry.value.clone(), true));
+        }
+    }
+
     let bundle = state
         .storage
         .support_bundle(policy(keep_latest)?)
         .await
         .map_err(|e| AppError::Internal(e.to_string()))?;
-    Ok(serde_json::json!({
+    let value = serde_json::json!({
         "schema_version": STORAGE_DASHBOARD_SCHEMA,
         "generated_at": bundle.generated_at,
         "keep_latest": bundle.retention_report.keep_latest,
@@ -664,7 +784,21 @@ async fn storage_dashboard_value(
             "signed_evidence_dashboard": "/api/v1/evidence-pack/dashboard",
             "phase1_promotion_dashboard": "/api/v1/phase1/promotion/dashboard"
         }
-    }))
+    });
+    {
+        let mut entries = cache.lock().await;
+        entries.push(DashboardCacheEntry {
+            state_key,
+            keep_latest,
+            jsonl_bytes: index_metrics.jsonl_bytes,
+            resident_entries: index_metrics.resident_entries,
+            malformed_lines_skipped: index_metrics.malformed_lines_skipped,
+            invalid_sha256_lines_skipped: index_metrics.invalid_sha256_lines_skipped,
+            stored_at: now,
+            value: value.clone(),
+        });
+    }
+    Ok((value, false))
 }
 
 fn storage_support_bundle_sha256(
