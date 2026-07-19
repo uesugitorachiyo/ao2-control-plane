@@ -19,3 +19,4 @@ pub mod release_train;
 pub mod risky_pr_golden;
 pub mod stable_promotion_evidence;
 pub mod storage;
+pub mod windows_qualification_progress;

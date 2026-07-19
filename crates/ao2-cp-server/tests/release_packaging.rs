@@ -15820,6 +15820,7 @@ fn route_catalog_category_field_enum_shape_lane_aaaaaaa() {
         "storage-retention",
         "storage-support-bundle-contract",
         "storage-support-bundle",
+        "windows-qualification-progress-observer",
     ];
 
     // Defensive floor on the canonical set size (catches an edit

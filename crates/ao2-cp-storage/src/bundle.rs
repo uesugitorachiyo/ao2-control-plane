@@ -34,6 +34,7 @@ pub enum BundleKind {
     ReleaseEvaluatorDecisionSignature,
     ReleasePublication,
     ThreeOsReleaseSmoke,
+    WindowsStackQualificationProgress,
 }
 
 impl BundleKind {
@@ -63,6 +64,7 @@ impl BundleKind {
             BundleKind::ReleaseEvaluatorDecisionSignature => "release-evaluator-decision-signature",
             BundleKind::ReleasePublication => "release-publication",
             BundleKind::ThreeOsReleaseSmoke => "three-os-release-smoke",
+            BundleKind::WindowsStackQualificationProgress => "windows-stack-qualification-progress",
         }
     }
 }
