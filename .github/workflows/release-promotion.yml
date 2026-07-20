@@ -9,10 +9,22 @@ on:
       tag:
         description: GitHub release tag to prepare or publish.
         required: true
+      source_sha:
+        description: Exact 40-character source commit to prepare or publish.
+        required: true
       dry_run:
         description: Prepare release evidence only; set false to publish.
         required: true
         default: true
+      promotion_plan_run_id:
+        description: Successful dry-run workflow run ID (required only for live publication).
+        required: false
+      promotion_plan_sha256:
+        description: Exact SHA-256 of the dry-run summary.json (required only for live publication).
+        required: false
+      publish_confirmation:
+        description: Exact live confirmation shown in the promotion plan instructions.
+        required: false
 
 permissions:
   actions: read
@@ -23,11 +35,83 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-dispatch:
+    name: Validate bounded dispatch contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate bounded dispatch contract
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          VERSION: ${{ inputs.version }}
+          TAG: ${{ inputs.tag }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          PROMOTION_PLAN_RUN_ID: ${{ inputs.promotion_plan_run_id }}
+          PROMOTION_PLAN_SHA256: ${{ inputs.promotion_plan_sha256 }}
+          PUBLISH_CONFIRMATION: ${{ inputs.publish_confirmation }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          source_sha = os.environ["SOURCE_SHA"]
+          version = os.environ["VERSION"]
+          tag = os.environ["TAG"]
+          dry_run = os.environ["DRY_RUN"]
+          promotion_plan_run_id = os.environ["PROMOTION_PLAN_RUN_ID"]
+          promotion_plan_sha256 = os.environ["PROMOTION_PLAN_SHA256"]
+          confirmation = os.environ["PUBLISH_CONFIRMATION"]
+          event_sha = os.environ["EVENT_SHA"]
+
+          if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
+              raise SystemExit("source_sha must be exactly 40 lowercase hexadecimal characters")
+          if source_sha != event_sha:
+              raise SystemExit("source_sha != event_sha")
+          if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+              raise SystemExit("version must be a three-part numeric semantic version")
+          if tag != f"v{version}":
+              raise SystemExit("tag must exactly match v<version>")
+          if dry_run not in {"true", "false"}:
+              raise SystemExit("dry_run must be true or false")
+
+          live_values = (promotion_plan_run_id, promotion_plan_sha256, confirmation)
+          if dry_run == "true":
+              if any(live_values):
+                  raise SystemExit("dry-run dispatch must not include live publication inputs")
+          else:
+              if not re.fullmatch(r"[1-9][0-9]*", promotion_plan_run_id):
+                  raise SystemExit("promotion_plan_run_id must be a positive integer")
+              if not re.fullmatch(r"[0-9a-f]{64}", promotion_plan_sha256):
+                  raise SystemExit("promotion_plan_sha256 must be exactly 64 lowercase hexadecimal characters")
+              expected = (
+                  f"publish {tag} from {source_sha} with plan {promotion_plan_sha256}"
+              )
+              if confirmation != expected:
+                  raise SystemExit("exact publication confirmation mismatch")
+          print("release_promotion_dispatch_validation=passed")
+          PY
+
   post-release-verification-baseline:
     name: Require successful post-release verification baseline
     runs-on: ubuntu-latest
+    needs: validate-dispatch
+    if: ${{ inputs.dry_run != 'false' }}
     steps:
       - uses: actions/checkout@v6.0.3
+      - name: Verify exact workflow source SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_sha="${{ inputs.source_sha }}"
+          if ! printf '%s' "$source_sha" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "source_sha must be exactly 40 lowercase hexadecimal characters" >&2
+            exit 1
+          fi
+          if [ "$source_sha" != "${{ github.sha }}" ]; then
+            echo "source_sha does not match workflow source: requested=$source_sha workflow=${{ github.sha }}" >&2
+            exit 1
+          fi
       - name: Verify latest main post-release verification evidence
         shell: bash
         env:
@@ -38,7 +122,7 @@ jobs:
             --repo uesugitorachiyo/ao2-control-plane \
             --branch main \
             --workflow "Post Release Verification" \
-            --head-sha "${{ github.sha }}" \
+            --head-sha "${{ inputs.source_sha }}" \
             --out-json target/release-promotion/${{ inputs.tag }}/post-release-baseline.json
       - name: Validate post-release baseline summary
         shell: bash
@@ -81,6 +165,7 @@ jobs:
     name: Build release archive (${{ matrix.target_label }})
     runs-on: ${{ matrix.os }}
     needs: post-release-verification-baseline
+    if: ${{ inputs.dry_run != 'false' }}
     strategy:
       fail-fast: false
       matrix:
@@ -175,6 +260,7 @@ jobs:
   assemble-release-promotion-plan:
     name: Assemble release promotion plan
     runs-on: ubuntu-latest
+    if: ${{ inputs.dry_run != 'false' }}
     needs:
       - post-release-verification-baseline
       - build-release-archives
@@ -277,40 +363,15 @@ jobs:
                   "path": "post-release-baseline.json",
                   "asset_kind": "post_release_verification_baseline",
                   "checksum_manifest_entry": True,
+              },
+              {
+                  "name": "release-notes.md",
+                  "path": "release-notes.md",
+                  "asset_kind": "release_notes",
+                  "checksum_manifest_entry": True,
               }
           ]
 
-          summary = {
-              "schema_version": "ao2.cp-release-promotion-plan.v1",
-              "status": "prepared",
-              "version": version,
-              "tag": tag,
-              "dry_run": dry_run,
-              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-              "source_commit": os.environ["GITHUB_SHA"],
-              "source_ref": os.environ["GITHUB_REF_NAME"],
-              "archive_assets": archive_assets,
-              "evidence_assets": evidence_assets,
-              "post_release_verification_baseline": post_release_baseline,
-              "required_post_release_artifacts": required_post_release_artifacts,
-              "checksum_manifest": str(checksum_manifest),
-              "release_notes": str(release_notes),
-              "trust_boundary": {
-                  "control_plane_approves_release": False,
-                  "mutates_ao_artifacts": False,
-                  "mutates_github_releases": dry_run is False,
-                  "github_release_mutation_requested": dry_run is False,
-                  "credential_material_included": False,
-                  "release_acceptance_owner": "factory-v3 evaluator-closer",
-              },
-          }
-          summary_path = root / "summary.json"
-          summary_bytes = (json.dumps(summary, indent=2, sort_keys=True) + "\n").encode("utf-8")
-          summary_path.write_bytes(summary_bytes)
-          summary_sha256 = hashlib.sha256(summary_bytes).hexdigest()
-          checksum_lines.append(f"{summary_sha256}  summary.json\n")
-          baseline_sha256 = hashlib.sha256((root / "post-release-baseline.json").read_bytes()).hexdigest()
-          checksum_lines.append(f"{baseline_sha256}  post-release-baseline.json\n")
           checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
           subprocess.run(
               [
@@ -331,6 +392,49 @@ jobs:
               ],
               check=True,
           )
+          release_notes_sha256 = hashlib.sha256(release_notes.read_bytes()).hexdigest()
+
+          summary = {
+              "schema_version": "ao2.cp-release-promotion-plan.v1",
+              "status": "prepared",
+              "version": version,
+              "tag": tag,
+              "dry_run": dry_run,
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+              "source_commit": os.environ["GITHUB_SHA"],
+              "source_ref": os.environ["GITHUB_REF_NAME"],
+              "archive_assets": archive_assets,
+              "evidence_assets": evidence_assets,
+              "post_release_verification_baseline": post_release_baseline,
+              "required_post_release_artifacts": required_post_release_artifacts,
+              "checksum_manifest": str(checksum_manifest),
+              "release_notes": str(release_notes),
+              "release_notes_sha256": release_notes_sha256,
+              "trust_boundary": {
+                  "control_plane_approves_release": False,
+                  "mutates_ao_artifacts": False,
+                  "mutates_github_releases": dry_run is False,
+                  "github_release_mutation_requested": dry_run is False,
+                  "credential_material_included": False,
+                  "release_acceptance_owner": "factory-v3 evaluator-closer",
+              },
+          }
+          summary_path = root / "summary.json"
+          summary_bytes = (json.dumps(summary, indent=2, sort_keys=True) + "\n").encode("utf-8")
+          summary_path.write_bytes(summary_bytes)
+          summary_sha256 = hashlib.sha256(summary_bytes).hexdigest()
+          print(f"promotion_plan_sha256={summary_sha256}")
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as step_summary:
+              step_summary.write(f"Promotion plan SHA-256: `{summary_sha256}`\n")
+              step_summary.write(
+                  "Live confirmation: "
+                  f"`publish {tag} from {os.environ['GITHUB_SHA']} with plan {summary_sha256}`\n"
+              )
+          checksum_lines.append(f"{summary_sha256}  summary.json\n")
+          baseline_sha256 = hashlib.sha256((root / "post-release-baseline.json").read_bytes()).hexdigest()
+          checksum_lines.append(f"{baseline_sha256}  post-release-baseline.json\n")
+          checksum_lines.append(f"{release_notes_sha256}  release-notes.md\n")
+          checksum_manifest.write_text("".join(checksum_lines), encoding="utf-8")
           PY
       - name: Upload release promotion plan
         uses: actions/upload-artifact@v7.0.1
@@ -346,46 +450,152 @@ jobs:
   publish-release:
     name: Publish release
     runs-on: ubuntu-latest
-    needs: assemble-release-promotion-plan
+    needs: validate-dispatch
     if: ${{ inputs.dry_run == 'false' }}
+    environment: ao2-control-plane-release
     permissions:
+      actions: read
       contents: write
     steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          ref: ${{ inputs.source_sha }}
+      - name: Verify protected release environment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/environments/ao2-control-plane-release" \
+            > /tmp/release-environment.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          environment = json.loads(
+              Path("/tmp/release-environment.json").read_text(encoding="utf-8")
+          )
+          if environment.get("name") != "ao2-control-plane-release":
+              raise SystemExit("release environment identity mismatch")
+          rules = environment.get("protection_rules")
+          reviewer_rules = [
+              rule for rule in rules or []
+              if rule.get("type") == "required_reviewers"
+          ]
+          if not reviewer_rules or not reviewer_rules[0].get("reviewers"):
+              raise SystemExit("release environment requires at least one reviewer")
+          if reviewer_rules[0].get("prevent_self_review") is not True:
+              raise SystemExit("release environment must prevent self-review")
+          branch_policy = environment.get("deployment_branch_policy") or {}
+          if branch_policy.get("protected_branches") is not True:
+              raise SystemExit("release environment must require protected branches")
+          print("release_environment_protection=passed")
+          PY
+      - name: Verify dry-run workflow provenance
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_id="${{ inputs.promotion_plan_run_id }}"
+          if ! printf '%s' "$run_id" | grep -Eq '^[1-9][0-9]*$'; then
+            echo "promotion_plan_run_id must be a positive integer" >&2
+            exit 1
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" > /tmp/promotion-run.json
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run = json.loads(Path("/tmp/promotion-run.json").read_text(encoding="utf-8"))
+          expected = {
+              "conclusion": "success",
+              "event": "workflow_dispatch",
+              "head_sha": "${{ inputs.source_sha }}",
+              "path": ".github/workflows/release-promotion.yml",
+          }
+          for field, value in expected.items():
+              if run.get(field) != value:
+                  raise SystemExit(
+                      f"promotion-plan run provenance mismatch: {field}={run.get(field)!r} expected={value!r}"
+                  )
+          if str(run.get("id")) != "${{ inputs.promotion_plan_run_id }}":
+              raise SystemExit("promotion-plan run ID mismatch")
+          PY
       - name: Download release candidate artifacts
         uses: actions/download-artifact@v8.0.1
         with:
           pattern: ao2-control-plane-release-candidate-${{ inputs.tag }}-*
           path: target/release-promotion/${{ inputs.tag }}/downloaded
+          run-id: ${{ inputs.promotion_plan_run_id }}
+          github-token: ${{ github.token }}
       - name: Download release promotion plan
         uses: actions/download-artifact@v8.0.1
         with:
           name: ao2-control-plane-release-promotion-plan-${{ inputs.tag }}
           path: target/release-promotion/${{ inputs.tag }}
+          run-id: ${{ inputs.promotion_plan_run_id }}
+          github-token: ${{ github.token }}
+      - name: Validate exact immutable promotion plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/validate_release_promotion.py \
+            --root "target/release-promotion/${{ inputs.tag }}" \
+            --source-sha "${{ inputs.source_sha }}" \
+            --version "${{ inputs.version }}" \
+            --tag "${{ inputs.tag }}" \
+            --plan-sha256 "${{ inputs.promotion_plan_sha256 }}" \
+            --confirmation "${{ inputs.publish_confirmation }}" \
+            --event-sha "${{ github.sha }}"
+      - name: Reject existing tag or release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.tag }}"
+          check_absent() {
+            kind="$1"
+            endpoint="$2"
+            response=$(mktemp)
+            set +e
+            gh api --include "$endpoint" > "$response" 2>&1
+            status=$?
+            set -e
+            if [ "$status" -eq 0 ]; then
+              echo "$kind already exists: $tag" >&2
+              exit 1
+            fi
+            if ! grep -Eq '^HTTP/[0-9.]+ 404' "$response"; then
+              echo "unable to prove $kind absence for $tag" >&2
+              sed -n '1,8p' "$response" >&2
+              exit 1
+            fi
+          }
+          check_absent "tag" "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag"
+          check_absent "release" "repos/$GITHUB_REPOSITORY/releases/tags/$tag"
       - name: Publish GitHub release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           root="target/release-promotion/${{ inputs.tag }}"
-          if gh release view "${{ inputs.tag }}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release edit "${{ inputs.tag }}" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "ao2-control-plane ${{ inputs.tag }}" \
-              --notes-file "$root/release-notes.md" \
-              --target "$GITHUB_SHA" \
-              --latest
-          else
-            gh release create "${{ inputs.tag }}" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "ao2-control-plane ${{ inputs.tag }}" \
-              --notes-file "$root/release-notes.md" \
-              --target "$GITHUB_SHA" \
-              --latest
+          mapfile -t archives < <(find "$root/downloaded" -type f -name 'ao2-control-plane-*.tar.gz' -print | LC_ALL=C sort)
+          if [ "${#archives[@]}" -ne 3 ]; then
+            echo "validated archive closure changed before publication" >&2
+            exit 1
           fi
-          gh release upload "${{ inputs.tag }}" \
+          gh release create "${{ inputs.tag }}" \
             --repo "$GITHUB_REPOSITORY" \
-            "$root"/downloaded/*/dist/ao2-control-plane-${{ inputs.version }}-*.tar.gz \
+            --title "ao2-control-plane ${{ inputs.tag }}" \
+            --notes-file "$root/release-notes.md" \
+            --target "${{ inputs.source_sha }}" \
+            --latest \
+            "${archives[@]}" \
             "$root/SHA256SUMS" \
             "$root/summary.json" \
             "$root/post-release-baseline.json" \
-            --clobber
+            "$root/release-notes.md"
