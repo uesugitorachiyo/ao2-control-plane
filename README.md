@@ -1,6 +1,6 @@
 # ao2-control-plane
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17)
 
 AO2 Control Plane is the observer service for completed AO2 evidence. It verifies signed bundles, stores content-addressed records, and exposes authenticated read APIs and dashboards without participating in execution. Use it when operators need durable evidence history, integrity checks, searchable readback, backup and restore, or a browser view of completed runs.
 
@@ -130,17 +130,17 @@ macOS, and Windows.
 ## Install From Public Release
 
 The current public release is
-[`v0.1.16`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16).
+[`v0.1.17`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17).
 It publishes Linux, macOS, and Windows archives plus token-free promotion
 summary evidence. Download and verify it with:
 
 ```bash
 mkdir -p dist-release
-gh release download v0.1.16 --repo uesugitorachiyo/ao2-control-plane \
-  --pattern ao2-control-plane-0.1.16-macos-aarch64.tar.gz \
+gh release download v0.1.17 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.17-macos-aarch64.tar.gz \
   --pattern SHA256SUMS \
   --dir dist-release
-(cd dist-release && grep 'ao2-control-plane-0.1.16-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+(cd dist-release && grep 'ao2-control-plane-0.1.17-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
 Or run the repository verifier, which downloads all published release assets
@@ -519,7 +519,8 @@ targets on every pull request and `main` push. Open
 
 `Release Promotion` in `.github/workflows/release-promotion.yml` is the
 governed path for preparing the next control-plane release. It is manual,
-requires explicit version and tag inputs, and uses `dry_run=true` by default.
+requires explicit version, tag, and exact source SHA inputs, and uses
+`dry_run=true` by default.
 It builds and smokes release archives for Linux x86_64, macOS aarch64, and
 Windows x86_64 before assembling the
 `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
@@ -540,8 +541,23 @@ notes generated from `SHA256SUMS` with the source commit and archive hashes.
 prove the release metadata did not drift. The plan records that AO2 release
 acceptance remains owned by the factory-v3 evaluator closer and that the control
 plane does not approve AO2 runs, mutate AO artifacts, or include credential
-material. Publishing a GitHub release requires dispatching the workflow with
-`dry_run=false`; the normal path only prepares evidence.
+material. A live dispatch imports artifacts from an identified successful
+dry-run workflow run and verifies the exact source SHA, immutable
+`summary.json` SHA-256, and confirmation text
+`publish <tag> from <source-sha> with plan <summary-sha256>`. The live job is
+bound to `ao2-control-plane-release` and verifies that the environment requires
+reviewers and protected branches. It rejects an existing tag or release before
+using create-only publication, and never edits a release or overwrites an
+asset. The normal dry-run path only prepares evidence and has read-only
+repository permissions.
+
+GitHub CLI creates a release through a draft/upload/publish sequence. If a live
+job is interrupted, the workflow never overwrites or resumes an existing tag,
+release, or asset automatically. Inspect the tag and release state, verify that
+any draft belongs to the exact frozen source and promotion plan, and obtain
+separate deletion authority before removing an incomplete draft or tag. Then
+rerun the same immutable plan. A public or mismatched existing release is never
+an automatic recovery candidate.
 
 ## Running tests
 

@@ -231,6 +231,9 @@ def test_package_checksums_cover_full_closure_and_manifest_contract(tmp_path):
         manifest = json.load(bundle.extractfile("RELEASE-MANIFEST.json"))
         sbom_bytes = bundle.extractfile("ao2-control-plane.cdx.json").read()
 
+    assert not {
+        name for name in files if Path(name).name.startswith("._")
+    }, "archive must not contain macOS AppleDouble metadata"
     assert set(checksums) == files - {"SHA256SUMS"}
     assert checksums["ao2-control-plane.cdx.json"] == hashlib.sha256(
         sbom_bytes

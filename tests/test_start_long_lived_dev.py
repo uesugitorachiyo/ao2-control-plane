@@ -61,11 +61,11 @@ def test_readme_links_current_release_and_release_archive_artifacts():
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
     for needle in [
-        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16",
+        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17",
         "img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane",
-        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.16",
-        "gh release download v0.1.16 --repo uesugitorachiyo/ao2-control-plane",
-        "ao2-control-plane-0.1.16-macos-aarch64.tar.gz",
+        "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17",
+        "gh release download v0.1.17 --repo uesugitorachiyo/ao2-control-plane",
+        "ao2-control-plane-0.1.17-macos-aarch64.tar.gz",
         "https://github.com/uesugitorachiyo/ao2-control-plane/actions",
         "ao2-control-plane-release-archive-linux-x86_64",
         "ao2-control-plane-release-archive-macos-aarch64",
@@ -794,7 +794,7 @@ def test_ci_runs_python_guard_tests_and_live_smoke_contract_is_documented():
 
     assert "Python guard tests" in ci
     assert "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest" in ci
-    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py tests/test_release_qualification.py -q" in ci
+    assert "tests/test_start_long_lived_dev.py tests/test_release_asset_parity_audit.py tests/test_release_promotion_workflow.py tests/test_validate_release_promotion.py tests/test_release_notes_from_checksums.py tests/test_public_release_pair_verify.py tests/test_ao2_stable_promotion_evidence_index_readback.py tests/test_ao2_dual_repo_public_approval_closure_readback.py tests/test_active_stack_release_handoff_readback.py tests/test_ao2_rsi_claim_readiness_readback.py tests/test_ao2_rsi_self_change_dry_run_readback.py tests/test_ao2_rsi_authority_packet_readback.py tests/test_release_qualification.py -q" in ci
     assert "AO2_CP_LONG_LIVED_SMOKE_LIVE" in script
     assert "live_restart_readiness" in script
     assert "/readyz" in script

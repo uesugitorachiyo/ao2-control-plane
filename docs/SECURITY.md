@@ -10,9 +10,11 @@ This server stores evidence bundles produced by local `ao2` CLIs. It is NOT in t
 
 ## Authentication
 
-Bearer token, configured via `AO2_CP_API_TOKEN`. All `/api/v1/*` endpoints require either:
-- `Authorization: Bearer <token>` header (preferred), or
-- `?token=<token>` query parameter (convenience)
+Bearer token, configured via `AO2_CP_API_TOKEN`. Authenticated `/api/v1/*`
+endpoints require an `Authorization: Bearer <token>` header. The only query-token
+exception is `/api/v1/audit-log/stream`: its browser SSE client may use
+`?token=<token>` because `EventSource` cannot set an Authorization header. Do
+not use query tokens on any other endpoint.
 
 `/healthz` is unauthenticated.
 

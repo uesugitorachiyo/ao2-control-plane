@@ -479,7 +479,7 @@ TXT
 done
 
 ARCHIVE="$OUT_DIR/ao2-control-plane-$VERSION-$TARGET_LABEL.tar.gz"
-(cd "$STAGE" && tar -czf "$ARCHIVE" bin install.sh install.ps1 rollback.sh rollback.ps1 uninstall.sh uninstall.ps1 ao2-control-plane.cdx.json verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt LICENSE NOTICE)
+(cd "$STAGE" && COPYFILE_DISABLE=1 COPY_EXTENDED_ATTRIBUTES_DISABLE=1 tar -czf "$ARCHIVE" bin install.sh install.ps1 rollback.sh rollback.ps1 uninstall.sh uninstall.ps1 ao2-control-plane.cdx.json verify_release_support_bundle.py Verify-ReleaseSupportBundle.ps1 fetch_release_support_handoff.py Fetch-ReleaseSupportHandoff.ps1 SHA256SUMS RELEASE-MANIFEST.json README.txt LICENSE NOTICE)
 if command -v sha256sum >/dev/null 2>&1; then
   archive_sha=$(sha256sum "$ARCHIVE" | awk '{ print $1 }')
 else
