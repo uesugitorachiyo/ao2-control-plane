@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
@@ -43,6 +43,8 @@ pub struct IndexMetrics {
     pub schema_version: String,
     pub resident_entries: usize,
     pub resident_unique_sha256: usize,
+    #[serde(default)]
+    pub resident_digest_index_entries: usize,
     pub jsonl_bytes: u64,
     pub malformed_lines_skipped: usize,
     pub invalid_sha256_lines_skipped: usize,
@@ -67,6 +69,7 @@ pub struct IndexStore {
 struct IndexState {
     loaded: bool,
     entries: Vec<IndexEntry>,
+    digest_index: HashSet<String>,
     jsonl_bytes: u64,
     jsonl_modified_unix_nanos: Option<u128>,
     malformed_lines_skipped: usize,
@@ -85,6 +88,7 @@ impl IndexStore {
         let mut state = self.state.lock().await;
         self.ensure_loaded(&mut state).await?;
         self.append_inner(&entry).await?;
+        state.digest_index.insert(entry.sha256.clone());
         state.entries.push(entry);
         let fingerprint = file_fingerprint(&self.path).await?;
         state.jsonl_bytes = fingerprint.len;
@@ -96,10 +100,11 @@ impl IndexStore {
     pub async fn append_if_absent(&self, entry: IndexEntry) -> Result<bool, IndexStoreError> {
         let mut state = self.state.lock().await;
         self.ensure_loaded(&mut state).await?;
-        if state.entries.iter().any(|e| e.sha256 == entry.sha256) {
+        if state.digest_index.contains(&entry.sha256) {
             return Ok(false);
         }
         self.append_inner(&entry).await?;
+        state.digest_index.insert(entry.sha256.clone());
         state.entries.push(entry);
         let fingerprint = file_fingerprint(&self.path).await?;
         state.jsonl_bytes = fingerprint.len;
@@ -176,16 +181,12 @@ impl IndexStore {
     pub async fn metrics(&self) -> Result<IndexMetrics, IndexStoreError> {
         let mut state = self.state.lock().await;
         self.ensure_loaded(&mut state).await?;
-        let resident_unique_sha256 = state
-            .entries
-            .iter()
-            .map(|entry| entry.sha256.as_str())
-            .collect::<BTreeSet<_>>()
-            .len();
+        let resident_unique_sha256 = state.digest_index.len();
         Ok(IndexMetrics {
             schema_version: "ao2.cp-storage-index-metrics.v1".to_string(),
             resident_entries: state.entries.len(),
             resident_unique_sha256,
+            resident_digest_index_entries: state.digest_index.len(),
             jsonl_bytes: state.jsonl_bytes,
             malformed_lines_skipped: state.malformed_lines_skipped,
             invalid_sha256_lines_skipped: state.invalid_sha256_lines_skipped,
@@ -213,6 +214,7 @@ impl IndexStore {
         tokio::fs::rename(tmp, &self.path).await?;
         state.loaded = true;
         state.entries = entries.to_vec();
+        state.digest_index = entries.iter().map(|entry| entry.sha256.clone()).collect();
         let fingerprint = file_fingerprint(&self.path).await?;
         state.jsonl_bytes = fingerprint.len;
         state.jsonl_modified_unix_nanos = fingerprint.modified_unix_nanos;
@@ -232,6 +234,11 @@ impl IndexStore {
         let load = self.load_from_disk().await?;
         state.loaded = true;
         state.entries = load.entries;
+        state.digest_index = state
+            .entries
+            .iter()
+            .map(|entry| entry.sha256.clone())
+            .collect();
         state.jsonl_bytes = load.jsonl_bytes;
         state.jsonl_modified_unix_nanos = load.jsonl_modified_unix_nanos;
         state.malformed_lines_skipped = load.malformed_lines_skipped;

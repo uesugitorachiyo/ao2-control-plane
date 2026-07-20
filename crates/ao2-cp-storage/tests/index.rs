@@ -1,6 +1,8 @@
 use ao2_cp_storage::index::{IndexEntry, IndexPageRequest, IndexStore};
 use chrono::{TimeZone, Utc};
+use serde_json::json;
 use std::sync::Arc;
+use std::time::Instant;
 use tempfile::tempdir;
 
 fn entry(sha: &str, schema: &str) -> IndexEntry {
@@ -47,6 +49,21 @@ fn generated_fixture_entries(count: usize) -> Vec<IndexEntry> {
             generated_entry(index, schema, provider, status)
         })
         .collect()
+}
+
+#[test]
+fn index_metrics_accepts_pre_digest_index_v1_payload() {
+    let metrics: ao2_cp_storage::index::IndexMetrics = serde_json::from_value(json!({
+        "schema_version": "ao2.cp-storage-index-metrics.v1",
+        "resident_entries": 3,
+        "resident_unique_sha256": 3,
+        "jsonl_bytes": 120,
+        "malformed_lines_skipped": 0,
+        "invalid_sha256_lines_skipped": 0
+    }))
+    .unwrap();
+
+    assert_eq!(metrics.resident_digest_index_entries, 0);
 }
 
 #[tokio::test]
@@ -301,5 +318,74 @@ async fn concurrent_append_if_absent_updates_single_resident_index() {
     let metrics = store.metrics().await.unwrap();
     assert_eq!(metrics.resident_entries, 24);
     assert_eq!(metrics.resident_unique_sha256, 24);
+    assert_eq!(metrics.resident_digest_index_entries, 24);
     assert_eq!(store.read_all().await.unwrap().len(), 24);
+}
+
+#[tokio::test]
+#[ignore = "records deterministic 10,000 and 100,000 entry scale measurements"]
+async fn records_resident_index_scale_measurements() {
+    let mut cases = Vec::new();
+    for count in [10_000, 100_000] {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("index.jsonl");
+        let store = IndexStore::new(path.clone());
+        let entries = generated_fixture_entries(count);
+
+        let rewrite_started = Instant::now();
+        store.rewrite(&entries).await.unwrap();
+        let rewrite_ms = rewrite_started.elapsed().as_secs_f64() * 1000.0;
+        drop(store);
+
+        let store = IndexStore::new(path);
+        let load_and_page_started = Instant::now();
+        let page = store
+            .read_page(IndexPageRequest {
+                offset: count / 2,
+                limit: 25,
+                schema_prefix: None,
+                provider: None,
+                status: None,
+            })
+            .await
+            .unwrap();
+        let load_and_page_ms = load_and_page_started.elapsed().as_secs_f64() * 1000.0;
+
+        let duplicate_started = Instant::now();
+        let inserted = store
+            .append_if_absent(generated_entry(
+                count - 1,
+                "ao2.memory-export.v1",
+                "codex",
+                "passed",
+            ))
+            .await
+            .unwrap();
+        let duplicate_lookup_us = duplicate_started.elapsed().as_secs_f64() * 1_000_000.0;
+
+        let metrics = store.metrics().await.unwrap();
+        assert!(!inserted);
+        assert_eq!(page.total_entries, count);
+        assert_eq!(page.entries.len(), 25);
+        assert_eq!(metrics.resident_entries, count);
+        assert_eq!(metrics.resident_unique_sha256, count);
+        assert_eq!(metrics.resident_digest_index_entries, count);
+        cases.push(json!({
+            "entries": count,
+            "rewrite_ms": rewrite_ms,
+            "cold_load_and_page_ms": load_and_page_ms,
+            "resident_duplicate_lookup_us": duplicate_lookup_us,
+            "page_entries": page.entries.len(),
+            "resident_digest_index_entries": metrics.resident_digest_index_entries,
+        }));
+    }
+    println!(
+        "{}",
+        serde_json::to_string(&json!({
+            "schema_version": "ao2.cp-storage-index-scale.v1",
+            "cases": cases,
+            "status": "passed"
+        }))
+        .unwrap()
+    );
 }
