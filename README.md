@@ -201,10 +201,10 @@ AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
-AO2 stable release (`v0.5.1`) and control-plane release (`v0.1.16`) as one
+AO2 stable release (`v0.5.2`) and control-plane release (`v0.1.17`) as one
 public release pair. Those stable defaults are read from
 `docs/release/release-train.json`; the current stable train is
-(`v0.5.1` / `v0.1.16`). The verifier reads GitHub release metadata and
+(`v0.5.2` / `v0.1.17`). The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
 summary evidence, and checksum coverage for the published control-plane

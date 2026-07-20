@@ -239,6 +239,30 @@ def test_release_promotion_dry_run_has_no_publication_permissions_or_commands():
     assert "if: ${{ inputs.dry_run != 'false' }}" in preparation
 
 
+def test_interrupted_publication_fails_closed_without_resume_or_replacement():
+    workflow = workflow_text()
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    publish = workflow.split("  publish-release:\n", 1)[1]
+
+    for needle in [
+        "Reject existing tag or release",
+        "gh release create",
+        "interrupted",
+        "separate deletion authority",
+        "never overwrites or resumes an existing tag",
+    ]:
+        assert needle in workflow or needle in readme
+
+    for forbidden in [
+        "gh release edit",
+        "gh release upload",
+        "gh release delete",
+        "--clobber",
+        "git push --delete",
+    ]:
+        assert forbidden not in publish
+
+
 def test_release_promotion_is_documented_and_guarded_in_ci():
     workflow = workflow_text()
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")

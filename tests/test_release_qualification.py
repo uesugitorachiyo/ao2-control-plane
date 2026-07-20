@@ -101,8 +101,8 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
     assert 'VERSION="0.1.17"' in package_script
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2_control_plane"] == {
-        "tag": "v0.1.16",
-        "version": "0.1.16",
+        "tag": "v0.1.17",
+        "version": "0.1.17",
     }
     assert release_train_json["next_patch"]["ao2_control_plane"] == {
         "tag": "v0.1.17",
