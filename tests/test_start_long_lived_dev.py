@@ -87,7 +87,7 @@ def test_release_download_verify_checks_public_release_checksums():
         "AO2_CP_RELEASE_REPO",
         "uesugitorachiyo/ao2-control-plane",
         "AO2_CP_RELEASE_TAG",
-        "v0.1.16",
+        "v0.1.17",
         "gh release download",
         "SHA256SUMS",
         "ao2-control-plane-*.tar.gz",
@@ -138,7 +138,7 @@ def test_release_download_verify_can_emit_token_free_publication_closure_summary
     assert payload["schema_version"] == "ao2.cp-release-publication-closure.v1"
     assert payload["status"] == "passed"
     assert payload["release_repo"] == "uesugitorachiyo/ao2-control-plane"
-    assert payload["release_tag"] == "v0.1.16"
+    assert payload["release_tag"] == "v0.1.17"
     assert payload["download_dir"] == str(release_dir)
     assert payload["checksum_manifest"] == str(release_dir / "SHA256SUMS")
     assert payload["checksum_verified"] is True
@@ -230,19 +230,19 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
     for needle in [
         "workflow_dispatch:",
         "release_tag:",
-        "default: v0.1.16",
+        "default: v0.1.17",
         "schedule:",
         'cron: "29 12 * * 2"',
         "contents: read",
         "cancel-in-progress: false",
         "AO2_CP_RELEASE_REPO: uesugitorachiyo/ao2-control-plane",
-        "AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.16' }}",
+        "AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.17' }}",
         "os: ubuntu-latest",
         "os: macos-latest",
         "os: windows-latest",
         "scripts/release-download-verify.sh",
         "AO2_CP_RELEASE_CLOSURE_SUMMARY_JSON=target/post-release-verification/${{ matrix.name }}/summary.json",
-        "EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.16' }}",
+        "EXPECTED_AO2_CP_RELEASE_TAG: ${{ inputs.release_tag || 'v0.1.17' }}",
         "import os",
         'assert summary["release_tag"] == os.environ["EXPECTED_AO2_CP_RELEASE_TAG"], summary',
         "ao2-control-plane-post-release-verification-${{ matrix.name }}",

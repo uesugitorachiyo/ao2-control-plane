@@ -176,8 +176,8 @@ scripts/public_release_pair_verify.py \
 
 Expected output includes
 `control_plane_public_release_pair_verification=passed`. The summary schema is
-`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.5.1`,
-control-plane `v0.1.16`, their common Linux x86_64, macOS aarch64, and Windows
+`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.5.2`,
+control-plane `v0.1.17`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
 promotion summary evidence, checksum coverage for `summary.json`, and a
 read-only trust boundary. Use `--strict` in release-promotion or stable-channel
@@ -219,7 +219,7 @@ python3 scripts/verify_post_release_baseline.py \
   --branch main \
   --workflow "Post Release Verification" \
   --head-sha "$(git rev-parse origin/main)" \
-  --out-json target/release-promotion/v0.1.16/post-release-baseline.json
+  --out-json target/release-promotion/v0.1.17/post-release-baseline.json
 ```
 
 Expected output is `post_release_verification_baseline=passed`. This check

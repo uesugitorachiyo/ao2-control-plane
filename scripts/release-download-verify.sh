@@ -24,7 +24,7 @@ print(manifest["stable"]["ao2_control_plane"]["tag"])
 PY
 )"
   else
-    AO2_CP_RELEASE_TAG="v0.1.16"
+    AO2_CP_RELEASE_TAG="v0.1.17"
   fi
 fi
 AO2_CP_RELEASE_DOWNLOAD_DIR="${AO2_CP_RELEASE_DOWNLOAD_DIR:-target/release-download/$AO2_CP_RELEASE_TAG}"
