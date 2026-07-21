@@ -129,6 +129,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           summary = json.loads(Path("target/release-promotion/${{ inputs.tag }}/post-release-baseline.json").read_text(encoding="utf-8"))
@@ -484,8 +485,21 @@ jobs:
           ]
           if not reviewer_rules or not reviewer_rules[0].get("reviewers"):
               raise SystemExit("release environment requires at least one reviewer")
-          if reviewer_rules[0].get("prevent_self_review") is not True:
-              raise SystemExit("release environment must prevent self-review")
+          reviewer_rule = reviewer_rules[0]
+          if reviewer_rule.get("prevent_self_review") is not True:
+              owner = os.environ["GITHUB_REPOSITORY"].split("/", 1)[0]
+              reviewer_logins = {
+                  reviewer.get("reviewer", {}).get("login")
+                  for reviewer in reviewer_rule["reviewers"]
+              }
+              if (
+                  reviewer_rule.get("prevent_self_review") is not False
+                  or reviewer_logins != {owner}
+              ):
+                  raise SystemExit(
+                      "self-review may be enabled only for the sole repository-owner reviewer"
+                  )
+              print("release_environment_review_mode=single_owner_explicit")
           branch_policy = environment.get("deployment_branch_policy") or {}
           if branch_policy.get("protected_branches") is not True:
               raise SystemExit("release environment must require protected branches")
