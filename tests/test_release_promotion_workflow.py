@@ -1,4 +1,9 @@
+import json
+import os
 from pathlib import Path
+import subprocess
+import sys
+from textwrap import dedent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -230,6 +235,55 @@ def test_release_promotion_publish_step_is_explicitly_guarded():
     assert "--clobber" not in publish
     assert "gh release delete" not in publish
     assert "git push --delete" not in publish
+
+
+def test_single_owner_release_environment_validator_executes(tmp_path):
+    workflow = workflow_text()
+    step = workflow.split(
+        "      - name: Verify protected release environment\n", 1
+    )[1].split("      - name: Verify dry-run workflow provenance\n", 1)[0]
+    validator = dedent(
+        step.split("          python3 - <<'PY'\n", 1)[1].split(
+            "\n          PY", 1
+        )[0]
+    )
+    environment_path = tmp_path / "release-environment.json"
+    environment_path.write_text(
+        json.dumps(
+            {
+                "name": "ao2-control-plane-release",
+                "protection_rules": [
+                    {
+                        "type": "required_reviewers",
+                        "prevent_self_review": False,
+                        "reviewers": [
+                            {
+                                "type": "User",
+                                "reviewer": {"login": "uesugitorachiyo"},
+                            }
+                        ],
+                    }
+                ],
+                "deployment_branch_policy": {"protected_branches": True},
+            }
+        ),
+        encoding="utf-8",
+    )
+    validator = validator.replace(
+        'Path("/tmp/release-environment.json")',
+        f"Path({str(environment_path)!r})",
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", validator],
+        check=False,
+        capture_output=True,
+        env={**os.environ, "GITHUB_REPOSITORY": "uesugitorachiyo/ao2-control-plane"},
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "release_environment_review_mode=single_owner_explicit" in result.stdout
+    assert "release_environment_protection=passed" in result.stdout
 
 
 def test_release_promotion_dry_run_has_no_publication_permissions_or_commands():
