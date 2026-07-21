@@ -129,7 +129,6 @@ jobs:
         run: |
           python3 - <<'PY'
           import json
-          import os
           from pathlib import Path
 
           summary = json.loads(Path("target/release-promotion/${{ inputs.tag }}/post-release-baseline.json").read_text(encoding="utf-8"))
@@ -471,6 +470,7 @@ jobs:
             > /tmp/release-environment.json
           python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           environment = json.loads(
