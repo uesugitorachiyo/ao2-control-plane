@@ -140,7 +140,7 @@ def manifest(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", default=str(ROOT / "dist"))
-    parser.add_argument("--version", default="0.1.17")
+    parser.add_argument("--version", default="0.1.18")
     parser.add_argument("--binary", default=str(ROOT / "target/release/ao2-cp-server"))
     parser.add_argument("--target-label", default="")
     args = parser.parse_args()

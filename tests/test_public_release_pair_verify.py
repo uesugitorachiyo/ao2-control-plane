@@ -86,10 +86,10 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
         "tag": "v0.1.17",
         "version": "0.1.17",
     }
-    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.2", "version": "0.5.2"}
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.3", "version": "0.5.3"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
-        "tag": "v0.1.17",
-        "version": "0.1.17",
+        "tag": "v0.1.18",
+        "version": "0.1.18",
     }
 
     spec = importlib.util.spec_from_file_location("public_release_pair_verify", SCRIPT)
