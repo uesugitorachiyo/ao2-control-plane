@@ -94,24 +94,24 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         encoding="utf-8"
     )
 
-    assert 'version = "0.1.17"' in workspace
+    assert 'version = "0.1.18"' in workspace
     for crate in ("ao2-cp-schema", "ao2-cp-server", "ao2-cp-storage"):
         block = lockfile.split(f'name = "{crate}"', 1)[1].split("[[package]]", 1)[0]
-        assert 'version = "0.1.17"' in block
-    assert 'VERSION="0.1.17"' in package_script
+        assert 'version = "0.1.18"' in block
+    assert 'VERSION="0.1.18"' in package_script
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.17",
         "version": "0.1.17",
     }
     assert release_train_json["next_patch"]["ao2_control_plane"] == {
-        "tag": "v0.1.17",
-        "version": "0.1.17",
+        "tag": "v0.1.18",
+        "version": "0.1.18",
     }
 
 
 def test_package_rejects_version_substitution(tmp_path):
-    binary = write_payloads(tmp_path / "build-actual", "0.1.17")
+    binary = write_payloads(tmp_path / "build-actual", "0.1.18")
     result = subprocess.run(
         [
             "sh",
@@ -216,7 +216,7 @@ def test_cargo_lock_sbom_is_deterministic_cyclonedx_1_5(tmp_path):
     sbom = json.loads(first.read_text(encoding="utf-8"))
     assert sbom["bomFormat"] == "CycloneDX"
     assert sbom["specVersion"] == "1.5"
-    assert sbom["metadata"]["component"]["version"] == "0.1.17"
+    assert sbom["metadata"]["component"]["version"] == "0.1.18"
     assert len(sbom["components"]) > 50
     assert any(component["name"] == "ao2-cp-server" for component in sbom["components"])
 

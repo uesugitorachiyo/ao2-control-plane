@@ -44,7 +44,7 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
 
     for target_label in ["linux-x86_64", "macos-aarch64", "windows-x86_64"]:
         assert f"target_label: {target_label}" in ci
-        assert f"dist/ao2-control-plane-0.1.17-{target_label}.tar.gz" in ci
+        assert f"dist/ao2-control-plane-0.1.18-{target_label}.tar.gz" in ci
 
     for needle in [
         "Upload release archive artifact",
@@ -106,7 +106,7 @@ def test_release_download_verify_checks_public_release_checksums():
 def test_release_download_verify_can_emit_token_free_publication_closure_summary(tmp_path):
     release_dir = tmp_path / "release-download"
     release_dir.mkdir()
-    artifact = release_dir / "ao2-control-plane-0.1.17-linux-x86_64.tar.gz"
+    artifact = release_dir / "ao2-control-plane-0.1.18-linux-x86_64.tar.gz"
     artifact.write_text("fake archive bytes\n", encoding="utf-8")
     digest = subprocess.check_output(
         ["shasum", "-a", "256", artifact.name],
@@ -144,7 +144,7 @@ def test_release_download_verify_can_emit_token_free_publication_closure_summary
     assert payload["checksum_verified"] is True
     assert {asset["name"] for asset in payload["assets"]} == {
         "SHA256SUMS",
-        "ao2-control-plane-0.1.17-linux-x86_64.tar.gz",
+        "ao2-control-plane-0.1.18-linux-x86_64.tar.gz",
     }
     for asset in payload["assets"]:
         assert re.fullmatch(r"[0-9a-f]{64}", asset["sha256"])

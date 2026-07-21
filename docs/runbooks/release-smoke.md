@@ -141,10 +141,10 @@ hashes by hand:
 
 ```sh
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.17 \
-  --tag v0.1.17 \
+  --version 0.1.18 \
+  --tag v0.1.18 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.17-notes.md
+  --output docs/releases/v0.1.18-notes.md
 ```
 
 Expected output is `control_plane_release_asset_parity=passed` for a complete
@@ -219,7 +219,7 @@ python3 scripts/verify_post_release_baseline.py \
   --branch main \
   --workflow "Post Release Verification" \
   --head-sha "$(git rev-parse origin/main)" \
-  --out-json target/release-promotion/v0.1.17/post-release-baseline.json
+  --out-json target/release-promotion/v0.1.18/post-release-baseline.json
 ```
 
 Expected output is `post_release_verification_baseline=passed`. This check
