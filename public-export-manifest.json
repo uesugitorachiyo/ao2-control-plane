@@ -15,6 +15,7 @@
     "deny.toml",
     "LICENSE",
     "README.md",
+    "REFERENCE.md",
     ".github/workflows/ci.yml",
     "crates/",
     "deploy/",

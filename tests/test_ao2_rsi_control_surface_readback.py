@@ -239,7 +239,7 @@ def test_ao2_rsi_control_surface_readback_blocks_observer_authority_drift(tmp_pa
 
 def test_ao2_rsi_control_surface_readback_is_documented_executable_and_in_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert SCRIPT.is_file()

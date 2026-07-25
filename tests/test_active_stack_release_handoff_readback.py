@@ -196,7 +196,7 @@ def test_active_stack_release_handoff_readback_blocks_policy_spine_scope_drift(t
 
 def test_active_stack_release_handoff_readback_is_documented_executable_and_in_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert SCRIPT.is_file()
@@ -239,7 +239,7 @@ def test_active_stack_release_handoff_readback_is_documented_executable_and_in_c
 
 def test_current_public_docs_do_not_use_deprecated_ao_product_names():
     checked_docs = [
-        REPO_ROOT / "README.md",
+        REPO_ROOT / "REFERENCE.md",
         REPO_ROOT / "docs/runbooks/release-smoke.md",
         REPO_ROOT / "docs/DEPLOYMENT.md",
         REPO_ROOT / "docs/SECURITY.md",
@@ -256,7 +256,7 @@ def test_current_public_docs_do_not_use_deprecated_ao_product_names():
     ]
     for path in checked_docs:
         text = path.read_text(encoding="utf-8")
-        if path.name == "README.md":
+        if path.name == "REFERENCE.md":
             text = text.replace("not references to the deprecated `ao-operator` repository", "")
             text = text.replace("must not reintroduce `ao-operator`", "")
         for needle in forbidden:
@@ -264,7 +264,7 @@ def test_current_public_docs_do_not_use_deprecated_ao_product_names():
 
 
 def test_readme_marks_factory_v3_and_hermes_as_historical_compatibility_labels():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     for needle in [
         "Some stored evidence schemas and route-owner strings still contain historical",
         "`factory-v3` or `Hermes` labels",
@@ -279,7 +279,7 @@ def test_readme_marks_factory_v3_and_hermes_as_historical_compatibility_labels()
 
 
 def test_readme_marks_operator_release_labels_as_ao2_compatibility_not_ao_operator_scope():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     for needle in [
         "`operator-release` schema, artifact, workflow, and route names",
         "AO2 release-evidence compatibility labels",

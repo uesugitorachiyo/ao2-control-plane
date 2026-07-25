@@ -170,7 +170,7 @@ def test_ao2_readiness_convergence_readback_blocks_missing_or_failed_components(
 
 
 def test_ao2_readiness_convergence_readback_is_documented_and_executable():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert SCRIPT.is_file()

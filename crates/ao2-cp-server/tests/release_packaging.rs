@@ -996,7 +996,7 @@ fn health_snapshot_helpers_are_cross_platform_read_only_and_token_safe() {
         .expect("bash health snapshot wrapper exists");
     let ps = fs::read_to_string(root.join("scripts/cp-health-snapshot.ps1"))
         .expect("powershell health snapshot wrapper exists");
-    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+    let readme = fs::read_to_string(root.join("REFERENCE.md")).expect("README exists");
     let runbook = fs::read_to_string(root.join("docs/runbooks/long-lived-dev.md"))
         .expect("long-lived dev runbook exists");
 
@@ -1083,7 +1083,7 @@ fn audit_log_rotation_drill_is_cross_platform_read_only_and_token_safe() {
         .expect("bash audit-log rotation drill wrapper exists");
     let ps = fs::read_to_string(root.join("scripts/cp-audit-log-rotation-drill.ps1"))
         .expect("powershell audit-log rotation drill wrapper exists");
-    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+    let readme = fs::read_to_string(root.join("REFERENCE.md")).expect("README exists");
     let operations = fs::read_to_string(root.join("docs/runbooks/operations.md"))
         .expect("operations runbook exists");
     let storage_retention = fs::read_to_string(root.join("docs/runbooks/storage-retention.md"))
@@ -11644,7 +11644,7 @@ fn package_local_default_version_matches_workspace_version_lane_ppppp() {
 fn ci_compares_shared_release_support_fixture_with_ao2() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let ci = fs::read_to_string(root.join(".github/workflows/ci.yml")).expect("ci workflow exists");
-    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+    let readme = fs::read_to_string(root.join("REFERENCE.md")).expect("README exists");
 
     for needle in [
         "release-support-fixture-parity:",
@@ -11676,7 +11676,7 @@ fn public_repo_license_and_release_examples_match_workspace_version() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let workspace_toml =
         fs::read_to_string(root.join("Cargo.toml")).expect("top-level Cargo.toml present");
-    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+    let readme = fs::read_to_string(root.join("REFERENCE.md")).expect("README exists");
     let ci = fs::read_to_string(root.join(".github/workflows/ci.yml")).expect("CI workflow exists");
 
     let section_marker = "[workspace.package]";

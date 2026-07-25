@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SMOKE="$ROOT/scripts/smoke-operator-release-evidence-bridge.py"
 WORKFLOW="$ROOT/.github/workflows/ci.yml"
-README="$ROOT/README.md"
+README="$ROOT/REFERENCE.md"
 FIXTURE="$ROOT/crates/ao2-cp-server/tests/fixtures/operator-release-evidence-bundle-summary.json"
 
 fail() {

@@ -165,7 +165,7 @@ def test_ao2_rsi_claim_readiness_readback_blocks_trust_boundary_drift(tmp_path):
 
 def test_ao2_rsi_claim_readiness_readback_is_documented_executable_and_in_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert SCRIPT.is_file()

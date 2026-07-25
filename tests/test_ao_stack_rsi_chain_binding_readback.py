@@ -531,7 +531,7 @@ def test_ao_stack_rsi_chain_binding_readback_blocks_foundry_or_covenant_authorit
 
 def test_ao_stack_rsi_chain_binding_readback_is_documented_executable_and_in_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert SCRIPT.is_file()
