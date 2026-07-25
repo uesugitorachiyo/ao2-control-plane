@@ -113,7 +113,7 @@ def test_release_notes_generator_fails_when_platform_archive_checksum_is_missing
 
 def test_release_notes_generator_is_wired_into_release_promotion_and_docs():
     workflow = (REPO_ROOT / ".github/workflows/release-promotion.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     for needle in [

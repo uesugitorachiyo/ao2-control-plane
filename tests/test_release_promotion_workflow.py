@@ -298,7 +298,7 @@ def test_release_promotion_dry_run_has_no_publication_permissions_or_commands():
 
 def test_interrupted_publication_fails_closed_without_resume_or_replacement():
     workflow = workflow_text()
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     publish = workflow.split("  publish-release:\n", 1)[1]
 
     for needle in [
@@ -323,7 +323,7 @@ def test_interrupted_publication_fails_closed_without_resume_or_replacement():
 def test_release_promotion_is_documented_and_guarded_in_ci():
     workflow = workflow_text()
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
 
     for needle in [
         "tests/test_release_promotion_workflow.py",
@@ -352,7 +352,7 @@ def test_release_promotion_is_documented_and_guarded_in_ci():
 
 
 def test_public_download_and_authentication_docs_match_current_contract():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     security = (REPO_ROOT / "docs/SECURITY.md").read_text(encoding="utf-8")
     public_download = readme.split("## Install From Public Release", 1)[1].split(
         "Or run the repository verifier", 1

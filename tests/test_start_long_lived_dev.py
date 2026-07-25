@@ -58,7 +58,7 @@ def test_release_archive_smoke_uploads_release_ready_archives_for_each_os():
 
 
 def test_readme_links_current_release_and_release_archive_artifacts():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
 
     for needle in [
         "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17",
@@ -77,7 +77,7 @@ def test_readme_links_current_release_and_release_archive_artifacts():
 
 def test_release_download_verify_checks_public_release_checksums():
     script = REPO_ROOT / "scripts" / "release-download-verify.sh"
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
 
     assert script.is_file()
     assert script.stat().st_mode & stat.S_IXUSR
@@ -192,7 +192,7 @@ def test_release_download_verify_rejects_checksum_valid_release_without_archive(
 
 def test_ci_uploads_release_publication_closure_artifact_and_docs():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     for needle in [
@@ -222,7 +222,7 @@ def test_post_release_verification_workflow_runs_read_only_on_schedule_and_dispa
     workflow = (
         REPO_ROOT / ".github/workflows/post-release-verification.yml"
     ).read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(
         encoding="utf-8"
     )
@@ -296,7 +296,7 @@ def test_production_readiness_ops_workflow_runs_branch_protection_verifier():
     runbook = (REPO_ROOT / "docs/runbooks/branch-protection.md").read_text(
         encoding="utf-8"
     )
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
 
     for needle in [
         "name: production-readiness-ops",
@@ -539,7 +539,7 @@ def test_start_long_lived_dev_once_check_initializes_token_safely(tmp_path):
 
 
 def test_long_lived_dev_docs_reference_bootstrap_script():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     runbook = (REPO_ROOT / "docs/runbooks/long-lived-dev.md").read_text(encoding="utf-8")
     security = (REPO_ROOT / "docs/SECURITY.md").read_text(encoding="utf-8")
 
@@ -583,7 +583,7 @@ def test_long_lived_dev_smoke_script_is_token_safe_and_checks_once_bootstrap(tmp
 
 def test_risky_pr_golden_bridge_smoke_is_token_safe_and_documented():
     script = RISKY_PR_GOLDEN_BRIDGE_SMOKE.read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
 
     assert RISKY_PR_GOLDEN_BRIDGE_SMOKE.is_file()
@@ -739,7 +739,7 @@ def test_release_train_bridge_ci_artifact_uploads_complete_evidence_directory():
 
 
 def test_ci_evidence_index_is_documented_and_token_safe():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     release_smoke = (REPO_ROOT / "docs/runbooks/release-smoke.md").read_text(encoding="utf-8")
     handler = CI_EVIDENCE_HANDLER.read_text(encoding="utf-8")
 
@@ -770,7 +770,7 @@ def test_ci_evidence_index_is_documented_and_token_safe():
 
 def test_dashboard_snapshot_includes_ci_evidence_index_surfaces():
     script = DASHBOARD_SNAPSHOT.read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
 
     for needle in [
         '"name": "CI Evidence Index"',
@@ -822,7 +822,7 @@ def test_ci_uploads_python_guard_and_dr_restore_artifacts():
 
 def test_backup_restore_drill_script_is_exposed_and_documented_for_ci():
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
     operations = (REPO_ROOT / "docs/runbooks/operations.md").read_text(encoding="utf-8")
 
     for script_name in [
