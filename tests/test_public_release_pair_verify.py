@@ -46,27 +46,18 @@ def write_checksums(path, assets):
 
 
 def ao2_assets():
-    version = "0.5.2"
-    archives = [
-        f"ao2-{version}-linux-aarch64.tar.gz",
+    version = "0.5.3"
+    return [
         f"ao2-{version}-linux-x86_64.tar.gz",
         f"ao2-{version}-macos-aarch64.tar.gz",
         f"ao2-{version}-windows-x86_64.tar.gz",
-    ]
-    sidecars = [sidecar for archive in archives for sidecar in (f"{archive}.sha256", f"{archive}.sig")]
-    return archives + sidecars + [
+        "promotion-plan.json",
         "SHA256SUMS",
-        "ao2-release-artifact-closure-index.json",
-        "ao2-release-provenance.json",
-        "ao2-release-provenance.json.sig",
-        "ao2-release-readiness-summary.json",
-        "ao2-release-signing-public.pem",
-        "ao2-release-train-control-plane-bridge-summary.json",
     ]
 
 
 def control_plane_assets():
-    version = "0.1.17"
+    version = "0.1.18"
     return [
         "SHA256SUMS",
         f"ao2-control-plane-{version}-linux-x86_64.tar.gz",
@@ -81,12 +72,12 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert manifest_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
-    assert manifest["stable"]["ao2"] == {"tag": "v0.5.2", "version": "0.5.2"}
+    assert manifest["stable"]["ao2"] == {"tag": "v0.5.3", "version": "0.5.3"}
     assert manifest["stable"]["ao2_control_plane"] == {
-        "tag": "v0.1.17",
-        "version": "0.1.17",
+        "tag": "v0.1.18",
+        "version": "0.1.18",
     }
-    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.3", "version": "0.5.3"}
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.4", "version": "0.5.4"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
         "tag": "v0.1.18",
         "version": "0.1.18",
@@ -116,13 +107,13 @@ def run_pair_verify(tmp_path, *, ao2_release_assets=None, cp_checksum_assets=Non
     cp_checksums = tmp_path / "control-plane-SHA256SUMS"
     summary = tmp_path / "summary.json"
 
-    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.2", "AO2 v0.5.2 stable", ao2_release_assets)
+    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.3", "AO2 v0.5.3", ao2_release_assets)
     write_checksums(ao2_checksums, ao2_release_assets)
     write_release_view(
         cp_view,
         "uesugitorachiyo/ao2-control-plane",
-        "v0.1.17",
-        "ao2-control-plane v0.1.17",
+        "v0.1.18",
+        "ao2-control-plane v0.1.18",
         cp_release_assets,
     )
     write_checksums(cp_checksums, cp_checksum_assets)
@@ -164,10 +155,10 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     assert "control_plane_public_release_pair_verification=passed" in result.stdout
     assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1"
     assert summary["status"] == "passed"
-    assert summary["ao2"]["release_tag"] == "v0.5.2"
-    assert summary["control_plane"]["release_tag"] == "v0.1.17"
+    assert summary["ao2"]["release_tag"] == "v0.5.3"
+    assert summary["control_plane"]["release_tag"] == "v0.1.18"
     assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
-    assert summary["ao2"]["extra_platforms"] == ["linux-aarch64"]
+    assert summary["ao2"]["extra_platforms"] == []
     assert summary["gaps"] == []
     assert summary["trust_boundary"] == {
         "control_plane_approves_release": False,
@@ -178,8 +169,8 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     }
 
 
-def test_public_release_pair_verify_reports_missing_ao2_provenance_gap(tmp_path):
-    assets = [asset for asset in ao2_assets() if asset != "ao2-release-provenance.json.sig"]
+def test_public_release_pair_verify_reports_missing_ao2_promotion_plan_gap(tmp_path):
+    assets = [asset for asset in ao2_assets() if asset != "promotion-plan.json"]
 
     result, summary = run_pair_verify(tmp_path, ao2_release_assets=assets, strict=True)
 
@@ -190,7 +181,7 @@ def test_public_release_pair_verify_reports_missing_ao2_provenance_gap(tmp_path)
         {
             "gap_kind": "ao2_missing_required_assets",
             "severity": "release_blocker",
-            "assets": ["ao2-release-provenance.json.sig"],
+            "assets": ["promotion-plan.json"],
         }
     ]
 
@@ -226,8 +217,8 @@ def test_public_release_pair_verify_is_documented_executable_and_in_ci():
     script = SCRIPT.read_text(encoding="utf-8")
     for needle in [
         "ao2.cp-public-release-pair-verification.v1",
-        "ao2-release-provenance.json.sig",
-        "ao2-control-plane-0.1.17-windows-x86_64.tar.gz",
+        "promotion-plan.json",
+        "ao2-control-plane-0.1.18-windows-x86_64.tar.gz",
         "control_plane_approves_release",
         "mutates_github_releases",
         "credential_material_included",
