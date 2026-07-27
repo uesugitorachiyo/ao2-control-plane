@@ -16,9 +16,9 @@ DEFAULT_CONTROL_PLANE_REPO = "uesugitorachiyo/ao2-control-plane"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RELEASE_TRAIN_MANIFEST = REPO_ROOT / "docs/release/release-train.json"
 DEFAULT_OUTPUT_ROOT = Path("target/public-release-pair-verification")
-PLATFORM_ORDER = ["linux-x86_64", "linux-aarch64", "macos-aarch64", "windows-x86_64"]
+PLATFORM_ORDER = ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
 # Current default control-plane Windows archive contract:
-# ao2-control-plane-0.1.17-windows-x86_64.tar.gz
+# ao2-control-plane-0.1.18-windows-x86_64.tar.gz
 
 
 def load_release_train_manifest(path: Path = RELEASE_TRAIN_MANIFEST) -> dict:
@@ -127,21 +127,12 @@ def read_checksums(path: Path | None, repo: str, tag: str, output_dir: Path) -> 
 
 
 def ao2_required_assets(version: str) -> list[str]:
-    archives = [
-        f"ao2-{version}-linux-aarch64.tar.gz",
+    return [
         f"ao2-{version}-linux-x86_64.tar.gz",
         f"ao2-{version}-macos-aarch64.tar.gz",
         f"ao2-{version}-windows-x86_64.tar.gz",
-    ]
-    sidecars = [sidecar for archive in archives for sidecar in (f"{archive}.sha256", f"{archive}.sig")]
-    return archives + sidecars + [
+        "promotion-plan.json",
         "SHA256SUMS",
-        "ao2-release-artifact-closure-index.json",
-        "ao2-release-provenance.json",
-        "ao2-release-provenance.json.sig",
-        "ao2-release-readiness-summary.json",
-        "ao2-release-signing-public.pem",
-        "ao2-release-train-control-plane-bridge-summary.json",
     ]
 
 

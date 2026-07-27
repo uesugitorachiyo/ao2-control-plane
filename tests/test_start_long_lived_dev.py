@@ -138,7 +138,7 @@ def test_release_download_verify_can_emit_token_free_publication_closure_summary
     assert payload["schema_version"] == "ao2.cp-release-publication-closure.v1"
     assert payload["status"] == "passed"
     assert payload["release_repo"] == "uesugitorachiyo/ao2-control-plane"
-    assert payload["release_tag"] == "v0.1.17"
+    assert payload["release_tag"] == "v0.1.18"
     assert payload["download_dir"] == str(release_dir)
     assert payload["checksum_manifest"] == str(release_dir / "SHA256SUMS")
     assert payload["checksum_verified"] is True
