@@ -7,3 +7,5 @@ Cargo.lock.user
 .env
 .env.local
 crates/ao2-cp-schema/tests/*.proptest-regressions
+CLAUDE.local.md
+.claude/settings.local.json
