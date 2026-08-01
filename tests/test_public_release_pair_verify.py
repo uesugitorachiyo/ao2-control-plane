@@ -96,6 +96,18 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert "docs/release/release-train.json" in script
 
 
+def test_public_release_pair_ci_assertion_tracks_stable_manifest():
+    manifest = json.loads(
+        (REPO_ROOT / "docs/release/release-train.json").read_text(encoding="utf-8")
+    )
+    stable_tag = manifest["stable"]["ao2"]["tag"]
+    workflow = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert (
+        f'assert summary["ao2"]["release_tag"] == "{stable_tag}", summary'
+        in workflow
+    )
+
+
 def run_pair_verify(tmp_path, *, ao2_release_assets=None, cp_checksum_assets=None, strict=False):
     ao2_release_assets = ao2_release_assets or ao2_assets()
     cp_release_assets = control_plane_assets()
