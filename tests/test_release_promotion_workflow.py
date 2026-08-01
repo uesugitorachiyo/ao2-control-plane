@@ -358,8 +358,8 @@ def test_public_download_and_authentication_docs_match_current_contract():
         "Or run the repository verifier", 1
     )[0]
 
-    assert "v0.1.17" in public_download
-    assert "ao2-control-plane-0.1.17-macos-aarch64.tar.gz" in public_download
+    assert "v0.1.18" in public_download
+    assert "ao2-control-plane-0.1.18-macos-aarch64.tar.gz" in public_download
     assert "v0.1.16" not in public_download
     assert "Authorization: Bearer <token>" in security
     assert "/api/v1/audit-log/stream" in security

@@ -1,6 +1,6 @@
 # AO2 Control Plane
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.17)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.18)
 
 AO2 Control Plane stores and serves completed AO2 evidence. It verifies signed
 bundles, writes content-addressed records, and exposes authenticated APIs and
