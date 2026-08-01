@@ -100,6 +100,10 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         assert 'version = "0.1.18"' in block
     assert 'VERSION="0.1.18"' in package_script
     release_train_json = json.loads(release_train)
+    assert release_train_json["stable"]["ao2"] == {
+        "tag": "v0.5.7",
+        "version": "0.5.7",
+    }
     assert release_train_json["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.18",
         "version": "0.1.18",
@@ -108,6 +112,7 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         "tag": "v0.1.18",
         "version": "0.1.18",
     }
+    assert release_train_json["stable"] == release_train_json["next_patch"]
 
 
 def test_package_rejects_version_substitution(tmp_path):

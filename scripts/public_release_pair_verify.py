@@ -33,6 +33,10 @@ def load_release_train_manifest(path: Path = RELEASE_TRAIN_MANIFEST) -> dict:
             target = train.get(component)
             if not isinstance(target, dict) or not target.get("tag") or not target.get("version"):
                 raise SystemExit(f"invalid release train target: {train_name}.{component}")
+            if target["tag"] != f'v{target["version"]}':
+                raise SystemExit(
+                    f"release train tag/version mismatch: {train_name}.{component}"
+                )
     return manifest
 
 
@@ -169,6 +173,7 @@ def append_release_gaps(
     gaps: list[dict],
     *,
     repo_label: str,
+    expected_tag: str,
     release_view: dict,
     required_assets: list[str],
     checksum_required_assets: list[str],
@@ -178,6 +183,22 @@ def append_release_gaps(
     required = set(required_assets)
     checksum_required = set(checksum_required_assets)
 
+    if release_view.get("tagName") != expected_tag:
+        gaps.append(
+            {
+                "gap_kind": f"{repo_label}_release_tag_mismatch",
+                "severity": "release_blocker",
+                "expected_tag": expected_tag,
+                "actual_tag": release_view.get("tagName"),
+            }
+        )
+    if not release_view.get("publishedAt"):
+        gaps.append(
+            {
+                "gap_kind": f"{repo_label}_release_unpublished",
+                "severity": "release_blocker",
+            }
+        )
     if release_view.get("isDraft") or release_view.get("isPrerelease"):
         gaps.append(
             {
@@ -282,6 +303,7 @@ def main() -> int:
     append_release_gaps(
         gaps,
         repo_label="ao2",
+        expected_tag=args.ao2_tag,
         release_view=ao2_release,
         required_assets=ao2_required,
         checksum_required_assets=ao2_checksum_required,
@@ -290,6 +312,7 @@ def main() -> int:
     append_release_gaps(
         gaps,
         repo_label="control_plane",
+        expected_tag=args.control_plane_tag,
         release_view=cp_release,
         required_assets=cp_required,
         checksum_required_assets=cp_checksum_required,
