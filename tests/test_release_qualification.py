@@ -89,16 +89,24 @@ def parse_checksums(text: str):
 def test_release_train_tracks_current_stable_and_next_patch_candidate():
     workspace = (REPO_ROOT / "Cargo.toml").read_text(encoding="utf-8")
     lockfile = (REPO_ROOT / "Cargo.lock").read_text(encoding="utf-8")
+    ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     package_script = PACKAGE_SCRIPT.read_text(encoding="utf-8")
+    public_export = (REPO_ROOT / "scripts/check-public-export.sh").read_text(
+        encoding="utf-8"
+    )
     release_train = (REPO_ROOT / "docs/release/release-train.json").read_text(
         encoding="utf-8"
     )
 
-    assert 'version = "0.1.18"' in workspace
+    assert 'version = "0.1.19"' in workspace
     for crate in ("ao2-cp-schema", "ao2-cp-server", "ao2-cp-storage"):
         block = lockfile.split(f'name = "{crate}"', 1)[1].split("[[package]]", 1)[0]
-        assert 'version = "0.1.18"' in block
-    assert 'VERSION="0.1.18"' in package_script
+        assert 'version = "0.1.19"' in block
+    assert 'VERSION="0.1.19"' in package_script
+    assert '--version 0.1.19' in ci
+    for target in ("linux-x86_64", "macos-aarch64", "windows-x86_64"):
+        assert f"ao2-control-plane-0.1.19-{target}.tar.gz" in ci
+        assert f"ao2-control-plane-0.1.18-{target}.tar.gz" not in ci
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2"] == {
         "tag": "v0.5.7",
@@ -109,10 +117,19 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         "version": "0.1.18",
     }
     assert release_train_json["next_patch"]["ao2_control_plane"] == {
-        "tag": "v0.1.18",
-        "version": "0.1.18",
+        "tag": "v0.1.19",
+        "version": "0.1.19",
     }
-    assert release_train_json["stable"] == release_train_json["next_patch"]
+    assert release_train_json["next_patch"]["ao2"] == {
+        "tag": "v0.5.8",
+        "version": "0.5.8",
+    }
+    assert release_train_json["stable"] != release_train_json["next_patch"]
+    assert 'docs/release/release-train.json' in public_export
+    assert 'manifest.get("next_patch", {}).get("ao2_control_plane", {}).get("version")' in public_export
+    assert 'version = "0.1.18"' not in public_export
+    assert '-not -path "./.git"' in public_export
+    assert '-not -path "./.git/*"' in public_export
 
 
 def test_package_rejects_version_substitution(tmp_path):
@@ -221,7 +238,7 @@ def test_cargo_lock_sbom_is_deterministic_cyclonedx_1_5(tmp_path):
     sbom = json.loads(first.read_text(encoding="utf-8"))
     assert sbom["bomFormat"] == "CycloneDX"
     assert sbom["specVersion"] == "1.5"
-    assert sbom["metadata"]["component"]["version"] == "0.1.18"
+    assert sbom["metadata"]["component"]["version"] == "0.1.19"
     assert len(sbom["components"]) > 50
     assert any(component["name"] == "ao2-cp-server" for component in sbom["components"])
 

@@ -35,6 +35,7 @@ fi
 
 scan_files="$(mktemp)"
 find . -type f \
+  -not -path "./.git" \
   -not -path "./.git/*" \
   -not -path "./target/*" \
   -not -path "./dist/*" \
@@ -58,8 +59,20 @@ if grep -aEn 'ao2-control-plane-0\.1\.(0|1|2|3|4|5|6|7|8|9|10|11|12)-|v0\.1\.(0|
   fail "stale control-plane release artifact reference found"
 fi
 
-if ! grep -q 'version = "0.1.18"' Cargo.toml; then
-  fail "Cargo.toml does not advertise ao2-control-plane version 0.1.18"
+candidate_version="$(python3 - <<'PY'
+import json
+from pathlib import Path
+
+manifest = json.loads(Path("docs/release/release-train.json").read_text(encoding="utf-8"))
+version = manifest.get("next_patch", {}).get("ao2_control_plane", {}).get("version")
+if not isinstance(version, str) or not version:
+    raise SystemExit("release train next-patch control-plane version is missing")
+print(version)
+PY
+)"
+
+if ! grep -Fq "version = \"$candidate_version\"" Cargo.toml; then
+  fail "Cargo.toml does not advertise release-train candidate version $candidate_version"
 fi
 
 rm -f "$scan_files"
