@@ -524,21 +524,21 @@ requires explicit version, tag, and exact source SHA inputs, and uses
 It builds and smokes release archives for Linux x86_64, macOS aarch64, and
 Windows x86_64 before assembling the
 `ao2-control-plane-release-promotion-plan-<tag>` artifact. Before any
-archive build starts, release promotion requires the latest successful
-`Post Release Verification` run on `main` to expose all six baseline artifacts:
-the Ubuntu, macOS, and Windows post-release verifier outputs,
-`ao2-control-plane-post-release-pair-verification`, and
-`ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke`, and
-`ao2-control-plane-post-release-active-stack-release-handoff-readback`. The
-preflight summary uses `ao2.cp-post-release-verification-baseline.v1` and is
-embedded into the promotion plan. The baseline run must match the exact
-promotion commit SHA, so stale post-release evidence from an older `main`
-revision blocks promotion. That plan contains
+archive build starts, release promotion requires the latest successful `CI` run
+on `main` for the exact promotion commit SHA. The candidate baseline requires
+the native Linux, macOS, and Windows release-archive artifacts and their three
+matching supply-chain artifacts. Its summary uses
+`ao2.cp-candidate-qualification-baseline.v1` and is embedded into the
+promotion plan, so stale or incomplete candidate evidence blocks promotion.
+For example, the Windows pair is
+`ao2-control-plane-release-archive-windows-x86_64` and
+`ao2-control-plane-supply-chain-windows-x86_64`.
+`Post Release Verification` remains a separate public-artifact check after a
+release exists. That plan contains
 `ao2.cp-release-promotion-plan.v1`, the consolidated `SHA256SUMS`, and release
 notes generated from `SHA256SUMS` with the source commit and archive hashes.
 `SHA256SUMS` covers the platform archives, `summary.json`, and
-`post-release-baseline.json` evidence assets so post-release verification can
-prove the release metadata did not drift. The plan records that AO2 release
+`candidate-qualification-baseline.json` evidence assets. The plan records that AO2 release
 acceptance remains owned by the factory-v3 evaluator closer and that the control
 plane does not approve AO2 runs, mutate AO artifacts, or include credential
 material. A live dispatch imports artifacts from an identified successful

@@ -211,31 +211,30 @@ missing checksum entries, missing common platforms, prerelease/draft releases,
 or a control-plane `summary.json` without a `SHA256SUMS` entry fail the
 workflow instead of producing advisory-only evidence.
 
-`Release Promotion` requires the latest successful `Post Release Verification`
-run on `main` before it builds release archives. The preflight emits
-`ao2.cp-post-release-verification-baseline.v1` to
-`post-release-baseline.json`, requires the Ubuntu, macOS, Windows,
-public-release-pair, hosted operator bridge, and
-`ao2-control-plane-post-release-active-stack-release-handoff-readback`
-artifacts, and embeds that summary into
+`Release Promotion` requires the latest successful exact-head `CI` run on
+`main` before it builds release archives. The preflight emits
+`ao2.cp-candidate-qualification-baseline.v1` to
+`candidate-qualification-baseline.json`, requires Linux, macOS, and Windows
+release-archive artifacts together with their matching supply-chain artifacts,
+and embeds that summary into
 `ao2-control-plane-release-promotion-plan-<tag>`. Run the same read-only check
-locally before dispatching a stable promotion:
+locally before dispatching a candidate dry run:
 
 ```sh
-python3 scripts/verify_post_release_baseline.py \
+python3 scripts/verify_candidate_qualification_baseline.py \
   --repo uesugitorachiyo/ao2-control-plane \
   --branch main \
-  --workflow "Post Release Verification" \
+  --workflow "CI" \
   --head-sha "$(git rev-parse origin/main)" \
-  --out-json target/release-promotion/v0.1.18/post-release-baseline.json
+  --out-json target/release-promotion/v0.1.19/candidate-qualification-baseline.json
 ```
 
-Expected output is `post_release_verification_baseline=passed`. This check
+Expected output is `candidate_qualification_baseline=passed`. This check
 reads GitHub Actions run and artifact metadata only; it does not download
 artifacts, approve releases, mutate AO artifacts, mutate GitHub releases, or
 store credential material. The `--head-sha` value must match the release
-promotion commit, so dispatch `Post Release Verification` from `main` again
-after merging release-gate changes and before promoting a stable release.
+promotion commit. Run `Post Release Verification` only after a public release
+exists; it verifies public downloads rather than candidate qualification.
 
 ## AO2 stable promotion evidence index readback
 
