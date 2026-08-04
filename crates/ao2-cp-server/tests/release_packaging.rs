@@ -12,6 +12,52 @@ fn production_source(source: &str) -> &str {
     }
 }
 
+#[test]
+fn hosted_release_archives_emit_bound_rust_supply_chain_evidence() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let workflow = fs::read_to_string(root.join(".github/workflows/ci.yml"))
+        .expect("normal CI workflow exists");
+    let build = fs::read_to_string(root.join("crates/ao2-cp-server/build.rs"))
+        .expect("server build script exists");
+    let identity = fs::read_to_string(root.join("crates/ao2-cp-server/src/build_identity.rs"))
+        .expect("server build identity exists");
+    let manifest = fs::read_to_string(root.join("crates/ao2-cp-server/Cargo.toml"))
+        .expect("server manifest exists");
+    let runbook = fs::read_to_string(root.join("docs/runbooks/release-smoke.md"))
+        .expect("release smoke runbook exists");
+
+    assert!(manifest.contains("[build-dependencies]"));
+    assert!(build.contains("AO2_CP_CARGO_LOCK_SHA256"));
+    assert!(build.contains("AO2_CP_SOURCE_MODIFIED"));
+    assert!(build.contains("--untracked-files=no"));
+    assert!(build.contains("ls-files"));
+    assert!(identity.contains("AO_RUST_BUILD_PROVENANCE_V1\\0"));
+    assert!(identity.contains("AO2_CP_CARGO_LOCK_SHA256"));
+    assert!(identity.contains("AO2_CP_SOURCE_MODIFIED"));
+    assert!(identity.contains("#[used]"));
+
+    assert!(workflow.contains("49ae2527ffd13cdd04b054d1c21dc4c59e4429ae"));
+    assert!(workflow.contains("name: Checkout source without credentials"));
+    assert!(workflow.contains("persist-credentials: false"));
+    assert!(workflow.contains("git diff --quiet -- ."));
+    assert!(workflow.contains("git diff --cached --quiet -- ."));
+    assert!(workflow.contains("read_rust_binary_metadata.py"));
+    assert!(workflow.contains("build_rust_supply_chain_candidate.py"));
+    assert!(workflow.contains("verify_supply_chain_policy.py"));
+    assert!(workflow.contains("--repository ao2-control-plane"));
+    assert!(workflow.contains("--dependency-lock Cargo.lock"));
+    assert!(
+        workflow.contains("metadata_dir=\"target/supply-chain-inputs/${{ matrix.target_label }}\"")
+    );
+    assert!(workflow.contains("> \"$metadata_dir/rust-binary-metadata.json\""));
+    assert!(workflow.contains("--metadata-json \"$metadata_dir/rust-binary-metadata.json\""));
+    assert!(!workflow.contains("> \"$out/rust-binary-metadata.json\""));
+    assert!(workflow.contains("name: ao2-control-plane-supply-chain-${{ matrix.target_label }}"));
+    assert!(workflow.contains("if-no-files-found: error"));
+    assert!(runbook.contains("ao2-control-plane-supply-chain-<target>"));
+    assert!(runbook.contains("does not authorize release or publication"));
+}
+
 fn read_release_publication_module_production(root: &Path) -> String {
     let handler =
         fs::read_to_string(root.join("crates/ao2-cp-server/src/handlers/release_publication.rs"))

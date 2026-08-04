@@ -30,6 +30,7 @@
 //! - [`server`] — Axum router assembly and shared [`server::AppState`]
 pub mod audit_log;
 pub mod auth;
+pub mod build_identity;
 pub mod config;
 pub mod error;
 pub mod handlers;

@@ -99,6 +99,14 @@ then exercise install, update, and rollback with `AO2_CP_INSTALL_DIR` pointed at
 a separate temporary destination. Do not use a live service installation for
 this rehearsal.
 
+Each hosted release-archive smoke job also uploads
+`ao2-control-plane-supply-chain-<target>`. The bundle contains the exact server
+binary, `Cargo.lock`, deterministic CycloneDX SBOM, legal files, strict build
+metadata, and Version 2 evidence. Canonical AO Architecture tooling verifies
+the binary's single embedded marker against the exact source SHA, clean-source
+state, package version, native target, and `Cargo.lock` SHA-256 before upload.
+This CI evidence does not authorize release or publication.
+
 `Post Release Verification` in
 `.github/workflows/post-release-verification.yml` can be dispatched manually and
 also runs weekly. It runs the same read-only release verifier on Ubuntu, macOS,
