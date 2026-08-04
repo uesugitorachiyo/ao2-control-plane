@@ -9,6 +9,7 @@ use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    std::hint::black_box(ao2_cp_server::build_identity::rust_build_provenance_marker());
     let cfg = match Config::from_real_env() {
         Ok(c) => c,
         Err(ConfigError::Clap(e))
