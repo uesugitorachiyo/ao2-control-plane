@@ -11718,12 +11718,20 @@ fn ci_compares_shared_release_support_fixture_with_ao2() {
 }
 
 #[test]
-fn public_repo_license_and_release_examples_match_workspace_version() {
+fn public_repo_release_examples_bind_to_stable_train_and_candidate_packaging() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let workspace_toml =
         fs::read_to_string(root.join("Cargo.toml")).expect("top-level Cargo.toml present");
-    let readme = fs::read_to_string(root.join("REFERENCE.md")).expect("README exists");
+    let readme = fs::read_to_string(root.join("README.md")).expect("README exists");
+    let reference = fs::read_to_string(root.join("REFERENCE.md")).expect("REFERENCE exists");
     let ci = fs::read_to_string(root.join(".github/workflows/ci.yml")).expect("CI workflow exists");
+    let package_script =
+        fs::read_to_string(root.join("scripts/package-local.sh")).expect("package script exists");
+    let release_train: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.join("docs/release/release-train.json"))
+            .expect("release train manifest exists"),
+    )
+    .expect("release train manifest is json");
 
     let section_marker = "[workspace.package]";
     let section_start = workspace_toml
@@ -11746,8 +11754,16 @@ fn public_repo_license_and_release_examples_match_workspace_version() {
         "public repo LICENSE file must exist when Cargo declares Apache-2.0"
     );
 
+    let stable_version = release_train["stable"]["ao2_control_plane"]["version"]
+        .as_str()
+        .expect("stable control-plane version exists");
+    let stable_tag = release_train["stable"]["ao2_control_plane"]["tag"]
+        .as_str()
+        .expect("stable control-plane tag exists");
+
     for doc in [
         ("README.md", readme.as_str()),
+        ("REFERENCE.md", reference.as_str()),
         (".github/workflows/ci.yml", ci.as_str()),
     ] {
         let stale = [
@@ -11766,11 +11782,15 @@ fn public_repo_license_and_release_examples_match_workspace_version() {
             doc.0
         );
         assert!(
-            doc.1.contains(workspace_version),
-            "{} must include the current workspace version {workspace_version} in release examples",
+            doc.1.contains(stable_version) && doc.1.contains(stable_tag),
+            "{} must bind public release examples to stable train {stable_tag}",
             doc.0
         );
     }
+    assert!(
+        package_script.contains(workspace_version),
+        "candidate packaging must use current workspace version {workspace_version}"
+    );
 }
 
 // Lane QQQQQ: package-local.sh default BINARY release-profile parity.
