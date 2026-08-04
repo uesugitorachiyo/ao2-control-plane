@@ -80,7 +80,7 @@ def test_release_promotion_refuses_version_that_does_not_match_workspace_package
 def test_release_promotion_validates_dispatch_inputs_before_other_jobs():
     workflow = workflow_text()
     validator = workflow.split("  validate-dispatch:\n", 1)[1].split(
-        "  post-release-verification-baseline:\n", 1
+        "  candidate-qualification-baseline:\n", 1
     )[0]
 
     for needle in [
@@ -99,7 +99,7 @@ def test_release_promotion_validates_dispatch_inputs_before_other_jobs():
     ]:
         assert needle in validator
 
-    baseline = workflow.split("  post-release-verification-baseline:\n", 1)[1]
+    baseline = workflow.split("  candidate-qualification-baseline:\n", 1)[1]
     publish = workflow.split("  publish-release:\n", 1)[1]
     assert "needs: validate-dispatch" in baseline
     assert "needs: validate-dispatch" in publish
@@ -136,7 +136,7 @@ def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
     workflow = workflow_text()
 
     for needle in [
-        "needs: post-release-verification-baseline",
+        "needs: candidate-qualification-baseline",
         "assemble-release-promotion-plan:",
         "ao2.cp-release-promotion-plan.v1",
         "target/release-promotion/${{ inputs.tag }}/summary.json",
@@ -166,33 +166,51 @@ def test_release_promotion_assembles_token_free_plan_and_trust_boundary():
         assert forbidden not in workflow
 
 
-def test_release_promotion_requires_successful_post_release_baseline_artifacts():
+def test_release_promotion_requires_successful_candidate_qualification_artifacts():
     workflow = workflow_text()
 
     for needle in [
         "actions: read",
-        "post-release-verification-baseline:",
-        "Require successful post-release verification baseline",
-        "scripts/verify_post_release_baseline.py",
+        "candidate-qualification-baseline:",
+        "Require exact-head candidate qualification baseline",
+        "scripts/verify_candidate_qualification_baseline.py",
         "--repo uesugitorachiyo/ao2-control-plane",
         "--branch main",
-        "--workflow \"Post Release Verification\"",
+        "--workflow \"CI\"",
         "--head-sha \"${{ inputs.source_sha }}\"",
-        "--out-json target/release-promotion/${{ inputs.tag }}/post-release-baseline.json",
-        "ao2.cp-post-release-verification-baseline.v1",
-        "ao2-control-plane-post-release-verification-ubuntu",
-        "ao2-control-plane-post-release-verification-macos",
-        "ao2-control-plane-post-release-verification-windows",
-        "ao2-control-plane-post-release-pair-verification",
-        "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
-        "ao2-control-plane-post-release-active-stack-release-handoff-readback",
-        '"post_release_verification_baseline": post_release_baseline',
-        '"required_post_release_artifacts": required_post_release_artifacts',
+        "--out-json target/release-promotion/${{ inputs.tag }}/candidate-qualification-baseline.json",
+        "ao2.cp-candidate-qualification-baseline.v1",
+        "ao2-control-plane-release-archive-linux-x86_64",
+        "ao2-control-plane-release-archive-macos-aarch64",
+        "ao2-control-plane-release-archive-windows-x86_64",
+        "ao2-control-plane-supply-chain-linux-x86_64",
+        "ao2-control-plane-supply-chain-macos-aarch64",
+        "ao2-control-plane-supply-chain-windows-x86_64",
+        '"candidate_qualification_baseline": candidate_baseline',
+        '"required_candidate_artifacts": required_candidate_artifacts',
         "control_plane_approves_release",
         "mutates_ao_artifacts",
         "credential_material_included",
     ]:
         assert needle in workflow
+
+
+def test_release_promotion_uses_exact_head_candidate_ci_evidence_for_dry_runs():
+    workflow = workflow_text()
+
+    assert "candidate-qualification-baseline:" in workflow
+    assert "Require exact-head candidate qualification baseline" in workflow
+    assert "scripts/verify_candidate_qualification_baseline.py" in workflow
+    assert '--workflow "CI"' in workflow
+    assert '--head-sha "${{ inputs.source_sha }}"' in workflow
+    assert "ao2.cp-candidate-qualification-baseline.v1" in workflow
+    assert "ao2-control-plane-release-archive-linux-x86_64" in workflow
+    assert "ao2-control-plane-release-archive-macos-aarch64" in workflow
+    assert "ao2-control-plane-release-archive-windows-x86_64" in workflow
+    assert "ao2-control-plane-supply-chain-linux-x86_64" in workflow
+    assert "ao2-control-plane-supply-chain-macos-aarch64" in workflow
+    assert "ao2-control-plane-supply-chain-windows-x86_64" in workflow
+    assert "needs: candidate-qualification-baseline" in workflow
 
 
 def test_release_promotion_publish_step_is_explicitly_guarded():
@@ -224,7 +242,7 @@ def test_release_promotion_publish_step_is_explicitly_guarded():
         '--target "${{ inputs.source_sha }}"',
         "--latest",
         "target/release-promotion/${{ inputs.tag }}/release-notes.md",
-        '"$root/post-release-baseline.json"',
+        '"$root/candidate-qualification-baseline.json"',
         '"$root/release-notes.md"',
     ]:
         assert needle in workflow
@@ -339,10 +357,10 @@ def test_release_promotion_is_documented_and_guarded_in_ci():
         "dry_run",
         "explicit version, tag, and exact source SHA inputs",
         "Linux x86_64, macOS aarch64, and Windows x86_64",
-        "Post Release Verification",
-        "ao2.cp-post-release-verification-baseline.v1",
-        "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
-        "ao2-control-plane-post-release-active-stack-release-handoff-readback",
+        "candidate baseline",
+        "ao2.cp-candidate-qualification-baseline.v1",
+        "ao2-control-plane-release-archive-linux-x86_64",
+        "ao2-control-plane-supply-chain-windows-x86_64",
         "interrupted",
         "separate deletion authority",
         "never overwrites or resumes an existing tag",

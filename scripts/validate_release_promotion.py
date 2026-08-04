@@ -13,12 +13,12 @@ SHA256_RE = re.compile(r"[0-9a-f]{64}")
 SOURCE_SHA_RE = re.compile(r"[0-9a-f]{40}")
 TARGETS = ("linux-x86_64", "macos-aarch64", "windows-x86_64")
 REQUIRED_BASELINE_ARTIFACTS = (
-    "ao2-control-plane-post-release-verification-ubuntu",
-    "ao2-control-plane-post-release-verification-macos",
-    "ao2-control-plane-post-release-verification-windows",
-    "ao2-control-plane-post-release-pair-verification",
-    "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
-    "ao2-control-plane-post-release-active-stack-release-handoff-readback",
+    "ao2-control-plane-release-archive-linux-x86_64",
+    "ao2-control-plane-release-archive-macos-aarch64",
+    "ao2-control-plane-release-archive-windows-x86_64",
+    "ao2-control-plane-supply-chain-linux-x86_64",
+    "ao2-control-plane-supply-chain-macos-aarch64",
+    "ao2-control-plane-supply-chain-windows-x86_64",
 )
 
 
@@ -60,7 +60,7 @@ def safe_plan_path(root: Path, relative: str) -> Path:
 def validate(args):
     root = args.root.resolve(strict=True)
     summary_path = root / "summary.json"
-    baseline_path = root / "post-release-baseline.json"
+    baseline_path = root / "candidate-qualification-baseline.json"
     checksums_path = root / "SHA256SUMS"
     notes_path = root / "release-notes.md"
     for path in (summary_path, baseline_path, checksums_path, notes_path):
@@ -102,18 +102,18 @@ def validate(args):
             fail(f"summary field mismatch: {field}")
 
     baseline_expected = {
-        "schema_version": "ao2.cp-post-release-verification-baseline.v1",
+        "schema_version": "ao2.cp-candidate-qualification-baseline.v1",
         "status": "passed",
         "repo": "uesugitorachiyo/ao2-control-plane",
         "branch": "main",
-        "workflow": "Post Release Verification",
+        "workflow": "CI",
         "head_sha": args.source_sha,
         "missing_artifacts": [],
         "expired_artifacts": [],
     }
     for field, expected in baseline_expected.items():
         if baseline.get(field) != expected:
-            fail(f"post-release baseline field mismatch: {field}")
+            fail(f"candidate qualification baseline field mismatch: {field}")
     expected_baseline_fields = {
         "schema_version",
         "status",
@@ -130,35 +130,35 @@ def validate(args):
         "trust_boundary",
     }
     if set(baseline) != expected_baseline_fields:
-        fail("post-release baseline has unexpected or missing fields")
+        fail("candidate qualification baseline has unexpected or missing fields")
     run_id = baseline.get("run_id")
     if type(run_id) is not int or run_id <= 0:
-        fail("post-release baseline run ID is invalid")
+        fail("candidate qualification baseline run ID is invalid")
     expected_run_url = (
         f"https://github.com/uesugitorachiyo/ao2-control-plane/actions/runs/{run_id}"
     )
     if baseline.get("run_url") != expected_run_url:
-        fail("post-release baseline run URL is invalid")
+        fail("candidate qualification baseline run URL is invalid")
     checked_at_raw = baseline.get("checked_at_utc")
     if not isinstance(checked_at_raw, str):
-        fail("post-release baseline checked timestamp is invalid")
+        fail("candidate qualification baseline checked timestamp is invalid")
     try:
         checked_at = datetime.fromisoformat(checked_at_raw.replace("Z", "+00:00"))
     except ValueError:
-        fail("post-release baseline checked timestamp is invalid")
+        fail("candidate qualification baseline checked timestamp is invalid")
     if checked_at.tzinfo is None:
-        fail("post-release baseline checked timestamp must include a timezone")
+        fail("candidate qualification baseline checked timestamp must include a timezone")
     now = datetime.now(timezone.utc)
     checked_at = checked_at.astimezone(timezone.utc)
     if checked_at > now + timedelta(minutes=5):
-        fail("post-release baseline checked timestamp is in the future")
+        fail("candidate qualification baseline checked timestamp is in the future")
     if now - checked_at > timedelta(hours=24):
-        fail("post-release baseline is stale")
+        fail("candidate qualification baseline is stale")
     required_artifacts = baseline.get("required_artifacts")
     if not isinstance(required_artifacts, list) or [
         item.get("name") for item in required_artifacts if isinstance(item, dict)
     ] != list(REQUIRED_BASELINE_ARTIFACTS):
-        fail("post-release baseline artifact identity mismatch")
+        fail("candidate qualification baseline artifact identity mismatch")
     if any(
         not isinstance(item, dict)
         or set(item) != {"name", "id", "size_in_bytes", "expired"}
@@ -168,7 +168,7 @@ def validate(args):
         or item["size_in_bytes"] < 0
         for item in required_artifacts
     ):
-        fail("post-release baseline artifact metadata is invalid")
+        fail("candidate qualification baseline artifact metadata is invalid")
     baseline_trust = baseline.get("trust_boundary")
     required_false = (
         "downloads_github_actions_artifacts",
@@ -184,11 +184,11 @@ def validate(args):
         baseline_trust.get(field) is not False for field in required_false
         )
     ):
-        fail("post-release baseline trust boundary is unsafe")
-    if summary.get("post_release_verification_baseline") != baseline:
-        fail("summary embedded baseline does not match baseline artifact")
-    if summary.get("required_post_release_artifacts") != list(REQUIRED_BASELINE_ARTIFACTS):
-        fail("summary required post-release artifact list mismatch")
+        fail("candidate qualification baseline trust boundary is unsafe")
+    if summary.get("candidate_qualification_baseline") != baseline:
+        fail("summary embedded candidate qualification baseline does not match baseline artifact")
+    if summary.get("required_candidate_artifacts") != list(REQUIRED_BASELINE_ARTIFACTS):
+        fail("summary required candidate artifact list mismatch")
 
     assets = summary.get("archive_assets")
     if not isinstance(assets, list) or len(assets) != len(TARGETS):
@@ -202,15 +202,15 @@ def validate(args):
     checksums = parse_checksums(checksums_path)
     expected_checksum_names = expected_names | {
         "summary.json",
-        "post-release-baseline.json",
+        "candidate-qualification-baseline.json",
         "release-notes.md",
     }
     if set(checksums) != expected_checksum_names:
         fail("SHA256SUMS does not exactly cover promotion assets and evidence")
     if checksums["summary.json"] != args.plan_sha256:
         fail("SHA256SUMS summary digest mismatch")
-    if checksums["post-release-baseline.json"] != sha256(baseline_path):
-        fail("post-release baseline digest mismatch")
+    if checksums["candidate-qualification-baseline.json"] != sha256(baseline_path):
+        fail("candidate qualification baseline digest mismatch")
     if checksums["release-notes.md"] != sha256(notes_path):
         fail("release notes digest mismatch")
 

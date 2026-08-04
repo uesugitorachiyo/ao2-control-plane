@@ -34,21 +34,21 @@ def make_plan(tmp_path: Path):
         )
         checksum_rows.append(f"{digest}  {name}\n")
 
-    baseline = root / "post-release-baseline.json"
+    baseline = root / "candidate-qualification-baseline.json"
     required_artifact_names = [
-        "ao2-control-plane-post-release-verification-ubuntu",
-        "ao2-control-plane-post-release-verification-macos",
-        "ao2-control-plane-post-release-verification-windows",
-        "ao2-control-plane-post-release-pair-verification",
-        "ao2-control-plane-post-release-operator-evidence-hosted-bridge-smoke",
-        "ao2-control-plane-post-release-active-stack-release-handoff-readback",
+        "ao2-control-plane-release-archive-linux-x86_64",
+        "ao2-control-plane-release-archive-macos-aarch64",
+        "ao2-control-plane-release-archive-windows-x86_64",
+        "ao2-control-plane-supply-chain-linux-x86_64",
+        "ao2-control-plane-supply-chain-macos-aarch64",
+        "ao2-control-plane-supply-chain-windows-x86_64",
     ]
     baseline_payload = {
-        "schema_version": "ao2.cp-post-release-verification-baseline.v1",
+        "schema_version": "ao2.cp-candidate-qualification-baseline.v1",
         "status": "passed",
         "repo": "uesugitorachiyo/ao2-control-plane",
         "branch": "main",
-        "workflow": "Post Release Verification",
+        "workflow": "CI",
         "run_id": 123,
         "run_url": "https://github.com/uesugitorachiyo/ao2-control-plane/actions/runs/123",
         "head_sha": SOURCE_SHA,
@@ -82,8 +82,8 @@ def make_plan(tmp_path: Path):
         "source_commit": SOURCE_SHA,
         "archive_assets": assets,
         "release_notes_sha256": hashlib.sha256(notes.read_bytes()).hexdigest(),
-        "post_release_verification_baseline": baseline_payload,
-        "required_post_release_artifacts": required_artifact_names,
+        "candidate_qualification_baseline": baseline_payload,
+        "required_candidate_artifacts": required_artifact_names,
     }
     summary_path = root / "summary.json"
     summary_path.write_text(
@@ -92,7 +92,7 @@ def make_plan(tmp_path: Path):
     checksum_rows.extend(
         [
             f"{hashlib.sha256(summary_path.read_bytes()).hexdigest()}  summary.json\n",
-            f"{hashlib.sha256(baseline.read_bytes()).hexdigest()}  post-release-baseline.json\n",
+            f"{hashlib.sha256(baseline.read_bytes()).hexdigest()}  candidate-qualification-baseline.json\n",
             f"{hashlib.sha256(notes.read_bytes()).hexdigest()}  release-notes.md\n",
         ]
     )
@@ -172,7 +172,7 @@ def test_release_promotion_rejects_unsafe_or_mismatched_baseline(tmp_path):
         ("missing_artifacts", ["missing"]),
     ):
         root, digest = make_plan(tmp_path / field)
-        baseline_path = root / "post-release-baseline.json"
+        baseline_path = root / "candidate-qualification-baseline.json"
         baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
         baseline[field] = value
         baseline_path.write_text(
@@ -184,7 +184,7 @@ def test_release_promotion_rejects_unsafe_or_mismatched_baseline(tmp_path):
     root, _ = make_plan(tmp_path / "embedded")
     summary_path = root / "summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    summary["post_release_verification_baseline"]["status"] = "blocked"
+    summary["candidate_qualification_baseline"]["status"] = "blocked"
     summary_path.write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -202,7 +202,7 @@ def test_release_promotion_rejects_malformed_or_stale_baseline_metadata(tmp_path
     )
     for index, (field, value) in enumerate(cases):
         root, digest = make_plan(tmp_path / f"metadata-{index}")
-        baseline_path = root / "post-release-baseline.json"
+        baseline_path = root / "candidate-qualification-baseline.json"
         baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
         baseline[field] = value
         baseline_path.write_text(
@@ -212,7 +212,7 @@ def test_release_promotion_rejects_malformed_or_stale_baseline_metadata(tmp_path
         assert validate(root, digest).returncode != 0
 
     root, digest = make_plan(tmp_path / "extra-field")
-    baseline_path = root / "post-release-baseline.json"
+    baseline_path = root / "candidate-qualification-baseline.json"
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     baseline["undeclared"] = True
     baseline_path.write_text(
