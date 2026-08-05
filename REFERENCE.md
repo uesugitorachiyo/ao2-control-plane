@@ -1,6 +1,6 @@
 # AO2 Control Plane Reference
 
-[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.18)
+[![Latest release](https://img.shields.io/github/v/release/uesugitorachiyo/ao2-control-plane?include_prereleases&label=latest%20release)](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.19)
 
 AO2 Control Plane is the observer service for completed AO2 evidence. It verifies signed bundles, stores content-addressed records, and exposes authenticated read APIs and dashboards without participating in execution. Use it when operators need durable evidence history, integrity checks, searchable readback, backup and restore, or a browser view of completed runs.
 
@@ -94,8 +94,8 @@ Package and smoke an installed local release archive:
 
 ```bash
 cargo build --release -p ao2-cp-server
-scripts/package-local.sh --out-dir dist --version 0.1.18 --binary target/release/ao2-cp-server
-AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.18-macos-aarch64.tar.gz \
+scripts/package-local.sh --out-dir dist --version 0.1.19 --binary target/release/ao2-cp-server
+AO2_CP_ARCHIVE=dist/ao2-control-plane-0.1.19-macos-aarch64.tar.gz \
   AO2_CP_SMOKE_JSON=target/release-smoke/latest-release-smoke.json \
   scripts/smoke-release-archive.sh
 ```
@@ -106,8 +106,8 @@ dashboard:
 
 ```powershell
 cargo build --release -p ao2-cp-server
-bash scripts/package-local.sh --out-dir dist --version 0.1.18 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
-$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.18-windows-x86_64.tar.gz"
+bash scripts/package-local.sh --out-dir dist --version 0.1.19 --binary target/release/ao2-cp-server.exe --target-label windows-x86_64
+$env:AO2_CP_ARCHIVE="dist/ao2-control-plane-0.1.19-windows-x86_64.tar.gz"
 $env:AO2_CP_SMOKE_JSON="target/release-smoke/latest-windows-release-smoke.json"
 ./scripts/smoke-release-archive.ps1
 ```
@@ -130,17 +130,17 @@ macOS, and Windows.
 ## Install From Public Release
 
 The current public release is
-[`v0.1.18`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.18).
+[`v0.1.19`](https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.19).
 It publishes Linux, macOS, and Windows archives plus token-free promotion
 summary evidence. Download and verify it with:
 
 ```bash
 mkdir -p dist-release
-gh release download v0.1.18 --repo uesugitorachiyo/ao2-control-plane \
-  --pattern ao2-control-plane-0.1.18-macos-aarch64.tar.gz \
+gh release download v0.1.19 --repo uesugitorachiyo/ao2-control-plane \
+  --pattern ao2-control-plane-0.1.19-macos-aarch64.tar.gz \
   --pattern SHA256SUMS \
   --dir dist-release
-(cd dist-release && grep 'ao2-control-plane-0.1.18-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
+(cd dist-release && grep 'ao2-control-plane-0.1.19-macos-aarch64.tar.gz' SHA256SUMS | shasum -a 256 -c -)
 ```
 
 Or run the repository verifier, which downloads all published release assets
@@ -201,10 +201,10 @@ AO2_CP_RELEASE_ASSET_PARITY_STRICT=1 scripts/release-asset-parity-audit.sh
 CI also runs `Public release pair verification`, which uploads
 `ao2-control-plane-public-release-pair-verification`. Its `summary.json` uses
 schema `ao2.cp-public-release-pair-verification.v1` and verifies the current
-AO2 stable release (`v0.5.7`) and control-plane release (`v0.1.18`) as one
+AO2 stable release (`v0.5.8`) and control-plane release (`v0.1.19`) as one
 public release pair. Those stable defaults are read from
 `docs/release/release-train.json`; the current stable train is
-(`v0.5.7` / `v0.1.18`). The verifier reads GitHub release metadata and
+(`v0.5.8` / `v0.1.19`). The verifier reads GitHub release metadata and
 `SHA256SUMS` only; it checks common Linux x86_64, macOS aarch64, and Windows
 x86_64 coverage, AO2 provenance/readiness assets, control-plane promotion
 summary evidence, and checksum coverage for the published control-plane
@@ -503,10 +503,10 @@ the published checksum manifest instead of a handwritten table:
 
 ```bash
 python3 scripts/generate_release_notes_from_checksums.py \
-  --version 0.1.18 \
-  --tag v0.1.18 \
+  --version 0.1.19 \
+  --tag v0.1.19 \
   --checksums dist-release/SHA256SUMS \
-  --output docs/releases/v0.1.18-notes.md
+  --output docs/releases/v0.1.19-notes.md
 ```
 
 The CI workflow also produces release-ready archive artifacts for all supported
