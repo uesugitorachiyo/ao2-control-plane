@@ -46,7 +46,7 @@ def write_checksums(path, assets):
 
 
 def ao2_assets():
-    version = "0.5.7"
+    version = "0.5.8"
     return [
         f"ao2-{version}-linux-x86_64.tar.gz",
         f"ao2-{version}-macos-aarch64.tar.gz",
@@ -57,7 +57,7 @@ def ao2_assets():
 
 
 def control_plane_assets():
-    version = "0.1.18"
+    version = "0.1.19"
     return [
         "SHA256SUMS",
         f"ao2-control-plane-{version}-linux-x86_64.tar.gz",
@@ -72,10 +72,10 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert manifest_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
-    assert manifest["stable"]["ao2"] == {"tag": "v0.5.7", "version": "0.5.7"}
+    assert manifest["stable"]["ao2"] == {"tag": "v0.5.8", "version": "0.5.8"}
     assert manifest["stable"]["ao2_control_plane"] == {
-        "tag": "v0.1.18",
-        "version": "0.1.18",
+        "tag": "v0.1.19",
+        "version": "0.1.19",
     }
     assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.8", "version": "0.5.8"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
@@ -126,7 +126,7 @@ def run_pair_verify(
     cp_checksums = tmp_path / "control-plane-SHA256SUMS"
     summary = tmp_path / "summary.json"
 
-    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.7", "AO2 v0.5.7", ao2_release_assets)
+    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.8", "AO2 v0.5.8", ao2_release_assets)
     if ao2_release_overrides:
         release = json.loads(ao2_view.read_text(encoding="utf-8"))
         release.update(ao2_release_overrides)
@@ -138,8 +138,8 @@ def run_pair_verify(
     write_release_view(
         cp_view,
         "uesugitorachiyo/ao2-control-plane",
-        "v0.1.18",
-        "ao2-control-plane v0.1.18",
+        "v0.1.19",
+        "ao2-control-plane v0.1.19",
         cp_release_assets,
     )
     write_checksums(cp_checksums, cp_checksum_assets)
@@ -181,8 +181,8 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     assert "control_plane_public_release_pair_verification=passed" in result.stdout
     assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1"
     assert summary["status"] == "passed"
-    assert summary["ao2"]["release_tag"] == "v0.5.7"
-    assert summary["control_plane"]["release_tag"] == "v0.1.18"
+    assert summary["ao2"]["release_tag"] == "v0.5.8"
+    assert summary["control_plane"]["release_tag"] == "v0.1.19"
     assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
     assert summary["ao2"]["extra_platforms"] == []
     assert summary["gaps"] == []
@@ -236,7 +236,7 @@ def test_release_train_manifest_rejects_tag_version_mismatch(tmp_path):
     manifest = json.loads(
         (REPO_ROOT / "docs/release/release-train.json").read_text(encoding="utf-8")
     )
-    manifest["stable"]["ao2"] = {"tag": "v0.5.7", "version": "0.5.6"}
+    manifest["stable"]["ao2"] = {"tag": "v0.5.8", "version": "0.5.6"}
     malformed.write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -282,7 +282,7 @@ def test_public_release_pair_verify_rejects_release_tag_mismatch(tmp_path):
     assert summary["gaps"] == [
         {
             "actual_tag": "v0.5.6",
-            "expected_tag": "v0.5.7",
+            "expected_tag": "v0.5.8",
             "gap_kind": "ao2_release_tag_mismatch",
             "severity": "release_blocker",
         }
@@ -302,7 +302,7 @@ def test_public_release_pair_verify_is_documented_executable_and_in_ci():
     for needle in [
         "ao2.cp-public-release-pair-verification.v1",
         "promotion-plan.json",
-        "ao2-control-plane-0.1.18-windows-x86_64.tar.gz",
+        "ao2-control-plane-0.1.19-windows-x86_64.tar.gz",
         "control_plane_approves_release",
         "mutates_github_releases",
         "credential_material_included",
