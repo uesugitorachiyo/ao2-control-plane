@@ -121,10 +121,10 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         "version": "0.1.19",
     }
     assert release_train_json["next_patch"]["ao2"] == {
-        "tag": "v0.5.8",
-        "version": "0.5.8",
+        "tag": "v0.5.9",
+        "version": "0.5.9",
     }
-    assert release_train_json["stable"] == release_train_json["next_patch"]
+    assert release_train_json["stable"] != release_train_json["next_patch"]
     assert 'docs/release/release-train.json' in public_export
     assert 'manifest.get("next_patch", {}).get("ao2_control_plane", {}).get("version")' in public_export
     assert 'version = "0.1.19"' not in public_export
