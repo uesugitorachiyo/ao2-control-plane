@@ -46,7 +46,7 @@ def write_checksums(path, assets):
 
 
 def ao2_assets():
-    version = "0.5.9"
+    version = "0.5.10"
     return [
         f"ao2-{version}-linux-x86_64.tar.gz",
         f"ao2-{version}-macos-aarch64.tar.gz",
@@ -72,7 +72,7 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
     assert manifest_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "ao2.release-train-manifest.v1"
-    assert manifest["stable"]["ao2"] == {"tag": "v0.5.9", "version": "0.5.9"}
+    assert manifest["stable"]["ao2"] == {"tag": "v0.5.10", "version": "0.5.10"}
     assert manifest["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.19",
         "version": "0.1.19",
@@ -126,7 +126,7 @@ def run_pair_verify(
     cp_checksums = tmp_path / "control-plane-SHA256SUMS"
     summary = tmp_path / "summary.json"
 
-    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.9", "AO2 v0.5.9", ao2_release_assets)
+    write_release_view(ao2_view, "uesugitorachiyo/ao2", "v0.5.10", "AO2 v0.5.10", ao2_release_assets)
     if ao2_release_overrides:
         release = json.loads(ao2_view.read_text(encoding="utf-8"))
         release.update(ao2_release_overrides)
@@ -181,7 +181,7 @@ def test_public_release_pair_verify_passes_complete_ao2_and_control_plane_releas
     assert "control_plane_public_release_pair_verification=passed" in result.stdout
     assert summary["schema_version"] == "ao2.cp-public-release-pair-verification.v1"
     assert summary["status"] == "passed"
-    assert summary["ao2"]["release_tag"] == "v0.5.9"
+    assert summary["ao2"]["release_tag"] == "v0.5.10"
     assert summary["control_plane"]["release_tag"] == "v0.1.19"
     assert summary["common_platforms"] == ["linux-x86_64", "macos-aarch64", "windows-x86_64"]
     assert summary["ao2"]["extra_platforms"] == []
@@ -282,7 +282,7 @@ def test_public_release_pair_verify_rejects_release_tag_mismatch(tmp_path):
     assert summary["gaps"] == [
         {
             "actual_tag": "v0.5.6",
-            "expected_tag": "v0.5.9",
+                "expected_tag": "v0.5.10",
             "gap_kind": "ao2_release_tag_mismatch",
             "severity": "release_blocker",
         }
