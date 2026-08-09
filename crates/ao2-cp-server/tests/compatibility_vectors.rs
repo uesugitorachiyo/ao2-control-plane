@@ -4,16 +4,16 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
-const AO2_TAG_TARGET: &str = "fec09515dfe4e550eeaddc7da497b1fe912012b4";
+const AO2_TAG_TARGET: &str = "9f4f8a8cf596127a982627b4af25c90a9a842095";
 const CP_TAG_TARGET: &str = "5de3541e9007e12d95b125e7f911c02932e21479";
-const MANIFEST_DIGEST: &str = "5f82c24b239c50dadb72e2bfafe1a310b04724cfacff5acee88f5164ec3c59cd";
+const MANIFEST_DIGEST: &str = "a44bb65d59f46f3c3bf469dc7b26f0688fbf640f4f04ee9932a5a8fe186aeee3";
 const PROMOTION_PLAN_DIGEST: &str =
-    "4e61e689432e9eddb7885448bd7bf2a70ccb46cc8ca5103be76ec9814d09c591";
+    "0e1ae4663eb09c3135b66326177855cb8d93bab84d776b130114c5d2c344dd21";
 const PHYSICAL_WINDOWS_EVIDENCE_DIGEST: &str =
-    "df4384874bb2f89c67fe0b5c588cfbcbb89d2e50b123595dd5d1ca4a5b38a8f0";
-const VECTOR_SHA256: &str = "00ee9978b5325bc40d5d5de8f63227716d2ca2fe88c81182fdf6e68448d15a7d";
-const PRODUCER_VERIFIER_BASE_SHA: &str = "1ea4c482ad105227a5701f6b8eafcd16c42d06e9";
-const CONSUMER_VERIFIER_BASE_SHA: &str = "eb420864794ceb9ebadef8f3f551772095edb758";
+    "a46f869c2c3512746ae686d65935b1612c1ef1ac0788f16bcd7de0d719268d81";
+const VECTOR_SHA256: &str = "fd7260329ea3c436436cd1572cba5abda72f5a9959b1157d5e61f595ae91857e";
+const PRODUCER_VERIFIER_BASE_SHA: &str = "e77a4927f42533ae6d5fd8c1de5d43c4d6a10f2a";
+const CONSUMER_VERIFIER_BASE_SHA: &str = "5dc00501419be9f634db047cfa5b92d24aaa1129";
 const V056_AO2_TAG_TARGET: &str = "5706ec9cf3a108d20984973975c2a56b905a8173";
 const V018_CP_TAG_TARGET: &str = "6257ec23fde726d4a0133c5b62231881fb6aaa9a";
 const V056_MANIFEST_DIGEST: &str =
@@ -38,7 +38,7 @@ fn load_json(name: &str) -> Value {
 }
 
 fn load_current_vector() -> Value {
-    let path = fixture_path("ao2-execution-receipt-v0.5.9.json");
+    let path = fixture_path("ao2-execution-receipt-v0.5.10.json");
     let metadata = std::fs::symlink_metadata(&path).expect("current vector metadata");
     assert!(metadata.file_type().is_file() && !metadata.file_type().is_symlink());
     assert!(metadata.len() <= 65_536);
@@ -69,7 +69,7 @@ fn canonical_sha256(value: &Value) -> String {
 fn validate_current_execution_vector(vector: &Value, now: &str) -> Result<(), String> {
     let receipt = &vector["execution_receipt"];
     let event = &vector["expected_control_plane_event"];
-    let bridge = &vector["compatibility_bridge"];
+    let native = &vector["native_qualification"];
 
     if vector["schema_version"] != "ao.compatibility.execution-receipt-vector.v1"
         || receipt["schema_version"] != "ao2.execution-receipt.v1"
@@ -77,9 +77,9 @@ fn validate_current_execution_vector(vector: &Value, now: &str) -> Result<(), St
     {
         return Err("unsupported schema".into());
     }
-    if vector["producer"]["version"] != "v0.5.9"
-        || receipt["release"]["version"] != "v0.5.9"
-        || event["producer_release_version"] != "v0.5.9"
+    if vector["producer"]["version"] != "v0.5.10"
+        || receipt["release"]["version"] != "v0.5.10"
+        || event["producer_release_version"] != "v0.5.10"
         || vector["consumer"]["version"] != "v0.1.19"
     {
         return Err("unsupported release pair".into());
@@ -92,7 +92,7 @@ fn validate_current_execution_vector(vector: &Value, now: &str) -> Result<(), St
         return Err("source head mismatch".into());
     }
     if vector["producer"]["release_url"]
-        != "https://github.com/uesugitorachiyo/ao2/releases/tag/v0.5.9"
+        != "https://github.com/uesugitorachiyo/ao2/releases/tag/v0.5.10"
         || vector["consumer"]["release_url"]
             != "https://github.com/uesugitorachiyo/ao2-control-plane/releases/tag/v0.1.19"
     {
@@ -103,15 +103,20 @@ fn validate_current_execution_vector(vector: &Value, now: &str) -> Result<(), St
     {
         return Err("manifest digest mismatch".into());
     }
-    if bridge["predecessor_producer_version"] != "v0.5.8"
-        || bridge["predecessor_producer_tag_target"] != "a879ae7969a26d13432c7cc402174861b2444c05"
-        || bridge["predecessor_consumer_version"] != "v0.1.19"
-        || bridge["predecessor_consumer_tag_target"] != CP_TAG_TARGET
-        || bridge["contract_change"] != "unchanged"
-        || bridge["producer_schema_version"] != receipt["schema_version"]
-        || bridge["consumer_schema_version"] != event["schema_version"]
+    if vector.get("compatibility_bridge").is_some()
+        || native["ao2_version"] != "v0.5.10"
+        || native["control_plane_version"] != "v0.1.19"
+        || native["hosted_windows_run_id"] != 31279647320_i64
+        || native["macos_summary_sha256"]
+            != "5bf46636400d9f4709ab901f010c57fd329500d858bcea829f8f393dd93d9ba6"
+        || native["linux_summary_sha256"]
+            != "c22f56c4e3e6f1cdac5af698f0a7ec3ed8f18dd5ddeb9ae6b93b5f24de332cd3"
+        || native["physical_windows_summary_sha256"]
+            != "ac30e17c0eaa338ad2672a55736ffb90c82b86d1623f2a41f8d991e0a017a353"
+        || native["architecture_edges_tested"] != 16
+        || native["architecture_edges_failed"] != 0
     {
-        return Err("unsupported compatibility bridge".into());
+        return Err("native qualification mismatch".into());
     }
     if vector["release_evidence"]["promotion_plan_sha256"] != PROMOTION_PLAN_DIGEST
         || vector["release_evidence"]["physical_windows_evidence_sha256"]
@@ -238,7 +243,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
     let vector = load_current_vector();
     assert_public_safe(&vector);
     assert_eq!(
-        validate_current_execution_vector(&vector, "2026-08-08T00:00:00Z"),
+        validate_current_execution_vector(&vector, "2026-08-09T03:00:00Z"),
         Ok(())
     );
 
@@ -248,7 +253,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
     );
     assert_eq!(
         vector["vector_id"],
-        "ao2-v0.5.9-execution-receipt-to-control-plane-evidence-event"
+        "ao2-v0.5.10-execution-receipt-to-control-plane-evidence-event"
     );
     assert_eq!(
         vector["edge"],
@@ -256,7 +261,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
     );
 
     assert_eq!(vector["producer"]["repository"], "ao2");
-    assert_eq!(vector["producer"]["version"], "v0.5.9");
+    assert_eq!(vector["producer"]["version"], "v0.5.10");
     assert_eq!(vector["producer"]["tag_target"], AO2_TAG_TARGET);
     assert_eq!(
         vector["producer"]["approved_manifest_digest"],
@@ -271,7 +276,7 @@ fn consumes_ao2_execution_receipt_as_expected_evidence_event() {
     assert_eq!(receipt["schema_version"], "ao2.execution-receipt.v1");
     assert_eq!(receipt["status"], "passed");
     assert_eq!(receipt["provider_execution_required"], false);
-    assert_eq!(receipt["release"]["version"], "v0.5.9");
+    assert_eq!(receipt["release"]["version"], "v0.5.10");
     assert_eq!(receipt["release"]["tag_target"], AO2_TAG_TARGET);
 
     assert_eq!(
@@ -326,12 +331,12 @@ fn rejects_mismatched_or_authority_changing_execution_vectors() {
             Value::from("altered"),
         ),
         (
-            "/compatibility_bridge/contract_change",
-            Value::from("breaking"),
+            "/native_qualification/architecture_edges_failed",
+            Value::from(1),
         ),
         (
-            "/compatibility_bridge/predecessor_producer_tag_target",
-            Value::from("0000000000000000000000000000000000000000"),
+            "/native_qualification/physical_windows_summary_sha256",
+            Value::from("altered"),
         ),
         ("/execution_receipt/status", Value::from("failed")),
         (
@@ -353,7 +358,7 @@ fn rejects_mismatched_or_authority_changing_execution_vectors() {
         ),
         (
             "/evidence_binding/fresh_until_utc",
-            Value::from("2026-08-07T20:40:04Z"),
+            Value::from("2026-08-09T02:54:59Z"),
         ),
         (
             "/evidence_binding/producer_verifier_base_sha",
@@ -376,7 +381,7 @@ fn rejects_mismatched_or_authority_changing_execution_vectors() {
         let mut candidate = vector.clone();
         *candidate.pointer_mut(pointer).expect("fixture pointer") = replacement;
         assert!(
-            validate_current_execution_vector(&candidate, "2026-08-08T00:00:00Z").is_err(),
+            validate_current_execution_vector(&candidate, "2026-08-09T03:00:00Z").is_err(),
             "mutation at {pointer} must fail closed"
         );
     }
@@ -386,8 +391,8 @@ fn rejects_mismatched_or_authority_changing_execution_vectors() {
 fn rejects_stale_future_and_malformed_compatibility_evidence() {
     let vector = load_current_vector();
     for now in [
-        "2026-08-07T20:40:04Z",
-        "2026-08-08T20:40:06Z",
+        "2026-08-09T02:54:59Z",
+        "2026-08-10T02:55:01Z",
         "not-a-timestamp",
     ] {
         assert!(validate_current_execution_vector(&vector, now).is_err());
