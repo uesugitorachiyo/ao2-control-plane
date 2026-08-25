@@ -184,7 +184,7 @@ scripts/public_release_pair_verify.py \
 
 Expected output includes
 `control_plane_public_release_pair_verification=passed`. The summary schema is
-`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.5.11`,
+`ao2.cp-public-release-pair-verification.v1`; it records AO2 `v0.5.12`,
 control-plane `v0.1.19`, their common Linux x86_64, macOS aarch64, and Windows
 x86_64 release coverage, AO2's provenance/readiness assets, the control-plane
 promotion summary evidence, checksum coverage for `summary.json`, and a
