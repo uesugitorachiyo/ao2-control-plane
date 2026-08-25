@@ -86,7 +86,7 @@ def parse_checksums(text: str):
     return rows
 
 
-def test_release_train_tracks_current_stable_and_next_patch_candidate():
+def test_release_train_tracks_current_stable_without_unauthorized_next_patch():
     workspace = (REPO_ROOT / "Cargo.toml").read_text(encoding="utf-8")
     lockfile = (REPO_ROOT / "Cargo.lock").read_text(encoding="utf-8")
     ci = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
@@ -109,8 +109,8 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         assert f"ao2-control-plane-0.1.18-{target}.tar.gz" not in ci
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2"] == {
-        "tag": "v0.5.11",
-        "version": "0.5.11",
+        "tag": "v0.5.12",
+        "version": "0.5.12",
     }
     assert release_train_json["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.19",
@@ -124,7 +124,7 @@ def test_release_train_tracks_current_stable_and_next_patch_candidate():
         "tag": "v0.5.12",
         "version": "0.5.12",
     }
-    assert release_train_json["stable"] != release_train_json["next_patch"]
+    assert release_train_json["stable"] == release_train_json["next_patch"]
     assert 'docs/release/release-train.json' in public_export
     assert 'manifest.get("next_patch", {}).get("ao2_control_plane", {}).get("version")' in public_export
     assert 'version = "0.1.19"' not in public_export
