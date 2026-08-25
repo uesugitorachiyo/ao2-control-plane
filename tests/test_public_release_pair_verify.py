@@ -116,6 +116,31 @@ def test_published_v0_5_12_pair_is_current_release_truth():
     ).read_text(encoding="utf-8")
 
 
+def test_current_user_docs_pin_the_published_pair_and_verified_observer_install():
+    reference = (REPO_ROOT / "REFERENCE.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "AO2 stable release (`v0.5.12`)" in reference
+    assert "(`v0.5.12` / `v0.1.19`)" in reference
+    assert "AO2 stable release (`v0.5.9`)" not in reference
+
+    for needle in [
+        "ao2-control-plane-0.1.19-linux-x86_64.tar.gz",
+        "ao2-control-plane-0.1.19-macos-aarch64.tar.gz",
+        "ao2-control-plane-0.1.19-windows-x86_64.tar.gz",
+        "SHA256SUMS",
+        "install.sh",
+        "install.ps1",
+        "AO2_CP_INSTALL_DIR",
+		"env -u OPENAI_API_KEY -u ANTHROPIC_API_KEY",
+		"Remove-Item Env:OPENAI_API_KEY",
+		"control plane health check timed out",
+        "git clone --depth 1 --branch v0.1.19",
+        "does not execute AO2 workflows or approve their results",
+    ]:
+        assert needle in readme
+
+
 def test_public_release_pair_ci_assertion_tracks_stable_manifest():
     manifest = json.loads(
         (REPO_ROOT / "docs/release/release-train.json").read_text(encoding="utf-8")
