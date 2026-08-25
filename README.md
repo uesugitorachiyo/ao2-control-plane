@@ -22,22 +22,93 @@ for the cross-repository flow.
 
 ## Quick Start
 
+Install the published `v0.1.19` archive for your platform. These commands use
+a temporary directory, install only beneath it, bind only to loopback, and
+stop after the health check. The control plane remains an observer: it does not
+execute AO2 workflows or approve their results.
+
+### macOS (Apple Silicon)
+
 ```bash
-git clone https://github.com/uesugitorachiyo/ao2-control-plane
+workdir="$(mktemp -d)"
+cd "$workdir"
+curl -fLO https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/ao2-control-plane-0.1.19-macos-aarch64.tar.gz
+curl -fLO https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/SHA256SUMS
+grep '  ao2-control-plane-0.1.19-macos-aarch64.tar.gz$' SHA256SUMS | shasum -a 256 -c -
+tar -xzf ao2-control-plane-0.1.19-macos-aarch64.tar.gz
+export AO2_CP_INSTALL_DIR="$PWD/install"
+sh ./install.sh
+"$AO2_CP_INSTALL_DIR/ao2-cp-server" --version
+export AO2_CP_API_TOKEN="$(openssl rand -hex 16)"
+env -u OPENAI_API_KEY -u ANTHROPIC_API_KEY \
+  "$AO2_CP_INSTALL_DIR/ao2-cp-server" --bind 127.0.0.1:18745 --data-dir "$PWD/data" >server.log 2>&1 &
+server_pid=$!
+curl -fsS --retry 10 --retry-connrefused http://127.0.0.1:18745/healthz
+kill "$server_pid"
+```
+
+### Linux x86_64
+
+```bash
+workdir="$(mktemp -d)"
+cd "$workdir"
+curl -fLO https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/ao2-control-plane-0.1.19-linux-x86_64.tar.gz
+curl -fLO https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/SHA256SUMS
+grep '  ao2-control-plane-0.1.19-linux-x86_64.tar.gz$' SHA256SUMS | sha256sum -c -
+tar -xzf ao2-control-plane-0.1.19-linux-x86_64.tar.gz
+export AO2_CP_INSTALL_DIR="$PWD/install"
+sh ./install.sh
+"$AO2_CP_INSTALL_DIR/ao2-cp-server" --version
+export AO2_CP_API_TOKEN="$(openssl rand -hex 16)"
+env -u OPENAI_API_KEY -u ANTHROPIC_API_KEY \
+  "$AO2_CP_INSTALL_DIR/ao2-cp-server" --bind 127.0.0.1:18745 --data-dir "$PWD/data" >server.log 2>&1 &
+server_pid=$!
+curl -fsS --retry 10 --retry-connrefused http://127.0.0.1:18745/healthz
+kill "$server_pid"
+```
+
+### Windows x86_64
+
+```powershell
+$workdir = Join-Path ([IO.Path]::GetTempPath()) ("ao2-control-plane-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $workdir | Out-Null
+Set-Location $workdir
+$archive = "ao2-control-plane-0.1.19-windows-x86_64.tar.gz"
+Invoke-WebRequest "https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/$archive" -OutFile $archive
+Invoke-WebRequest "https://github.com/uesugitorachiyo/ao2-control-plane/releases/download/v0.1.19/SHA256SUMS" -OutFile SHA256SUMS
+$expected = ((Get-Content SHA256SUMS | Where-Object { $_ -match "  $([regex]::Escape($archive))$" }) -split "\s+")[0].ToLowerInvariant()
+if ((Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant() -ne $expected) { throw "archive checksum mismatch" }
+tar -xzf $archive
+$env:AO2_CP_INSTALL_DIR = Join-Path $PWD "install"
+.\install.ps1
+& (Join-Path $env:AO2_CP_INSTALL_DIR "ao2-cp-server.exe") --version
+$env:AO2_CP_API_TOKEN = [guid]::NewGuid().ToString("N")
+Remove-Item Env:OPENAI_API_KEY -ErrorAction SilentlyContinue
+Remove-Item Env:ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
+$server = Start-Process -FilePath (Join-Path $env:AO2_CP_INSTALL_DIR "ao2-cp-server.exe") -ArgumentList @("--bind", "127.0.0.1:18745", "--data-dir", (Join-Path $PWD "data")) -PassThru
+$health = $null
+for ($attempt = 0; $attempt -lt 10; $attempt++) {
+    if ($server.HasExited) { throw "control plane exited before health check" }
+    try {
+        $health = Invoke-RestMethod http://127.0.0.1:18745/healthz
+        break
+    } catch {
+        Start-Sleep -Seconds 1
+    }
+}
+if (-not $health) { throw "control plane health check timed out" }
+Stop-Process -Id $server.Id
+```
+
+For a repeatable local development observer on `127.0.0.1:18745`, use
+`scripts/start-long-lived-dev.sh`. To build from source instead, pin the same
+release tag rather than cloning moving `main`:
+
+```bash
+git clone --depth 1 --branch v0.1.19 https://github.com/uesugitorachiyo/ao2-control-plane
 cd ao2-control-plane
 cargo build --release -p ao2-cp-server
-export AO2_CP_API_TOKEN="$(openssl rand -hex 16)"
-./target/release/ao2-cp-server --data-dir ./data
 ```
-
-For a repeatable local observer on `127.0.0.1:18745`:
-
-```bash
-scripts/start-long-lived-dev.sh
-```
-
-The bootstrap stores its token in a mode-`0600` file and prints token-free
-health metadata.
 
 ## Common Endpoints
 
