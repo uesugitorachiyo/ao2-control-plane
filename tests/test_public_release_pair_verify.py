@@ -77,7 +77,7 @@ def test_public_release_pair_verify_defaults_follow_release_train_manifest():
         "tag": "v0.1.19",
         "version": "0.1.19",
     }
-    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.12", "version": "0.5.12"}
+    assert manifest["next_patch"]["ao2"] == {"tag": "v0.5.13", "version": "0.5.13"}
     assert manifest["next_patch"]["ao2_control_plane"] == {
         "tag": "v0.1.19",
         "version": "0.1.19",
@@ -110,7 +110,12 @@ def test_published_v0_5_12_pair_is_current_release_truth():
     }
 
     assert manifest["stable"] == expected_pair
-    assert manifest["next_patch"] == expected_pair
+    assert manifest["next_patch"] == {
+        "ao2": {"tag": "v0.5.13", "version": "0.5.13"},
+        "ao2_control_plane": {"tag": "v0.1.19", "version": "0.1.19"},
+        "promotion_confirm": "promote-stable-v0.5.13-v0.1.19",
+        "public_operator_confirm": "public-release-reviewed-v0.5.13-v0.1.19",
+    }
     assert "AO2 `v0.5.12`" in (
         REPO_ROOT / "docs" / "runbooks" / "release-smoke.md"
     ).read_text(encoding="utf-8")
