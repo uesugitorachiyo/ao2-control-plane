@@ -109,8 +109,8 @@ def test_release_train_tracks_current_stable_and_authorized_next_patch():
         assert f"ao2-control-plane-0.1.18-{target}.tar.gz" not in ci
     release_train_json = json.loads(release_train)
     assert release_train_json["stable"]["ao2"] == {
-        "tag": "v0.5.12",
-        "version": "0.5.12",
+        "tag": "v0.5.13",
+        "version": "0.5.13",
     }
     assert release_train_json["stable"]["ao2_control_plane"] == {
         "tag": "v0.1.19",
